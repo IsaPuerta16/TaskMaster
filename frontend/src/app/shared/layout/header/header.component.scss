@@ -1,0 +1,117 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 2rem;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid #e2e8f0;
+  transition: box-shadow 0.3s ease;
+}
+
+.header:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.logo {
+  font-family: var(--font-logo);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1e3a5f;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: transform 0.3s ease, color 0.2s;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+  color: #0f3460;
+}
+
+.nav {
+  display: flex;
+  gap: 2rem;
+  margin-left: 2.5rem;
+}
+
+.nav-link {
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  color: #64748b;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #1e3a5f;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: #1e3a5f;
+}
+
+.nav-link.active {
+  font-weight: var(--weight-semibold);
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  margin-left: auto;
+  margin-right: 1rem;
+  min-width: 220px;
+  transition: all 0.3s ease;
+}
+
+.search-bar:focus-within {
+  box-shadow: 0 0 0 2px rgba(30, 58, 95, 0.2);
+  background: #fff;
+  border-color: #1e3a5f;
+}
+
+.search-icon {
+  color: #94a3b8;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.search-bar input {
+  border: none;
+  outline: none;
+  font-size: var(--text-body);
+  width: 100%;
+  background: transparent;
+}
+
+.user-icon {
+  display: flex;
+  color: #64748b;
+  padding: 0.5rem;
+  transition: transform 0.3s ease;
+}
+
+.user-icon:hover {
+  color: #1e3a5f;
+  transform: scale(1.1);
+}

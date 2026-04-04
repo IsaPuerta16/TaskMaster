@@ -20,3 +20,6 @@ build/
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Base de datos local
+*.db

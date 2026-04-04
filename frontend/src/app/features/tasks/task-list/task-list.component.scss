@@ -1,0 +1,50 @@
+.task-list-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+  padding: 2rem;
+}
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+.back { color: #a0a0a0; text-decoration: none; font-size: var(--text-body); }
+.back:hover { color: #fff; }
+.header h1 { flex: 1; margin: 0; font-size: var(--text-h2); font-weight: var(--weight-bold); }
+.btn { padding: 0.5rem 1rem; border-radius: 8px; text-decoration: none; font-weight: var(--weight-semibold); font-size: var(--text-body); }
+.btn-primary { background: #e94560; color: #fff; }
+.filters { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.filters button {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.05);
+  color: #a0a0a0;
+  cursor: pointer;
+  font-size: var(--text-body);
+}
+.filters button.active { background: #e94560; color: #fff; border-color: #e94560; }
+.loading, .empty { color: #a0a0a0; }
+.empty a { color: #e94560; }
+.task-list { list-style: none; padding: 0; margin: 0; }
+.task-item {
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.task-item.overdue { border-left: 4px solid #e94560; }
+.task-item.completed { opacity: 0.7; }
+.task-main { display: flex; align-items: center; gap: 1rem; }
+.task-main input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
+.task-info { flex: 1; min-width: 0; }
+.task-title { color: #fff; text-decoration: none; font-weight: var(--weight-semibold); font-size: var(--text-body); }
+.task-title:hover { color: #e94560; }
+.task-meta { font-size: var(--text-body-sm); color: #a0a0a0; display: block; margin-top: 0.25rem; }
+.task-actions { display: flex; gap: 0.5rem; }
+.btn-icon { background: none; border: none; cursor: pointer; font-size: var(--text-h4); padding: 0.25rem; }
+.task-desc { margin: 0.5rem 0 0 2.5rem; font-size: var(--text-body); color: #a0a0a0; }
