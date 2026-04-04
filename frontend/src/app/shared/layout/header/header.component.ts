@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { SearchService } from '@core/services/search.service';
+import { AuthService } from '@core/services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -12,6 +13,7 @@ import { SearchService } from '@core/services/search.service';
 })
 export class HeaderComponent {
   readonly search = inject(SearchService);
+  readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
   constructor() {

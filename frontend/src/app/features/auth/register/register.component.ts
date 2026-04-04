@@ -8,8 +8,9 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
+import { safeInternalPath } from '@core/utils/return-url';
 import { HeaderComponent } from '@shared/layout';
 
 @Component({
@@ -133,6 +134,7 @@ export class RegisterComponent {
     private fb: FormBuilder,
     private auth: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
   ) {
     this.form = this.fb.group(
       {
@@ -166,7 +168,10 @@ export class RegisterComponent {
         this.form.value.fullName,
       )
       .subscribe({
-        next: () => this.router.navigate(['/dashboard'], { replaceUrl: true }),
+        next: () => {
+          const ret = safeInternalPath(this.route.snapshot.queryParamMap.get('returnUrl'));
+          void this.router.navigateByUrl(ret ?? '/dashboard', { replaceUrl: true });
+        },
         error: (err: { error?: { message?: string } }) => {
           this.errorMessage = err.error?.message || 'Error al registrar';
           this.loading = false;

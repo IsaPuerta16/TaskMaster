@@ -1,0 +1,170 @@
+<div class="dashboard-home">
+  <app-header />
+
+  <div class="dashboard-home__layout">
+    <aside class="dashboard-sidebar" aria-label="Menú de la aplicación">
+      <nav class="dashboard-sidebar__nav">
+        <a routerLink="/dashboard" class="dashboard-sidebar__link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          <span class="dashboard-sidebar__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </span>
+          Mi Perfil
+        </a>
+        <a routerLink="/tasks" class="dashboard-sidebar__link" routerLinkActive="active">
+          <span class="dashboard-sidebar__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </span>
+          Mis Tareas
+        </a>
+        <a routerLink="/productividad" class="dashboard-sidebar__link" routerLinkActive="active">
+          <span class="dashboard-sidebar__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+          </span>
+          Productividad
+        </a>
+        <a routerLink="/asistente-ia" class="dashboard-sidebar__link" routerLinkActive="active">
+          <span class="dashboard-sidebar__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M1 9h3M20 15h3M1 15h3"/></svg>
+          </span>
+          Asistente IA
+        </a>
+        <a href="#" class="dashboard-sidebar__link" (click)="$event.preventDefault()">
+          <span class="dashboard-sidebar__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </span>
+          Notificaciones
+        </a>
+      </nav>
+      <div class="dashboard-sidebar__divider" role="presentation"></div>
+      <nav class="dashboard-sidebar__nav dashboard-sidebar__nav--bottom">
+        <a href="#" class="dashboard-sidebar__link" (click)="$event.preventDefault()">
+          <span class="dashboard-sidebar__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          </span>
+          Configuración
+        </a>
+        <button type="button" class="dashboard-sidebar__logout" (click)="auth.logout()">
+          Cerrar Sesión
+        </button>
+      </nav>
+    </aside>
+
+    <div class="dashboard-home__content">
+      <header class="dashboard-profile">
+        <img
+          class="dashboard-profile__avatar"
+          [src]="avatarUrl"
+          width="120"
+          height="120"
+          alt=""
+        />
+        <div class="dashboard-profile__text">
+          <p class="dashboard-profile__handle">{{ userHandle }}</p>
+          <p class="dashboard-profile__subtitle">Gestiona tu cuenta</p>
+          <a routerLink="/tasks/new" class="dashboard-profile__cta">+ Nueva Tarea</a>
+        </div>
+      </header>
+
+      <section class="dashboard-calendar" aria-labelledby="calendar-title">
+        <div class="dashboard-calendar__toolbar">
+          <div class="dashboard-calendar__month-nav">
+            <button type="button" class="dashboard-calendar__nav-btn" (click)="prevMonth()" aria-label="Mes anterior">
+              <span class="dashboard-calendar__nav-icon" aria-hidden="true">‹</span>
+            </button>
+            <h1 id="calendar-title" class="dashboard-calendar__title">{{ monthTitle }}</h1>
+            <button type="button" class="dashboard-calendar__nav-btn" (click)="nextMonth()" aria-label="Mes siguiente">
+              <span class="dashboard-calendar__nav-icon" aria-hidden="true">›</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="dashboard-calendar__wrap">
+          <table class="dashboard-calendar__grid">
+            <thead>
+              <tr>
+                <th scope="col" class="dashboard-calendar__th-week">SEMANA</th>
+                <th scope="col">Lunes</th>
+                <th scope="col">Martes</th>
+                <th scope="col">Miércoles</th>
+                <th scope="col">Jueves</th>
+                <th scope="col">Viernes</th>
+                <th scope="col">Sábado</th>
+                <th scope="col">Domingo</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of calendarWeeks; track row.weekLabel + '-' + $index) {
+                <tr>
+                  <th scope="row" class="dashboard-calendar__week-num">{{ row.weekLabel }}</th>
+                  @for (cell of row.days; track cell.dateKey) {
+                    <td
+                      class="dashboard-calendar__day"
+                      [class.dashboard-calendar__day--muted]="!cell.inMonth"
+                      [class.dashboard-calendar__day--holiday]="cell.isHoliday"
+                      [class.dashboard-calendar__day--has-preview]="cell.preview"
+                      [class.dashboard-calendar__day--today]="cell.isToday"
+                      (click)="openDay(cell)"
+                      [attr.title]="cell.holidayName || (cell.preview ? 'Editar notas' : 'Añadir notas')"
+                      role="button"
+                      tabindex="0"
+                      (keydown.enter)="openDay(cell)"
+                      (keydown.space)="$event.preventDefault(); openDay(cell)"
+                    >
+                      <div class="dashboard-calendar__cell-inner">
+                        <span class="dashboard-calendar__day-num">{{ cell.day }}</span>
+                        @if (cell.preview) {
+                          <p class="dashboard-calendar__day-preview">{{ cell.preview }}</p>
+                        }
+                      </div>
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+@if (modalOpen) {
+  <div class="day-modal-backdrop" (click)="closeModal()" role="presentation" aria-hidden="true"></div>
+  <div
+    class="day-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="day-modal-title"
+    (click)="$event.stopPropagation()"
+  >
+    <button type="button" class="day-modal__close" (click)="closeModal()" aria-label="Cerrar">×</button>
+    <h2 id="day-modal-title" class="day-modal__title">{{ selectedDateLabel }}</h2>
+    @if (selectedHolidayName) {
+      <p class="day-modal__holiday">Festivo: {{ selectedHolidayName }}</p>
+    }
+
+    <ul class="day-modal__list">
+      @for (note of notesForSelected(); track note.id) {
+        <li class="day-modal__item">
+          <span class="day-modal__item-text">{{ note.text }}</span>
+          <button type="button" class="day-modal__remove" (click)="removeNote(note.id)" aria-label="Eliminar nota">×</button>
+        </li>
+      }
+    </ul>
+
+    <label class="day-modal__label" for="day-note-input">Añadir texto o emojis</label>
+    <div class="day-modal__emoji-row" aria-label="Emojis rápidos">
+      @for (em of quickEmojis; track em) {
+        <button type="button" class="day-modal__emoji" (click)="insertEmoji(em)" [attr.aria-label]="'Insertar ' + em">{{ em }}</button>
+      }
+    </div>
+    <textarea
+      id="day-note-input"
+      class="day-modal__textarea"
+      [(ngModel)]="draftText"
+      rows="3"
+      placeholder="Escribe aquí… (también puedes pegar emojis desde el teclado)"
+    ></textarea>
+    <button type="button" class="day-modal__add" (click)="addNote()">Guardar en esta fecha</button>
+  </div>
+}

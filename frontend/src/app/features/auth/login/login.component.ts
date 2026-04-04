@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
+import { safeInternalPath } from '@core/utils/return-url';
 import { HeaderComponent } from '@shared/layout';
 
 @Component({
@@ -88,6 +89,7 @@ export class LoginComponent {
     private fb: FormBuilder,
     private auth: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
   ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -102,7 +104,10 @@ export class LoginComponent {
     this.auth
       .login(this.form.value.email, this.form.value.password)
       .subscribe({
-        next: () => this.router.navigate(['/dashboard'], { replaceUrl: true }),
+        next: () => {
+          const ret = safeInternalPath(this.route.snapshot.queryParamMap.get('returnUrl'));
+          void this.router.navigateByUrl(ret ?? '/dashboard', { replaceUrl: true });
+        },
         error: (err: { error?: { message?: string } }) => {
           this.errorMessage = err.error?.message || 'Credenciales inválidas';
           this.loading = false;
