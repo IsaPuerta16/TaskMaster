@@ -2,14 +2,31 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   color: #fff;
-  padding: 2rem;
+  padding: 0 2rem 2rem;
   max-width: 600px;
   margin: 0 auto;
 }
-.header { margin-bottom: 2rem; }
-.back { color: #a0a0a0; text-decoration: none; font-size: var(--text-body); }
-.back:hover { color: #fff; }
-h1 { margin: 0.5rem 0 0; font-size: var(--text-h2); font-weight: var(--weight-bold); }
+
+.task-form-page__toolbar {
+  margin-bottom: 1.5rem;
+  padding-top: 0.5rem;
+}
+
+.back {
+  color: #a0a0a0;
+  text-decoration: none;
+  font-size: var(--text-body);
+}
+
+.back:hover {
+  color: #fff;
+}
+
+.task-form-page__toolbar h1 {
+  margin: 0.5rem 0 0;
+  font-size: var(--text-h2);
+  font-weight: var(--weight-bold);
+}
 .form-group { margin-bottom: 1.25rem; }
 label { display: block; color: #e0e0e0; font-size: var(--text-body-sm); margin-bottom: 0.5rem; }
 input, textarea, select {

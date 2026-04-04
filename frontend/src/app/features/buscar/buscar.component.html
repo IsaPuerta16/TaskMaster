@@ -1,0 +1,31 @@
+<div class="buscar">
+  <app-header />
+
+  <main class="main">
+    <h1 class="buscar__title">Resultados de búsqueda</h1>
+    @if (term()) {
+      <p class="buscar__meta">
+        Mostrando coincidencias para «<strong>{{ term() }}</strong>»
+      </p>
+    } @else {
+      <p class="buscar__meta">Explora las secciones del sitio. Escribe arriba para filtrar.</p>
+    }
+
+    @if (results().length === 0) {
+      <p class="buscar__empty">No hay resultados. Prueba con otras palabras (por ejemplo: tareas, IA, nosotros).</p>
+    } @else {
+      <ul class="buscar__list">
+        @for (item of results(); track item.route) {
+          <li>
+            <a [routerLink]="item.route" class="buscar__link">
+              <span class="buscar__link-title">{{ item.title }}</span>
+              <span class="buscar__link-desc">{{ item.description }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  </main>
+
+  <app-footer />
+</div>

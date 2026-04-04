@@ -3,17 +3,20 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TaskService, TaskPriority, Task } from '@core/services/task.service';
+import { HeaderComponent } from '@shared/layout';
 
 @Component({
   selector: 'app-task-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, HeaderComponent],
   template: `
     <div class="task-form-page">
-      <header class="header">
+      <app-header />
+
+      <div class="task-form-page__toolbar">
         <a routerLink="/tasks" class="back">← Volver</a>
         <h1>{{ isEdit ? 'Editar tarea' : 'Nueva tarea' }}</h1>
-      </header>
+      </div>
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
         <div class="form-group">

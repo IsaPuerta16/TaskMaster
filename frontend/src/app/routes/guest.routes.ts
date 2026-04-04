@@ -7,6 +7,11 @@ import { guestGuard } from '../core/guards/guest.guard';
  */
 export const guestRoutes: Routes = [
   {
+    path: 'buscar',
+    loadComponent: () =>
+      import('../features/buscar/buscar.component').then((m) => m.BuscarComponent),
+  },
+  {
     path: '',
     loadComponent: () =>
       import('../features/landing/landing.component').then((m) => m.LandingComponent),
@@ -32,6 +37,12 @@ export const guestRoutes: Routes = [
     path: 'asistente-ia',
     loadComponent: () =>
       import('../features/asistente-ia/asistente-ia.component').then((m) => m.AsistenteIaComponent),
+    canActivate: [guestGuard],
+  },
+  {
+    path: 'nosotros',
+    loadComponent: () =>
+      import('../features/nosotros/nosotros.component').then((m) => m.NosotrosComponent),
     canActivate: [guestGuard],
   },
   {

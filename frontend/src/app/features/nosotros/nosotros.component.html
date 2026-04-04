@@ -1,0 +1,216 @@
+<div class="nosotros">
+  <app-header />
+
+  <main class="main">
+    <section class="team" aria-labelledby="team-title">
+      <h1 id="team-title" class="team__title">Equipo de Desarrollo</h1>
+
+      <div class="team__grid">
+        @for (member of team; track member.name) {
+          <article class="team-member">
+            <div [class]="'team-member__avatar team-member__avatar--' + member.variant">
+              <img
+                class="team-member__photo"
+                [src]="member.avatarUrl"
+                [alt]="'Avatar ilustrado de ' + member.name"
+                width="140"
+                height="140"
+                loading="lazy"
+                decoding="async"
+                referrerpolicy="no-referrer"
+              />
+            </div>
+            <p class="team-member__name">{{ member.name }}</p>
+            <p class="team-member__role">{{ member.role }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="info" aria-label="Información del proyecto y académica">
+      <article class="about-card">
+        <h2 class="about-card__title">Sobre el proyecto</h2>
+        <p class="about-card__desc">
+          TaskMaster es un <strong>prototipo académico</strong> de gestor inteligente de tareas personales: une una interfaz
+          web sencilla con ideas de productividad y un asistente basado en IA para ayudarte a decidir qué hacer primero.
+          Está pensado como demostración de buenas prácticas de desarrollo, accesibilidad y trabajo en equipo.
+        </p>
+
+        <h3 class="about-card__keys-label">Ideas clave</h3>
+        <ul class="about-card__list about-card__list--compact">
+          <li>
+            <div class="about-card__li-body">
+              <span class="about-card__li-title">Organización y prioridades</span>
+              <span class="about-card__li-text">Listas claras, fechas límite visibles y orden por urgencia.</span>
+            </div>
+          </li>
+          <li>
+            <div class="about-card__li-body">
+              <span class="about-card__li-title">Seguimiento de productividad</span>
+              <span class="about-card__li-text">Métricas y vistas que reflejan tu avance real.</span>
+            </div>
+          </li>
+          <li>
+            <div class="about-card__li-body">
+              <span class="about-card__li-title">Asistente IA para planificar</span>
+              <span class="about-card__li-text">Sugerencias y recordatorios en lenguaje natural.</span>
+            </div>
+          </li>
+          <li>
+            <div class="about-card__li-body">
+              <span class="about-card__li-title">Experiencia unificada</span>
+              <span class="about-card__li-text">Misma identidad y navegación coherente en todo el sitio.</span>
+            </div>
+          </li>
+        </ul>
+      </article>
+
+      <div class="academic-stack">
+        <article class="academic-card">
+          <span class="academic-card__label">Universidad</span>
+          <p class="academic-card__value">Universidad Autónoma de Manizales</p>
+        </article>
+        <article class="academic-card">
+          <span class="academic-card__label">Programa</span>
+          <p class="academic-card__value">Ingeniería en Sistemas</p>
+        </article>
+        <article class="academic-card">
+          <span class="academic-card__label">Curso</span>
+          <p class="academic-card__value">Proyecto de Desarrollo de Software</p>
+        </article>
+        <article class="academic-card">
+          <span class="academic-card__label">Profesor</span>
+          <p class="academic-card__value">German Alonzo Gonzales Martinez</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="about-deep" aria-labelledby="about-deep-title">
+      <div class="about-deep__intro">
+        <h2 id="about-deep-title" class="about-deep__title">TaskMaster, explicado con calma</h2>
+        <p class="about-deep__lead">
+          Aquí profundizamos en lo que hace especial al proyecto: no solo una lista de funciones, sino el sentido de cada
+          pieza para estudiar, trabajar y organizarte mejor.
+        </p>
+      </div>
+
+      <div class="about-deep__blocks">
+        <article class="deep-block deep-block--1">
+          <span class="deep-block__num" aria-hidden="true">01</span>
+          <div class="deep-block__inner">
+            <h3 class="deep-block__heading">Organización que se entiende a la primera</h3>
+            <p class="deep-block__p">
+              Cuando todo parece urgente, lo que más ayuda es <strong>ver el panorama completo</strong>. TaskMaster te invita a
+              capturar tareas en un solo lugar, asignar fechas límite y ordenar por prioridad para que el estrés no decida por ti.
+            </p>
+            <p class="deep-block__p">
+              La idea es que sepas, de un vistazo, qué vence pronto y qué puede esperar un poco más. Así reduces la carga mental
+              de recordar fechas sueltas en chats, cuadernos o notas sueltas.
+            </p>
+          </div>
+        </article>
+
+        <article class="deep-block deep-block--2">
+          <span class="deep-block__num" aria-hidden="true">02</span>
+          <div class="deep-block__inner">
+            <h3 class="deep-block__heading">Productividad con contexto, no solo números</h3>
+            <p class="deep-block__p">
+              Las estadísticas sirven cuando <strong>cuentan una historia</strong>: si avanzas en bloques cortos, si acumulas
+              retrasos en un tipo de tarea o si ciertos días te funcionan mejor. El prototipo apunta a mostrar tu ritmo de forma
+              honesta, sin humo ni gamificación vacía.
+            </p>
+            <p class="deep-block__p">
+              El objetivo no es presionarte, sino darte señales para ajustar hábitos: repartir carga, anticipar entregas y
+              celebrar pequeños avances que antes pasaban desapercibidos.
+            </p>
+          </div>
+        </article>
+
+        <article class="deep-block deep-block--3">
+          <span class="deep-block__num" aria-hidden="true">03</span>
+          <div class="deep-block__inner">
+            <h3 class="deep-block__heading">Un asistente que habla contigo, no contra ti</h3>
+            <p class="deep-block__p">
+              El asistente IA está pensado para <strong>acompañar la planificación</strong>: puedes formular dudas como le
+              harías a un compañero —por ejemplo, cómo repartir estudio antes de un parcial o qué bloque conviene atacar primero.
+            </p>
+            <p class="deep-block__p">
+              Las respuestas buscan ser útiles y contextualizadas, siempre como apoyo a tu criterio. No sustituye el juicio de
+              un docente; sí puede aliviar la fricción de organizar cuando el tiempo aprieta.
+            </p>
+          </div>
+        </article>
+
+        <article class="deep-block deep-block--4">
+          <span class="deep-block__num" aria-hidden="true">04</span>
+          <div class="deep-block__inner">
+            <h3 class="deep-block__heading">Una sola experiencia, de la portada al tablero</h3>
+            <p class="deep-block__p">
+              Cuidamos la <strong>coherencia visual y verbal</strong>: tipografías, colores y tono de los textos se alinean
+              entre la página pública y el área de trabajo. Eso reduce la curva de aprendizaje y transmite cuidado por el detalle.
+            </p>
+            <p class="deep-block__p">
+              Queremos que TaskMaster se sienta como un producto redondo, aun siendo prototipo: cada pantalla refuerza la
+              misma promesa —organización clara y calmada.
+            </p>
+          </div>
+        </article>
+
+        <article class="deep-block deep-block--5">
+          <span class="deep-block__num" aria-hidden="true">05</span>
+          <div class="deep-block__inner">
+            <h3 class="deep-block__heading">Raíces académicas y trabajo en equipo</h3>
+            <p class="deep-block__p">
+              Este software nace en el marco del <strong>Proyecto de Desarrollo de Software</strong> de la Universidad Autónoma
+              de Manizales, con roles definidos —líder, frontend, backend, IA y pruebas— y decisiones documentadas para el curso.
+            </p>
+            <p class="deep-block__p">
+              Eso nos obliga a pensar en trazabilidad: qué se construyó, por qué y con qué aprendizajes. La transparencia frente
+              al profesor y al equipo es parte del valor del entregable, no un adorno.
+            </p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="more" aria-labelledby="more-tech-title">
+      <div class="more__block more__block--tech">
+        <h2 id="more-tech-title" class="more__heading">Tecnologías y herramientas</h2>
+        <p class="more__lead">
+          Piezas con las que construimos el prototipo: frontend moderno, API propia y buenas prácticas de despliegue.
+        </p>
+        <ul class="more__tags" aria-label="Lista de tecnologías">
+          <li>Angular</li>
+          <li>TypeScript</li>
+          <li>SCSS</li>
+          <li>Node.js</li>
+          <li>REST API</li>
+          <li>Git</li>
+        </ul>
+      </div>
+
+      <div class="more__goals">
+        <article class="goal-card">
+          <h3 class="goal-card__title">Objetivo académico</h3>
+          <p class="goal-card__text">
+            Aplicar ciclo de vida de software, trabajo colaborativo y entregas iterativas en un proyecto web real.
+          </p>
+        </article>
+        <article class="goal-card">
+          <h3 class="goal-card__title">Objetivo de producto</h3>
+          <p class="goal-card__text">
+            Ofrecer un flujo simple para registrar tareas, ver progreso y recibir sugerencias sin fricción.
+          </p>
+        </article>
+        <article class="goal-card">
+          <h3 class="goal-card__title">Objetivo técnico</h3>
+          <p class="goal-card__text">
+            Separar frontend y backend, validar datos y mantener una base de código clara para futuras mejoras.
+          </p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <app-footer />
+</div>

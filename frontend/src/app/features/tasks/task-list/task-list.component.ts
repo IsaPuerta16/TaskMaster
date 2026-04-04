@@ -2,18 +2,21 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TaskService, Task, TaskStatus } from '@core/services/task.service';
+import { HeaderComponent } from '@shared/layout';
 
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, HeaderComponent],
   template: `
     <div class="task-list-page">
-      <header class="header">
+      <app-header />
+
+      <div class="task-list-page__toolbar">
         <a routerLink="/dashboard" class="back">← Dashboard</a>
         <h1>Mis tareas</h1>
         <a routerLink="/tasks/new" class="btn btn-primary">+ Nueva tarea</a>
-      </header>
+      </div>
 
       <div class="filters">
         <button

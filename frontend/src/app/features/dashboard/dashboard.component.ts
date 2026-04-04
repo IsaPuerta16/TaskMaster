@@ -3,20 +3,20 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 import { TaskService, TaskStats } from '@core/services/task.service';
+import { HeaderComponent } from '@shared/layout';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, HeaderComponent],
   template: `
     <div class="dashboard">
-      <header class="header">
-        <h1>TaskMaster</h1>
-        <div class="user-menu">
-          <span>{{ auth.user()?.fullName }}</span>
-          <button class="btn btn-outline" (click)="auth.logout()">Salir</button>
-        </div>
-      </header>
+      <app-header />
+
+      <div class="dashboard__bar">
+        <span class="dashboard__user">{{ auth.user()?.fullName }}</span>
+        <button type="button" class="btn btn-outline" (click)="auth.logout()">Salir</button>
+      </div>
 
       <main class="main">
         <section class="stats" *ngIf="stats">

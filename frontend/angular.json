@@ -32,7 +32,7 @@
           "skipTests": true
         }
       },
-      "root": "",
+      "root": ".",
       "sourceRoot": "src",
       "prefix": "app",
       "architect": {
@@ -52,7 +52,7 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "../src/styles.scss"
             ],
             "scripts": []
           },
@@ -112,7 +112,7 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "../src/styles.scss"
             ],
             "scripts": []
           }

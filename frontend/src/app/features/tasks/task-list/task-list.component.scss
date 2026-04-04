@@ -2,18 +2,34 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   color: #fff;
-  padding: 2rem;
+  padding: 0 2rem 2rem;
 }
-.header {
+
+.task-list-page__toolbar {
   display: flex;
   align-items: center;
   gap: 1rem;
   margin-bottom: 2rem;
   flex-wrap: wrap;
+  padding-top: 0.5rem;
 }
-.back { color: #a0a0a0; text-decoration: none; font-size: var(--text-body); }
-.back:hover { color: #fff; }
-.header h1 { flex: 1; margin: 0; font-size: var(--text-h2); font-weight: var(--weight-bold); }
+
+.back {
+  color: #a0a0a0;
+  text-decoration: none;
+  font-size: var(--text-body);
+}
+
+.back:hover {
+  color: #fff;
+}
+
+.task-list-page__toolbar h1 {
+  flex: 1;
+  margin: 0;
+  font-size: var(--text-h2);
+  font-weight: var(--weight-bold);
+}
 .btn { padding: 0.5rem 1rem; border-radius: 8px; text-decoration: none; font-weight: var(--weight-semibold); font-size: var(--text-body); }
 .btn-primary { background: #e94560; color: #fff; }
 .filters { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
