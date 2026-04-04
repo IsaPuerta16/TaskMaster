@@ -52,7 +52,7 @@
               "src/assets"
             ],
             "styles": [
-              "../src/styles.scss"
+              "src/styles.scss"
             ],
             "scripts": []
           },
@@ -112,12 +112,15 @@
               "src/assets"
             ],
             "styles": [
-              "../src/styles.scss"
+              "src/styles.scss"
             ],
             "scripts": []
           }
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "44a44379-61a4-4524-b92a-e0119f0d687a"
   }
 }

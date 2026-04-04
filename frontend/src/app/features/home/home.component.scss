@@ -1,0 +1,384 @@
+$accent:   #2dd4bf;
+$accent-bg: rgba(45, 212, 191, 0.12);
+$card-bg:  #1e1e3a;
+$card-border: rgba(255, 255, 255, 0.06);
+$text:     #e0e0f0;
+$text-muted: #8b8ba7;
+$pink: #f472b6;
+
+/* ── Page ──────────────────────────────────────── */
+.home {
+  max-width: 1200px;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.75rem;
+  }
+
+  &__title {
+    font-size: 1.625rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.25rem;
+  }
+
+  &__subtitle {
+    font-size: 0.875rem;
+    color: $text-muted;
+    margin: 0;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1.55fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.25rem;
+  background: $accent;
+  color: #0f0f23;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity 0.15s, transform 0.15s;
+  white-space: nowrap;
+  &:hover { opacity: 0.9; transform: translateY(-1px); }
+}
+
+/* ── Card base ─────────────────────────────────── */
+.card {
+  background: $card-bg;
+  border: 1px solid $card-border;
+  border-radius: 14px;
+  padding: 1.5rem;
+}
+
+/* ── Calendar card ─────────────────────────────── */
+.calendar-card {
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+
+  &__month {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+  }
+
+  &__nav {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  &__legend {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid $card-border;
+  }
+}
+
+.cal-nav-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid $card-border;
+  border-radius: 6px;
+  color: $text-muted;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  transition: background 0.15s, color 0.15s;
+  &:hover { background: rgba(255,255,255,0.1); color: #fff; }
+}
+
+.calendar {
+  &__weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    margin-bottom: 0.5rem;
+
+    span {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: $text-muted;
+      padding: 0.25rem 0;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+  }
+
+  &__cell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: $text;
+    cursor: default;
+    transition: background 0.15s;
+    position: relative;
+
+    &:hover:not(&--empty) {
+      background: rgba(255,255,255,0.06);
+    }
+
+    &--has-task {
+      background: $accent-bg;
+      color: $accent;
+      font-weight: 700;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 4px;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: $accent;
+      }
+    }
+
+    &--empty { cursor: default; }
+  }
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $accent;
+  flex-shrink: 0;
+}
+
+.legend-label {
+  font-size: 0.75rem;
+  color: $text-muted;
+}
+
+/* ── Upcoming tasks ────────────────────────────── */
+.upcoming {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid $card-border;
+
+  &__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: $text-muted;
+    margin: 0 0 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid $card-border;
+    font-size: 0.8125rem;
+  }
+
+  &__day {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $accent;
+    white-space: nowrap;
+    min-width: 3.5rem;
+  }
+
+  &__label {
+    flex: 1;
+    color: $text;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__priority {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    text-transform: capitalize;
+    white-space: nowrap;
+
+    &--baja    { background: rgba(100,200,100,0.15); color: #4ade80; }
+    &--media   { background: rgba(251,191,36,0.15);  color: #fbbf24; }
+    &--alta    { background: rgba(251,146,60,0.15);  color: #fb923c; }
+    &--urgente { background: rgba(239,68,68,0.15);   color: #f87171; }
+  }
+}
+
+/* ── Side column ───────────────────────────────── */
+.side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ── Notes card ────────────────────────────────── */
+.notes-card {
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+  }
+}
+
+.notes-list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.note-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  color: $text;
+  border-left: 3px solid;
+
+  &--teal   { background: rgba(45,212,191,0.08); border-color: $accent; }
+  &--pink   { background: rgba(244,114,182,0.08); border-color: $pink; }
+  &--purple { background: rgba(167,139,250,0.08); border-color: #a78bfa; }
+
+  &__text { flex: 1; line-height: 1.45; }
+
+  &__remove {
+    background: none;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+    opacity: 0.6;
+    &:hover { opacity: 1; color: #f87171; }
+  }
+}
+
+.notes-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.notes-input {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid $card-border;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  color: $text;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+
+  &::placeholder { color: $text-muted; }
+  &:focus { border-color: rgba(45,212,191,0.5); }
+}
+
+.notes-add-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: $accent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0f0f23;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+  &:hover { opacity: 0.85; }
+}
+
+/* ── Mini stats ────────────────────────────────── */
+.mini-stats {
+  &__title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 1rem;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+}
+
+.mini-stat {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid $card-border;
+  border-radius: 10px;
+  padding: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  &__value {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1;
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    color: $text-muted;
+  }
+
+  &--accent { .mini-stat__value { color: $accent; } }
+  &--warning { .mini-stat__value { color: #f87171; } }
+}

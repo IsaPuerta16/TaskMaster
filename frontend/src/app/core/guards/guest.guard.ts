@@ -7,6 +7,6 @@ export const guestGuard = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
   if (!auth.isAuthenticated()) return true;
-  router.navigate(['/dashboard']);
+  router.navigate(['/home']);
   return false;
 };

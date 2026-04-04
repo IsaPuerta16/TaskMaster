@@ -31,13 +31,13 @@ export const guestRoutes: Routes = [
       import('../features/productividad/productividad.component').then(
         (m) => m.ProductividadComponent,
       ),
-    canActivate: [guestGuard],
+    // Sin guestGuard: accesible desde el sidebar de usuarios autenticados
   },
   {
     path: 'asistente-ia',
     loadComponent: () =>
       import('../features/asistente-ia/asistente-ia.component').then((m) => m.AsistenteIaComponent),
-    canActivate: [guestGuard],
+    // Sin guestGuard: accesible desde el sidebar de usuarios autenticados
   },
   {
     path: 'nosotros',
