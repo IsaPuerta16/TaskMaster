@@ -1,10 +1,8 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService } from '@core/services/auth.service';
 import { buildColombiaHolidayMap, toDateKey } from '@core/calendar/colombia-holidays';
-import { HeaderComponent } from '@shared/layout';
+import { AppSidebarComponent } from '@shared/layout';
 
 const NOTES_STORAGE_KEY = 'taskmaster_calendar_day_notes';
 
@@ -44,7 +42,7 @@ function getISOWeek(date: Date): number {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, HeaderComponent],
+  imports: [CommonModule, FormsModule, AppSidebarComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
@@ -52,8 +50,6 @@ export class DashboardComponent implements OnInit {
   year = new Date().getFullYear();
   month = new Date().getMonth();
   calendarWeeks: CalendarWeekRow[] = [];
-  avatarUrl = '';
-  userHandle = '@Usuario';
 
   /** Notas por YYYY-MM-DD */
   notesMap: Record<string, DayNote[]> = {};
@@ -66,24 +62,42 @@ export class DashboardComponent implements OnInit {
 
   readonly quickEmojis = ['😀', '🎉', '✅', '📌', '❤️', '⭐', '🔥', '💼', '✏️', '🗓️', '☕', '🎯'];
 
+  /** Rango de años en los desplegables (centrado en el año actual). */
+  readonly yearOptions = Array.from({ length: 25 }, (_, i) => new Date().getFullYear() - 12 + i);
+
+  readonly monthOptions = Array.from({ length: 12 }, (_, i) => {
+    const raw = new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(new Date(2000, i, 1));
+    const label = raw.charAt(0).toUpperCase() + raw.slice(1);
+    return { value: i, label };
+  });
+
   private holidayMaps = new Map<number, Map<string, string>>();
 
-  constructor(public auth: AuthService) {}
+  /** Filtros año/mes visibles al pulsar la fecha del título */
+  readonly dateFilterOpen = signal(false);
 
   ngOnInit() {
     this.loadNotes();
     this.rebuildCalendar();
-    const u = this.auth.user();
-    const email = u?.email ?? 'usuario';
-    const local = email.includes('@') ? email.split('@')[0] : email;
-    this.userHandle = `@${local}`;
-    const seed = encodeURIComponent(u?.id ?? email);
-    this.avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}`;
   }
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
-    if (this.modalOpen) this.closeModal();
+    if (this.modalOpen) {
+      this.closeModal();
+      return;
+    }
+    if (this.dateFilterOpen()) {
+      this.closeDateFilter();
+    }
+  }
+
+  toggleDateFilter(): void {
+    this.dateFilterOpen.update((v) => !v);
+  }
+
+  closeDateFilter(): void {
+    this.dateFilterOpen.set(false);
   }
 
   get monthTitle(): string {
@@ -117,6 +131,24 @@ export class DashboardComponent implements OnInit {
       this.month++;
     }
     this.rebuildCalendar();
+  }
+
+  setYear(y: number): void {
+    this.year = y;
+    this.rebuildCalendar();
+  }
+
+  setMonth(m: number): void {
+    this.month = m;
+    this.rebuildCalendar();
+  }
+
+  goToday(): void {
+    const t = new Date();
+    this.year = t.getFullYear();
+    this.month = t.getMonth();
+    this.rebuildCalendar();
+    this.closeDateFilter();
   }
 
   openDay(cell: CalendarDayCell): void {

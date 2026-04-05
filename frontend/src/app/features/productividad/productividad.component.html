@@ -1,13 +1,11 @@
-<div class="productividad">
-  <app-header />
-
+<div class="productividad" [class.productividad--dark]="appSettings.themeIsDark()">
   <main class="main">
     <section class="hero">
-      <h1 class="hero__title">Te ayudamos con tu productividad</h1>
-      <p class="hero__subtitle">Para que puedas disfrutar de tus actividades favoritas.</p>
+      <h1 class="hero__title">{{ F().hero.title }}</h1>
+      <p class="hero__subtitle">{{ F().hero.subtitle }}</p>
 
       <div class="activities">
-        @for (activity of activities; track activity.id) {
+        @for (activity of F().activities; track activity.id) {
           <article class="activity-card" [class]="'activity-card--' + activity.theme">
             <div class="activity-card__icon-wrap">
               @switch (activity.icon) {
@@ -54,10 +52,10 @@
 
     <section class="cta-section">
       <article class="cta-card cta-card--efficiency">
-        <h2 class="cta-card__title">Mejoramos tu eficiencia</h2>
-        <p class="cta-card__desc">Para que puedas dedicar tiempo a las actividades que te gustan. TaskMaster te ayuda a priorizar, organizar y cumplir tus metas.</p>
-        <a routerLink="/dashboard" class="cta-card__btn">
-          Mostrar sugerencias →
+        <h2 class="cta-card__title">{{ F().ctaEfficiency.title }}</h2>
+        <p class="cta-card__desc">{{ F().ctaEfficiency.desc }}</p>
+        <a routerLink="/perfil" class="cta-card__btn">
+          {{ F().ctaEfficiency.btn }}
         </a>
       </article>
 
@@ -71,8 +69,8 @@
             <span class="cta-card__badge">{{ notificationCount }}</span>
           </div>
           <div class="cta-card__text">
-            <h2 class="cta-card__title">¡Que no se te olvide nada importante!</h2>
-            <p class="cta-card__desc">Te avisamos antes de que venza cada tarea.</p>
+            <h2 class="cta-card__title">{{ F().ctaReminder.title }}</h2>
+            <p class="cta-card__desc">{{ F().ctaReminder.desc }}</p>
           </div>
         </div>
       </article>
@@ -82,103 +80,73 @@
     <section class="more-section" aria-labelledby="more-heading">
       <div class="more-section__bg" aria-hidden="true"></div>
       <div class="more-section__inner">
-        <span class="more-section__pill">Productividad sin límites</span>
-        <h2 id="more-heading" class="more-section__title">Todo lo que necesitas para avanzar</h2>
-        <p class="more-section__lead">Herramientas pensadas para que tu día fluya sin fricción — claras, rápidas y a tu ritmo.</p>
+        <span class="more-section__pill">{{ F().more.pill }}</span>
+        <h2 id="more-heading" class="more-section__title">{{ F().more.title }}</h2>
+        <p class="more-section__lead">{{ F().more.lead }}</p>
         <div class="more-grid">
-          <article class="more-card more-card--v1">
-            <div class="more-card__glow" aria-hidden="true"></div>
-            <div class="more-card__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-            </div>
-            <h3 class="more-card__title">Listas y prioridades</h3>
-            <p class="more-card__desc">Ordena por urgencia, proyecto o fecha. Lo importante siempre visible.</p>
-            <span class="more-card__tag">Prioriza mejor</span>
-          </article>
-          <article class="more-card more-card--v2">
-            <div class="more-card__glow" aria-hidden="true"></div>
-            <div class="more-card__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-            </div>
-            <h3 class="more-card__title">Estadísticas claras</h3>
-            <p class="more-card__desc">Ve tu ritmo semanal y detecta patrones para mejorar poco a poco.</p>
-            <span class="more-card__tag">Mide tu avance</span>
-          </article>
-          <article class="more-card more-card--v3">
-            <div class="more-card__glow" aria-hidden="true"></div>
-            <div class="more-card__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
-            </div>
-            <h3 class="more-card__title">Calendario integrado</h3>
-            <p class="more-card__desc">Sincroniza fechas límite y evita solapamientos en un solo vistazo.</p>
-            <span class="more-card__tag">Todo alineado</span>
-          </article>
-          <article class="more-card more-card--v4">
-            <div class="more-card__glow" aria-hidden="true"></div>
-            <div class="more-card__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            </div>
-            <h3 class="more-card__title">Datos seguros</h3>
-            <p class="more-card__desc">Tu información protegida para que solo tú decidas qué compartir.</p>
-            <span class="more-card__tag">Privacidad primero</span>
-          </article>
+          @for (card of F().more.cards; track card.title; let i = $index) {
+            <article [class]="'more-card more-card--v' + (i + 1)">
+              <div class="more-card__glow" aria-hidden="true"></div>
+              <div class="more-card__icon" aria-hidden="true">
+                @switch (i) {
+                  @case (0) {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                  }
+                  @case (1) {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+                  }
+                  @case (2) {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+                  }
+                  @default {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  }
+                }
+              </div>
+              <h3 class="more-card__title">{{ card.title }}</h3>
+              <p class="more-card__desc">{{ card.desc }}</p>
+              <span class="more-card__tag">{{ card.tag }}</span>
+            </article>
+          }
         </div>
       </div>
     </section>
 
     <section class="steps-section" aria-labelledby="steps-heading">
       <div class="steps-section__header">
-        <span class="steps-section__pill">En minutos</span>
-        <h2 id="steps-heading" class="steps-section__title">Cómo empezar en tres pasos</h2>
-        <p class="steps-section__subtitle">Sin tutoriales eternos: tres movimientos y ya estás organizando.</p>
+        <span class="steps-section__pill">{{ F().steps.pill }}</span>
+        <h2 id="steps-heading" class="steps-section__title">{{ F().steps.title }}</h2>
+        <p class="steps-section__subtitle">{{ F().steps.subtitle }}</p>
       </div>
       <div class="steps-track">
         <span class="steps-track__line" aria-hidden="true"></span>
         <ol class="steps-list">
-          <li class="steps-item">
-            <span class="steps-item__num"><span>1</span></span>
-            <div class="steps-item__body">
-              <h3 class="steps-item__title">Crea tu cuenta</h3>
-              <p class="steps-item__desc">Regístrate en segundos y accede al tablero desde cualquier dispositivo.</p>
-            </div>
-          </li>
-          <li class="steps-item">
-            <span class="steps-item__num"><span>2</span></span>
-            <div class="steps-item__body">
-              <h3 class="steps-item__title">Añade tus tareas</h3>
-              <p class="steps-item__desc">Escribe lo que tienes pendiente y asigna prioridad o fecha si quieres.</p>
-            </div>
-          </li>
-          <li class="steps-item">
-            <span class="steps-item__num"><span>3</span></span>
-            <div class="steps-item__body">
-              <h3 class="steps-item__title">Organiza y celebra</h3>
-              <p class="steps-item__desc">Mueve tareas entre columnas y revisa tu progreso cuando quieras.</p>
-            </div>
-          </li>
+          @for (step of F().steps.items; track step.title; let idx = $index) {
+            <li class="steps-item">
+              <span class="steps-item__num"><span>{{ idx + 1 }}</span></span>
+              <div class="steps-item__body">
+                <h3 class="steps-item__title">{{ step.title }}</h3>
+                <p class="steps-item__desc">{{ step.desc }}</p>
+              </div>
+            </li>
+          }
         </ol>
       </div>
     </section>
 
     <section class="faq-section" aria-labelledby="faq-heading">
       <div class="faq-section__header">
-        <span class="faq-section__pill">Dudas rápidas</span>
-        <h2 id="faq-heading" class="faq-section__title">Preguntas frecuentes</h2>
-        <p class="faq-section__lead">Lo que más nos preguntan antes de empezar.</p>
+        <span class="faq-section__pill">{{ F().faq.pill }}</span>
+        <h2 id="faq-heading" class="faq-section__title">{{ F().faq.title }}</h2>
+        <p class="faq-section__lead">{{ F().faq.lead }}</p>
       </div>
       <div class="faq-list">
-        <details class="faq-item">
-          <summary class="faq-item__q"><span class="faq-item__icon" aria-hidden="true">?</span>¿TaskMaster es gratis?</summary>
-          <p class="faq-item__a">Puedes empezar sin coste y explorar las funciones principales. Más adelante podrás ampliar si lo necesitas.</p>
-        </details>
-        <details class="faq-item">
-          <summary class="faq-item__q"><span class="faq-item__icon" aria-hidden="true">?</span>¿Funciona en el móvil?</summary>
-          <p class="faq-item__a">Sí. La interfaz es responsive: úsala en el navegador de tu teléfono o tablet con la misma experiencia.</p>
-        </details>
-        <details class="faq-item">
-          <summary class="faq-item__q"><span class="faq-item__icon" aria-hidden="true">?</span>¿Puedo usarlo solo para estudio o también para el trabajo?</summary>
-          <p class="faq-item__a">Sirve para ambos. Muchos usuarios mezclan proyectos personales, universidad y trabajo en un solo lugar.</p>
-        </details>
+        @for (item of F().faq.items; track item.q) {
+          <details class="faq-item">
+            <summary class="faq-item__q"><span class="faq-item__icon" aria-hidden="true">?</span>{{ item.q }}</summary>
+            <p class="faq-item__a">{{ item.a }}</p>
+          </details>
+        }
       </div>
     </section>
 
@@ -189,36 +157,36 @@
       </div>
       <div class="bottom-cta__inner">
         <div class="bottom-cta__content">
-          <h2 id="bottom-cta-heading" class="bottom-cta__title">Empieza a organizar tu tiempo hoy</h2>
-          <p class="bottom-cta__desc">Únete a TaskMaster y lleva tu productividad al siguiente nivel.</p>
+          <h2 id="bottom-cta-heading" class="bottom-cta__title">{{ F().bottomCta.title }}</h2>
+          <p class="bottom-cta__desc">{{ F().bottomCta.desc }}</p>
           <p class="bottom-cta__trust">
             <span class="bottom-cta__stars" aria-hidden="true">★★★★★</span>
-            <span class="bottom-cta__trust-text">Miles de tareas organizadas cada semana</span>
+            <span class="bottom-cta__trust-text">{{ F().bottomCta.trust }}</span>
           </p>
           <div class="bottom-cta__actions">
-            <a routerLink="/register" class="bottom-cta__btn bottom-cta__btn--primary">Crear cuenta gratis</a>
-            <a routerLink="/funcionalidades" class="bottom-cta__btn bottom-cta__btn--ghost">Ver funcionalidades</a>
+            <a routerLink="/register" class="bottom-cta__btn bottom-cta__btn--primary">{{ F().bottomCta.btnPrimary }}</a>
+            <a routerLink="/funcionalidades" class="bottom-cta__btn bottom-cta__btn--ghost">{{ F().bottomCta.btnGhost }}</a>
           </div>
         </div>
         <div class="bottom-cta__peek" aria-hidden="true">
           <div class="bottom-cta__peek-window">
             <div class="bottom-cta__peek-header">
               <span class="bottom-cta__peek-dots"><i></i><i></i><i></i></span>
-              <span class="bottom-cta__peek-title">Mi tablero</span>
+              <span class="bottom-cta__peek-title">{{ F().bottomCta.peekTitle }}</span>
             </div>
             <div class="bottom-cta__peek-board">
               <div class="bottom-cta__peek-col">
-                <span class="bottom-cta__peek-label">Pendiente</span>
-                <div class="bottom-cta__peek-card"><span class="bottom-cta__peek-pill"></span><span class="bottom-cta__peek-txt">Revisar informe</span></div>
-                <div class="bottom-cta__peek-card"><span class="bottom-cta__peek-pill bottom-cta__peek-pill--amber"></span><span class="bottom-cta__peek-txt">Email cliente</span></div>
+                <span class="bottom-cta__peek-label">{{ F().bottomCta.peekCol1 }}</span>
+                <div class="bottom-cta__peek-card"><span class="bottom-cta__peek-pill"></span><span class="bottom-cta__peek-txt">{{ F().bottomCta.peekCard1 }}</span></div>
+                <div class="bottom-cta__peek-card"><span class="bottom-cta__peek-pill bottom-cta__peek-pill--amber"></span><span class="bottom-cta__peek-txt">{{ F().bottomCta.peekCard2 }}</span></div>
               </div>
               <div class="bottom-cta__peek-col">
-                <span class="bottom-cta__peek-label">En curso</span>
-                <div class="bottom-cta__peek-card bottom-cta__peek-card--accent"><span class="bottom-cta__peek-pill bottom-cta__peek-pill--vio"></span><span class="bottom-cta__peek-txt">Diseño UI</span></div>
+                <span class="bottom-cta__peek-label">{{ F().bottomCta.peekCol2 }}</span>
+                <div class="bottom-cta__peek-card bottom-cta__peek-card--accent"><span class="bottom-cta__peek-pill bottom-cta__peek-pill--vio"></span><span class="bottom-cta__peek-txt">{{ F().bottomCta.peekCard3 }}</span></div>
               </div>
               <div class="bottom-cta__peek-col">
-                <span class="bottom-cta__peek-label">Hecho</span>
-                <div class="bottom-cta__peek-card bottom-cta__peek-card--done"><span class="bottom-cta__peek-check">✓</span><span class="bottom-cta__peek-txt">Plan semanal</span></div>
+                <span class="bottom-cta__peek-label">{{ F().bottomCta.peekCol3 }}</span>
+                <div class="bottom-cta__peek-card bottom-cta__peek-card--done"><span class="bottom-cta__peek-check">✓</span><span class="bottom-cta__peek-txt">{{ F().bottomCta.peekCard4 }}</span></div>
               </div>
             </div>
           </div>

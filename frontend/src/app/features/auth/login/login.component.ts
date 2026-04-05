@@ -4,16 +4,13 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 import { safeInternalPath } from '@core/utils/return-url';
-import { HeaderComponent } from '@shared/layout';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, HeaderComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
     <div class="login-page">
-      <app-header />
-
       <div class="login-page__main">
         <div class="login-card">
           <h1 class="login-card__brand">TaskMaster</h1>
@@ -106,7 +103,7 @@ export class LoginComponent {
       .subscribe({
         next: () => {
           const ret = safeInternalPath(this.route.snapshot.queryParamMap.get('returnUrl'));
-          void this.router.navigateByUrl(ret ?? '/dashboard', { replaceUrl: true });
+          void this.router.navigateByUrl(ret ?? '/perfil', { replaceUrl: true });
         },
         error: (err: { error?: { message?: string } }) => {
           this.errorMessage = err.error?.message || 'Credenciales inválidas';

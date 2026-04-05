@@ -34,12 +34,22 @@ export class AuthService {
       .pipe(tap((res) => this.setSession(res)));
   }
 
-  logout() {
+  logout(): void {
+    this.clearSession();
+    this.router.navigate(['/login']);
+  }
+
+  /** Tras 401: limpiar sesión y volver al login conservando la ruta para reintentar. */
+  logoutWithReturnUrl(returnUrl: string): void {
+    this.clearSession();
+    this.router.navigate(['/login'], { queryParams: { returnUrl } });
+  }
+
+  private clearSession(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.token.set(null);
     this.userData.set(null);
-    this.router.navigate(['/login']);
   }
 
   private setSession(res: AuthResponse) {

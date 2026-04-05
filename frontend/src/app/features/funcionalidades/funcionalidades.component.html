@@ -1,0 +1,213 @@
+<div
+  class="funcionalidades"
+  [class.funcionalidades--dark]="appSettings.themeIsDark()"
+>
+  <main class="main">
+    <section class="intro-hero">
+      <div class="intro-wave"></div>
+      <div class="intro-content">
+        <h1 class="intro-title">{{ F().intro.title }}</h1>
+        <p class="intro-subtitle">{{ F().intro.subtitle }}</p>
+        <a routerLink="/register" class="intro-btn">{{ F().intro.cta }}</a>
+      </div>
+    </section>
+
+    <section class="cards-section">
+      <div class="cards-grid">
+        @for (card of F().cards; track $index) {
+          <article class="func-card">
+            <span class="func-tag">{{ card.tag }}</span>
+            <div class="func-card-icon"><span class="func-emoji">{{ $index === 0 ? '🧠' : $index === 1 ? '🤖' : '📈' }}</span></div>
+            <h3 class="func-title">{{ card.title }}</h3>
+            <p class="func-desc">{{ card.desc }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="flow-section">
+      <div class="flow-content">
+        <div class="flow-text">
+          <h2 class="flow-title">
+            <span class="flow-title-line1">{{ F().flow.titleLine1 }}</span>
+            <span class="flow-title-line2">
+              <span class="underline-word">&ldquo;{{ F().flow.pendingWord }}&rdquo;</span>
+              {{ F().flow.connector }}
+              &ldquo;{{ F().flow.doneWord }}&rdquo;
+            </span>
+          </h2>
+          <p class="flow-desc">{{ F().flow.desc }}</p>
+          <ul class="flow-features">
+            @for (line of F().flow.features; track line) {
+              <li>{{ line }}</li>
+            }
+          </ul>
+        </div>
+
+        <div class="kanban-board">
+          <div class="kanban-col">
+            <h4 class="kanban-col-title">
+              <span class="col-dot col-dot-orange"></span>
+              {{ F().kanban.colPending }}
+            </h4>
+            <div class="kanban-task">
+              <div class="task-name">{{ F().kanban.t1.name }}</div>
+              <div class="task-meta">
+                <span class="priority-badge priority-alta">{{ F().kanban.t1.prio }}</span>
+                <span class="date-badge">{{ F().kanban.t1.date }}</span>
+              </div>
+            </div>
+            <div class="kanban-task">
+              <div class="task-name">{{ F().kanban.t2.name }}</div>
+              <div class="task-meta">
+                <span class="priority-badge priority-media">{{ F().kanban.t2.prio }}</span>
+                <span class="date-badge">{{ F().kanban.t2.date }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="kanban-col">
+            <h4 class="kanban-col-title">
+              <span class="col-dot col-dot-blue"></span>
+              {{ F().kanban.colProgress }}
+            </h4>
+            <div class="kanban-task kanban-task-active">
+              <div class="task-name">{{ F().kanban.t3.name }}</div>
+              <div class="task-meta">
+                <span class="priority-badge priority-alta">{{ F().kanban.t3.prio }}</span>
+                <span class="date-badge">{{ F().kanban.t3.date }}</span>
+              </div>
+              <div class="task-progress-bar"></div>
+            </div>
+          </div>
+
+          <div class="kanban-col">
+            <h4 class="kanban-col-title">
+              <span class="col-dot col-dot-green"></span>
+              {{ F().kanban.colDone }}
+            </h4>
+            <div class="kanban-task kanban-task-done">
+              <div class="task-name">{{ F().kanban.t4.name }}</div>
+              <span class="done-badge">{{ F().kanban.t4.ok }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="post-kanban" aria-labelledby="post-kanban-heading">
+      <div class="post-kanban-wrap">
+        <span class="post-kanban-eyebrow">{{ F().postKanban.eyebrow }}</span>
+        <h2 id="post-kanban-heading">{{ F().postKanban.title }}</h2>
+        <p class="post-kanban-lead">{{ F().postKanban.lead }}</p>
+
+        <div class="post-kanban-strip">
+          @for (spot of F().postKanban.spots; track spot.title; let i = $index) {
+            <article [class]="'pk-spot pk-spot--' + (i + 1)">
+              <div class="pk-spot-icon" aria-hidden="true">
+                {{ i === 0 ? '🎯' : i === 1 ? '✍️' : '🌅' }}
+              </div>
+              <h3 class="pk-spot-title">{{ spot.title }}</h3>
+              <p class="pk-spot-text">{{ spot.text }}</p>
+            </article>
+          }
+        </div>
+
+        <div class="post-kanban-split">
+          <div class="pk-panel">
+            <h3 class="pk-panel-title">{{ F().postKanban.panelReorderTitle }}</h3>
+            <ul class="pk-list">
+              @for (li of F().postKanban.panelReorderItems; track li) {
+                <li>{{ li }}</li>
+              }
+            </ul>
+          </div>
+          <div class="pk-panel pk-panel--accent">
+            <h3 class="pk-panel-title">{{ F().postKanban.panelLoadTitle }}</h3>
+            <ul class="pk-list">
+              @for (li of F().postKanban.panelLoadItems; track li) {
+                <li>{{ li }}</li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="extra-info">
+      <h2 class="extra-title">{{ F().extra.title }}</h2>
+      <div class="extra-grid">
+        @for (card of F().extra.cards; track card.title; let i = $index) {
+          <div [class]="'extra-card extra-card-' + (i + 1)">
+            <div class="extra-icon">{{ i === 0 ? '🎯' : i === 1 ? '📱' : '🔒' }}</div>
+            <h3>{{ card.title }}</h3>
+            <p>{{ card.desc }}</p>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="complements-section" aria-labelledby="complements-heading">
+      <div class="complements-shell">
+        <div class="complements-head">
+          <span class="complements-eyebrow">{{ F().complements.eyebrow }}</span>
+          <h2 id="complements-heading" class="complements-title">{{ F().complements.title }}</h2>
+          <p class="complements-lead">{{ F().complements.lead }}</p>
+        </div>
+        <div class="complements-grid">
+          @for (item of F().complements.items; track item.title; let i = $index) {
+            <article [class]="'complement-card complement-card--' + (i + 1)">
+              <span class="complement-step">{{ i + 1 < 10 ? '0' : '' }}{{ i + 1 }}</span>
+              <h3>{{ item.title }}</h3>
+              <p>{{ item.desc }}</p>
+            </article>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="personas-section" aria-labelledby="personas-heading">
+      <span class="personas-eyebrow">{{ F().personas.eyebrow }}</span>
+      <h2 id="personas-heading" class="personas-title">{{ F().personas.title }}</h2>
+      <div class="personas-grid">
+        @for (block of F().personas.blocks; track block.name; let i = $index) {
+          <div [class]="'persona-block persona-block--' + (i + 1)">
+            <div class="persona-icon" aria-hidden="true">
+              {{ i === 0 ? '📚' : i === 1 ? '💼' : '⚡' }}
+            </div>
+            <h3 class="persona-name">{{ block.name }}</h3>
+            <p class="persona-desc">{{ block.desc }}</p>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="faq-section" aria-labelledby="faq-heading">
+      <div class="faq-head">
+        <span class="faq-eyebrow">{{ F().faq.eyebrow }}</span>
+        <h2 id="faq-heading" class="faq-title">{{ F().faq.title }}</h2>
+      </div>
+      <div class="faq-list">
+        @for (item of F().faq.items; track item.q) {
+          <details class="faq-item">
+            <summary class="faq-summary">{{ item.q }}</summary>
+            <p class="faq-answer">{{ item.a }}</p>
+          </details>
+        }
+      </div>
+    </section>
+
+    <section class="bottom-cta" aria-label="Registro">
+      <div class="bottom-cta-inner">
+        <div class="bottom-cta-glow" aria-hidden="true"></div>
+        <div class="bottom-cta-content">
+          <h2 class="bottom-cta-title">{{ F().bottomCta.title }}</h2>
+          <p class="bottom-cta-text">{{ F().bottomCta.text }}</p>
+          <a routerLink="/register" class="bottom-cta-btn">{{ F().bottomCta.btn }}</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <app-footer />
+</div>

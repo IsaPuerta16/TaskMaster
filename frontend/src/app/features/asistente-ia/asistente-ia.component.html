@@ -1,11 +1,9 @@
-<div class="asistente">
-  <app-header />
-
+<div class="asistente" [class.asistente--dark]="appSettings.themeIsDark()">
   <main class="main">
     <section class="ia-hero" aria-labelledby="ia-hero-title">
-      <h1 id="ia-hero-title" class="ia-hero__title">¿Qué hace el asistente IA?</h1>
+      <h1 id="ia-hero-title" class="ia-hero__title">{{ F().hero.title }}</h1>
       <p class="ia-hero__subtitle">
-        Analiza tus tareas y te recomienda cómo organizar tu tiempo de forma inteligente.
+        {{ F().hero.subtitle }}
       </p>
 
       <div class="ia-navy-panel">
@@ -24,59 +22,26 @@
         </div>
 
         <div class="ia-features-grid">
-          <article class="ia-feature-card">
-            <div class="ia-feature-card__head">
-              <div class="ia-feature-card__icon" aria-hidden="true">
-                <img
-                  class="ia-feature-card__icon-img"
-                  src="assets/ia-icon-prioridades.png"
-                  alt=""
-                  width="44"
-                  height="44"
-                  loading="lazy"
-                  decoding="async"
-                />
+          @for (feat of F().features; track feat.title; let i = $index) {
+            <article class="ia-feature-card">
+              <div class="ia-feature-card__head">
+                <div class="ia-feature-card__icon" aria-hidden="true">
+                  <img
+                    class="ia-feature-card__icon-img"
+                    [class.ia-feature-card__icon-img--bolt]="i === 1"
+                    [src]="i === 0 ? 'assets/ia-icon-prioridades.png' : i === 1 ? 'assets/ia-icon-tiempo.png' : 'assets/ia-icon-retrasos.png'"
+                    alt=""
+                    width="44"
+                    height="44"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+                <h3 class="ia-feature-card__title">{{ feat.title }}</h3>
               </div>
-              <h3 class="ia-feature-card__title">Analiza tus prioridades</h3>
-            </div>
-            <p class="ia-feature-card__desc">Evalúa fechas límite y nivel de avance.</p>
-          </article>
-
-          <article class="ia-feature-card">
-            <div class="ia-feature-card__head">
-              <div class="ia-feature-card__icon" aria-hidden="true">
-                <img
-                  class="ia-feature-card__icon-img"
-                  src="assets/ia-icon-tiempo.png"
-                  alt=""
-                  width="44"
-                  height="44"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-              <h3 class="ia-feature-card__title">Optimiza tu tiempo</h3>
-            </div>
-            <p class="ia-feature-card__desc">Sugiere el mejor orden para trabajar.</p>
-          </article>
-
-          <article class="ia-feature-card">
-            <div class="ia-feature-card__head">
-              <div class="ia-feature-card__icon" aria-hidden="true">
-                <img
-                  class="ia-feature-card__icon-img"
-                  src="assets/ia-icon-retrasos.png"
-                  alt=""
-                  width="44"
-                  height="44"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-              <h3 class="ia-feature-card__title">Previene retrasos</h3>
-            </div>
-            <p class="ia-feature-card__desc">Recomienda cómo abordar tareas próximas a vencer</p>
-          </article>
+              <p class="ia-feature-card__desc">{{ feat.desc }}</p>
+            </article>
+          }
         </div>
       </div>
     </section>
@@ -84,9 +49,9 @@
     <section class="ia-chat" aria-labelledby="ia-chat-title">
       <div class="ia-chat__layout">
         <div class="ia-chat__left">
-          <h2 id="ia-chat-title" class="ia-chat__title">Habla con él en lenguaje natural</h2>
+          <h2 id="ia-chat-title" class="ia-chat__title">{{ F().chat.title }}</h2>
           <p class="ia-chat__text">
-            No necesitas aprender comandos complicados. Simplemente escribe como si estuvieras hablando con un compañero de trabajo.
+            {{ F().chat.text }}
           </p>
 
           <div class="ia-chat__thread">
@@ -98,14 +63,13 @@
                 </svg>
               </div>
               <div class="ia-chat__bubble ia-chat__bubble--user">
-                Necesito organizar el proyecto de matemáticas para la próxima semana
+                {{ F().chat.userMsg }}
               </div>
             </div>
 
             <div class="ia-chat__row ia-chat__row--assistant">
               <div class="ia-chat__bubble ia-chat__bubble--assistant">
-                Puedo ayudarte a ordenar las tareas por prioridad y plazos. Te sugiero repasar el tema el lunes,
-                practicar ejercicios el miércoles y dejar un repaso corto antes de la entrega.
+                {{ F().chat.assistantMsg }}
               </div>
               <div class="ia-chat__avatar ia-chat__avatar--assistant" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -137,17 +101,17 @@
                 />
               </div>
             </div>
-            <h3 class="ia-response-card__title">Respuesta instantánea</h3>
+            <h3 class="ia-response-card__title">{{ F().responseCard.title }}</h3>
 
             <div class="ia-response-card__metrics">
               <div class="ia-response-card__metric">
                 <span class="ia-response-card__value">&lt; 1s</span>
-                <span class="ia-response-card__label">TIEMPO DE RESPUESTA</span>
+                <span class="ia-response-card__label">{{ F().responseCard.metricTime }}</span>
               </div>
               <div class="ia-response-card__divider" aria-hidden="true"></div>
               <div class="ia-response-card__metric">
                 <span class="ia-response-card__value">24/7</span>
-                <span class="ia-response-card__label">DISPONIBILIDAD</span>
+                <span class="ia-response-card__label">{{ F().responseCard.metricAvail }}</span>
               </div>
             </div>
 
@@ -158,7 +122,7 @@
                     <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                 </span>
-                Procesamiento en tiempo real
+                {{ F().responseCard.pill1 }}
               </li>
               <li>
                 <span class="ia-check-wrap" aria-hidden="true">
@@ -166,7 +130,7 @@
                     <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                 </span>
-                Respuestas contextuales
+                {{ F().responseCard.pill2 }}
               </li>
             </ul>
           </div>
@@ -175,93 +139,60 @@
     </section>
 
     <section class="ia-examples" aria-labelledby="ia-examples-title">
-      <p class="ia-section-eyebrow">Inspírate</p>
-      <h2 id="ia-examples-title" class="ia-section-title">Ejemplos de preguntas</h2>
+      <p class="ia-section-eyebrow">{{ F().examples.eyebrow }}</p>
+      <h2 id="ia-examples-title" class="ia-section-title">{{ F().examples.title }}</h2>
       <p class="ia-section-lead">
-        Puedes pedirle al asistente que te ayude con planificación, prioridades o recordatorios. Estas son algunas ideas para empezar.
+        {{ F().examples.lead }}
       </p>
       <div class="ia-examples-grid">
-        <article class="ia-example-card ia-example-card--a">
-          <span class="ia-example-card__tag" aria-hidden="true">Prioridades</span>
-          <p class="ia-example-card__quote">«¿Qué tareas debería hacer primero esta semana?»</p>
-          <p class="ia-example-card__hint">Prioriza según fechas límite y carga de trabajo.</p>
-        </article>
-        <article class="ia-example-card ia-example-card--b">
-          <span class="ia-example-card__tag" aria-hidden="true">Calendario</span>
-          <p class="ia-example-card__quote">«Tengo tres exámenes el mismo día, ¿cómo reparto el estudio?»</p>
-          <p class="ia-example-card__hint">Obtén un reparto sugerido por días y temas.</p>
-        </article>
-        <article class="ia-example-card ia-example-card--c">
-          <span class="ia-example-card__tag" aria-hidden="true">Equipo</span>
-          <p class="ia-example-card__quote">«Resume lo que tengo pendiente para el proyecto grupal»</p>
-          <p class="ia-example-card__hint">Vista rápida de tareas abiertas y próximos hitos.</p>
-        </article>
+        @for (ex of F().examples.cards; track ex.tag; let i = $index) {
+          <article [class]="'ia-example-card ia-example-card--' + (i === 0 ? 'a' : i === 1 ? 'b' : 'c')">
+            <span class="ia-example-card__tag" aria-hidden="true">{{ ex.tag }}</span>
+            <p class="ia-example-card__quote">{{ ex.quote }}</p>
+            <p class="ia-example-card__hint">{{ ex.hint }}</p>
+          </article>
+        }
       </div>
     </section>
 
     <section class="ia-how" aria-labelledby="ia-how-title">
-      <p class="ia-section-eyebrow">Súper simple</p>
-      <h2 id="ia-how-title" class="ia-section-title">Ponlo en marcha en tres pasos</h2>
+      <p class="ia-section-eyebrow">{{ F().how.eyebrow }}</p>
+      <h2 id="ia-how-title" class="ia-section-title">{{ F().how.title }}</h2>
       <ol class="ia-steps">
-        <li class="ia-steps__item">
-          <span class="ia-steps__num" aria-hidden="true">1</span>
-          <div class="ia-steps__body">
-            <h3 class="ia-steps__heading">Crea o importa tus tareas</h3>
-            <p class="ia-steps__text">Añade lo que tengas pendiente en TaskMaster para que el asistente tenga contexto.</p>
-          </div>
-        </li>
-        <li class="ia-steps__item">
-          <span class="ia-steps__num" aria-hidden="true">2</span>
-          <div class="ia-steps__body">
-            <h3 class="ia-steps__heading">Escribe en lenguaje natural</h3>
-            <p class="ia-steps__text">No hace falta sintaxis especial: pregunta como en una conversación normal.</p>
-          </div>
-        </li>
-        <li class="ia-steps__item">
-          <span class="ia-steps__num" aria-hidden="true">3</span>
-          <div class="ia-steps__body">
-            <h3 class="ia-steps__heading">Aplica las sugerencias</h3>
-            <p class="ia-steps__text">Revisa el orden propuesto y ajusta fechas o prioridades en tu tablero.</p>
-          </div>
-        </li>
+        @for (st of F().how.steps; track st.title; let idx = $index) {
+          <li class="ia-steps__item">
+            <span class="ia-steps__num" aria-hidden="true">{{ idx + 1 }}</span>
+            <div class="ia-steps__body">
+              <h3 class="ia-steps__heading">{{ st.title }}</h3>
+              <p class="ia-steps__text">{{ st.desc }}</p>
+            </div>
+          </li>
+        }
       </ol>
     </section>
 
     <section class="ia-faq" aria-labelledby="ia-faq-title">
-      <p class="ia-section-eyebrow">Tranquilo</p>
-      <h2 id="ia-faq-title" class="ia-section-title">Preguntas frecuentes</h2>
+      <p class="ia-section-eyebrow">{{ F().faq.eyebrow }}</p>
+      <h2 id="ia-faq-title" class="ia-section-title">{{ F().faq.title }}</h2>
       <div class="ia-faq-list">
-        <details class="ia-faq-item">
-          <summary class="ia-faq-item__q">¿El asistente sustituye a un tutor o profesor?</summary>
-          <p class="ia-faq-item__a">
-            No. Te orienta sobre organización y priorización; las decisiones académicas siguen siendo tuyas.
-          </p>
-        </details>
-        <details class="ia-faq-item">
-          <summary class="ia-faq-item__q">¿Mis datos se usan para entrenar modelos?</summary>
-          <p class="ia-faq-item__a">
-            Tratamos tu información según la política de privacidad del producto; no la compartimos con fines de entrenamiento sin tu consentimiento explícito.
-          </p>
-        </details>
-        <details class="ia-faq-item">
-          <summary class="ia-faq-item__q">¿Funciona sin conexión?</summary>
-          <p class="ia-faq-item__a">
-            El asistente necesita conexión para generar respuestas. Podrás seguir viendo tareas guardadas en la app cuando vuelvas a estar en línea.
-          </p>
-        </details>
+        @for (item of F().faq.items; track item.q) {
+          <details class="ia-faq-item">
+            <summary class="ia-faq-item__q">{{ item.q }}</summary>
+            <p class="ia-faq-item__a">{{ item.a }}</p>
+          </details>
+        }
       </div>
     </section>
 
     <section class="ia-cta" aria-labelledby="ia-cta-title">
-      <div class="ia-cta__glow" aria-hidden="true"></div>
       <div class="ia-cta__inner">
-        <h2 id="ia-cta-title" class="ia-cta__title">¿Listo para organizarte con IA?</h2>
+        <h2 id="ia-cta-title" class="ia-cta__title">{{ F().cta.title }}</h2>
         <p class="ia-cta__text">
-          Crea una cuenta y empieza a planificar con recomendaciones adaptadas a tu calendario de tareas.
+          {{ F().cta.text }}
         </p>
         <div class="ia-cta__actions">
-          <a routerLink="/register" class="ia-cta__btn ia-cta__btn--primary">Crear cuenta</a>
-          <a routerLink="/login" class="ia-cta__btn ia-cta__btn--ghost">Ya tengo cuenta</a>
+          <a routerLink="/register" class="ia-cta__btn ia-cta__btn--primary">{{ F().cta.btnPrimary }}</a>
+          <a routerLink="/login" class="ia-cta__btn ia-cta__btn--ghost">{{ F().cta.btnGhost }}</a>
         </div>
       </div>
     </section>

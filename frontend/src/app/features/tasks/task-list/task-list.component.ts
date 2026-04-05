@@ -1,126 +1,109 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { TaskService, Task, TaskStatus } from '@core/services/task.service';
-import { HeaderComponent } from '@shared/layout';
+import { TaskService, Task } from '@core/services/task.service';
+import { AuthService } from '@core/services/auth.service';
+import { AppSidebarComponent } from '@shared/layout';
+import { NotificationService } from '@core/services/notification.service';
+import { AppSettingsService } from '@core/services/app-settings.service';
+
+export type TaskDateFilter = 'hoy' | 'semana' | 'todas';
 
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, HeaderComponent],
-  template: `
-    <div class="task-list-page">
-      <app-header />
-
-      <div class="task-list-page__toolbar">
-        <a routerLink="/dashboard" class="back">← Dashboard</a>
-        <h1>Mis tareas</h1>
-        <a routerLink="/tasks/new" class="btn btn-primary">+ Nueva tarea</a>
-      </div>
-
-      <div class="filters">
-        <button
-          [class.active]="filter === null"
-          (click)="filter = null; loadTasks()"
-        >
-          Todas
-        </button>
-        <button
-          [class.active]="filter === 'pendiente'"
-          (click)="filter = 'pendiente'; loadTasks()"
-        >
-          Pendientes
-        </button>
-        <button
-          [class.active]="filter === 'en_proceso'"
-          (click)="filter = 'en_proceso'; loadTasks()"
-        >
-          En proceso
-        </button>
-        <button
-          [class.active]="filter === 'finalizada'"
-          (click)="filter = 'finalizada'; loadTasks()"
-        >
-          Finalizadas
-        </button>
-      </div>
-
-      @if (loading) {
-        <p class="loading">Cargando...</p>
-      } @else if (tasks.length === 0) {
-        <p class="empty">No hay tareas. <a routerLink="/tasks/new">Crear una</a></p>
-      } @else {
-        <ul class="task-list">
-          @for (task of tasks; track task.id) {
-            <li class="task-item" [class.overdue]="isOverdue(task)" [class.completed]="task.status === 'finalizada'">
-              <div class="task-main">
-                <input
-                  type="checkbox"
-                  [checked]="task.status === 'finalizada'"
-                  (change)="toggleComplete(task)"
-                />
-                <div class="task-info">
-                  <a [routerLink]="['/tasks', task.id, 'edit']" class="task-title">{{ task.title }}</a>
-                  <span class="task-meta">
-                    {{ formatDate(task.dueDate) }} · {{ task.priority }}
-                  </span>
-                </div>
-                <div class="task-actions">
-                  <a [routerLink]="['/tasks', task.id, 'edit']" class="btn-icon">✏️</a>
-                  <button class="btn-icon" (click)="deleteTask(task)">🗑️</button>
-                </div>
-              </div>
-              @if (task.description) {
-                <p class="task-desc">{{ task.description }}</p>
-              }
-            </li>
-          }
-        </ul>
-      }
-    </div>
-  `,
+  imports: [CommonModule, RouterLink, AppSidebarComponent],
+  templateUrl: './task-list.component.html',
   styleUrls: ['./task-list.component.scss'],
 })
 export class TaskListComponent implements OnInit {
+  private readonly notif = inject(NotificationService);
+  private readonly appSettings = inject(AppSettingsService);
+
   tasks: Task[] = [];
   loading = true;
-  filter: TaskStatus | null = null;
+  dateFilter: TaskDateFilter = 'todas';
+  avatarUrl = '';
+  userHandle = '@Usuario';
 
-  constructor(private taskService: TaskService) {}
+  constructor(
+    private taskService: TaskService,
+    public auth: AuthService,
+  ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
+    const u = this.auth.user();
+    const email = u?.email ?? 'usuario@ejemplo.com';
+    const local = email.includes('@') ? email.split('@')[0] : email;
+    this.userHandle = `@${local}`;
+    this.avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(u?.id ?? email)}`;
     this.loadTasks();
   }
 
-  loadTasks() {
+  loadTasks(): void {
     this.loading = true;
-    this.taskService.getTasks(this.filter ?? undefined).subscribe({
-      next: (t: Task[]) => (this.tasks = t),
+    this.taskService.getTasks(undefined).subscribe({
+      next: (t: Task[]) => {
+        this.tasks = t;
+        this.notif.setTasks(t);
+      },
       error: () => (this.loading = false),
       complete: () => (this.loading = false),
     });
   }
 
-  formatDate(dateStr: string) {
-    return new Date(dateStr).toLocaleDateString('es-CO', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
+  setFilter(f: TaskDateFilter): void {
+    this.dateFilter = f;
   }
 
-  isOverdue(task: Task) {
-    return task.status !== 'finalizada' && new Date(task.dueDate) < new Date();
+  get filteredTasks(): Task[] {
+    const list = this.tasks;
+    if (this.dateFilter === 'todas') return list;
+    const today = new Date();
+    if (this.dateFilter === 'hoy') {
+      return list.filter((t) => this.sameDay(new Date(t.dueDate), today));
+    }
+    return list.filter((t) => this.isInCurrentWeek(new Date(t.dueDate), today));
   }
 
-  toggleComplete(task: Task) {
-    const newStatus = task.status === 'finalizada' ? 'pendiente' : 'finalizada';
-    this.taskService.updateTask(task.id, { status: newStatus }).subscribe({
-      next: () => this.loadTasks(),
-    });
+  private sameDay(a: Date, b: Date): boolean {
+    return (
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate()
+    );
   }
 
-  deleteTask(task: Task) {
+  private isInCurrentWeek(taskDate: Date, today: Date): boolean {
+    const d = new Date(today);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(d.setDate(diff));
+    monday.setHours(0, 0, 0, 0);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
+    const td = new Date(taskDate);
+    return td >= monday && td <= sunday;
+  }
+
+  cardVariant(index: number): 'pink' | 'blue' | 'green' | 'teal' {
+    const v = index % 4;
+    if (v === 0) return 'pink';
+    if (v === 1) return 'blue';
+    if (v === 2) return 'green';
+    return 'teal';
+  }
+
+  /** Re-evalúa cuando cambian preferencias de fecha/hora */
+  datedTask(task: Task): string {
+    this.appSettings.settings();
+    return this.appSettings.formatDateTime(task.dueDate);
+  }
+
+  deleteTask(task: Task, ev: Event): void {
+    ev.preventDefault();
+    ev.stopPropagation();
     if (confirm('¿Eliminar esta tarea?')) {
       this.taskService.deleteTask(task.id).subscribe({
         next: () => this.loadTasks(),

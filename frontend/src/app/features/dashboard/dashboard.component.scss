@@ -1,13 +1,7 @@
-$sidebar-bg: #2a3344;
-$sidebar-text: rgba(255, 255, 255, 0.92);
-$serif: 'Playfair Display', Georgia, serif;
-$sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-$red-logout: #dc2626;
-
 .dashboard-home {
   min-height: 100vh;
-  background: #fff;
-  color: #0f172a;
+  background: var(--app-bg);
+  color: var(--app-text);
 }
 
 .dashboard-home__layout {
@@ -21,83 +15,17 @@ $red-logout: #dc2626;
   box-sizing: border-box;
 }
 
-.dashboard-sidebar {
-  flex: 0 0 240px;
-  background: $sidebar-bg;
-  border-radius: 28px;
-  padding: 1.35rem 1rem 1.25rem;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.12);
+@media (max-width: 1024px) {
+  .dashboard-home__layout {
+    padding: 1.25rem 1rem 1.75rem;
+    gap: 1.25rem;
+  }
 }
 
-.dashboard-sidebar__nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.dashboard-sidebar__nav--bottom {
-  margin-top: auto;
-  padding-top: 0.5rem;
-}
-
-.dashboard-sidebar__link {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  padding: 0.65rem 0.85rem;
-  border-radius: 12px;
-  font-family: $sans;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: $sidebar-text;
-  text-decoration: none;
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
-.dashboard-sidebar__link:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.dashboard-sidebar__link.active {
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-}
-
-.dashboard-sidebar__icon {
-  display: flex;
-  flex-shrink: 0;
-  opacity: 0.9;
-}
-
-.dashboard-sidebar__divider {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.12);
-  margin: 1rem 0;
-}
-
-.dashboard-sidebar__logout {
-  width: 100%;
-  margin-top: 0.5rem;
-  padding: 0.7rem 0.85rem;
-  border: none;
-  border-radius: 12px;
-  font-family: $sans;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #fff;
-  background: $red-logout;
-  cursor: pointer;
-  transition: filter 0.2s ease, transform 0.15s ease;
-}
-
-.dashboard-sidebar__logout:hover {
-  filter: brightness(1.08);
-}
-
-.dashboard-sidebar__logout:active {
-  transform: scale(0.98);
+@media (max-width: 640px) {
+  .dashboard-home__layout {
+    padding: 1rem 0.75rem 1.25rem;
+  }
 }
 
 .dashboard-home__content {
@@ -105,70 +33,9 @@ $red-logout: #dc2626;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
+  gap: 1.25rem;
 }
 
-.dashboard-profile {
-  display: flex;
-  align-items: flex-start;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.dashboard-profile__avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-  background: #f1f5f9;
-  border: 3px solid #e2e8f0;
-  flex-shrink: 0;
-}
-
-.dashboard-profile__text {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.35rem;
-}
-
-.dashboard-profile__handle {
-  font-family: $serif;
-  font-size: clamp(1.75rem, 3vw, 2.25rem);
-  font-weight: 700;
-  color: #1e3a5f;
-  margin: 0;
-  letter-spacing: 0.02em;
-}
-
-.dashboard-profile__subtitle {
-  font-family: $sans;
-  font-size: 0.95rem;
-  color: #64748b;
-  margin: 0 0 0.5rem;
-}
-
-.dashboard-profile__cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.55rem 1.35rem;
-  border-radius: 10px;
-  border: 1.5px solid #0f172a;
-  background: #fff;
-  color: #0f172a;
-  font-family: $sans;
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
-.dashboard-profile__cta:hover {
-  background: #f8fafc;
-}
-
-/* Calendario: estilo sobrio (tabla clara, sin gradientes llamativos) */
 .dashboard-calendar {
   padding: 0;
 }
@@ -178,8 +45,85 @@ $red-logout: #dc2626;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
+  gap: 1rem 1.25rem;
   margin-bottom: 1rem;
+}
+
+.dashboard-calendar__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.65rem 1rem;
+}
+
+.dashboard-calendar__filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--app-text-muted);
+}
+
+.dashboard-calendar__filter-label {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.dashboard-calendar__select {
+  min-width: 9.5rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--app-border-strong);
+  background: var(--app-input-bg);
+  color: var(--app-text);
+  font-family: var(--font-family);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.dashboard-calendar__select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--app-header-focus-ring, rgba(30, 58, 95, 0.2));
+  border-color: var(--app-link, #1e3a5f);
+}
+
+.dashboard-calendar__today-btn {
+  align-self: flex-end;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid var(--app-border-strong);
+  background: var(--app-muted-bg);
+  color: var(--app-text);
+  font-family: var(--font-family);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.dashboard-calendar__today-btn:hover {
+  background: var(--app-surface);
+  border-color: var(--app-border);
+}
+
+.dashboard-calendar__filter-close {
+  align-self: flex-end;
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--app-link, #1e3a5f);
+  font-family: var(--font-family);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.dashboard-calendar__filter-close:hover {
+  color: var(--app-text);
 }
 
 .dashboard-calendar__month-nav {
@@ -195,20 +139,20 @@ $red-logout: #dc2626;
   width: 2.4rem;
   height: 2.4rem;
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  background: #fff;
-  color: #334155;
+  border: 1px solid var(--app-border-strong);
+  background: var(--app-input-bg);
+  color: var(--app-text);
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .dashboard-calendar__nav-btn:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: var(--app-muted-bg);
+  border-color: var(--app-border);
 }
 
 .dashboard-calendar__nav-btn:active {
-  background: #f1f5f9;
+  background: var(--app-muted-bg);
 }
 
 .dashboard-calendar__nav-icon {
@@ -217,29 +161,55 @@ $red-logout: #dc2626;
   font-weight: 400;
 }
 
+.dashboard-calendar__title-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: min(100%, 22rem);
+  margin: 0;
+  padding: 0.25rem 0.6rem;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dashboard-calendar__title-btn:hover {
+  background: var(--app-muted-bg);
+}
+
+.dashboard-calendar__title-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--app-header-focus-ring, rgba(30, 58, 95, 0.25));
+}
+
 .dashboard-calendar__title {
-  font-family: $serif;
+  font-family: var(--font-family);
   font-size: clamp(1.45rem, 2.8vw, 1.85rem);
   font-weight: 700;
-  color: #1e293b;
+  color: var(--app-text);
   margin: 0;
   min-width: 12ch;
   text-align: center;
+  pointer-events: none;
 }
 
 .dashboard-calendar__wrap {
   overflow-x: auto;
   border-radius: 12px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border-strong);
+  box-shadow: var(--app-shadow-sm);
 }
 
 .dashboard-calendar__grid {
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
-  font-family: $sans;
+  font-family: var(--font-family);
   font-size: 0.8125rem;
   min-width: 900px;
 }
@@ -248,26 +218,26 @@ $red-logout: #dc2626;
   padding: 0.65rem 0.4rem;
   font-weight: 600;
   font-size: 0.75rem;
-  color: #475569;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  color: var(--app-text-label);
+  background: var(--app-cal-thead-bg);
+  border: 1px solid var(--app-border-strong);
   text-align: center;
 }
 
 .dashboard-calendar__th-week {
   width: 3.75rem;
   font-size: 0.7rem;
-  color: #64748b;
-  background: #f1f5f9;
+  color: var(--app-text-muted);
+  background: var(--app-muted-bg);
 }
 
 .dashboard-calendar__week-num {
   padding: 0.5rem 0.35rem;
   font-weight: 600;
   font-size: 0.78rem;
-  color: #94a3b8;
-  background: #fafafa;
-  border: 1px solid #e2e8f0;
+  color: var(--app-text-muted);
+  background: var(--app-cal-muted);
+  border: 1px solid var(--app-border-strong);
   text-align: center;
   vertical-align: middle;
 }
@@ -276,18 +246,18 @@ $red-logout: #dc2626;
   padding: 0;
   min-width: 6.25rem;
   vertical-align: top;
-  border: 1px solid #e5e7eb;
-  background: #fff;
+  border: 1px solid var(--app-cal-border);
+  background: var(--app-cal-cell-bg);
   cursor: pointer;
   transition: background 0.12s ease;
 }
 
 .dashboard-calendar__day:hover {
-  background: #fafafa;
+  background: var(--app-cal-cell-hover);
 }
 
 .dashboard-calendar__day:focus-visible {
-  outline: 2px solid #1e3a5f;
+  outline: 2px solid var(--app-accent-solid);
   outline-offset: -2px;
   z-index: 1;
 }
@@ -307,7 +277,7 @@ $red-logout: #dc2626;
   font-size: 0.8rem;
   font-weight: 600;
   line-height: 1.1;
-  color: #94a3b8;
+  color: var(--app-text-muted);
 }
 
 .dashboard-calendar__day-preview {
@@ -317,7 +287,7 @@ $red-logout: #dc2626;
   font-size: 0.65rem;
   font-weight: 400;
   line-height: 1.35;
-  color: #475569;
+  color: var(--app-text-label);
   text-align: left;
   word-break: break-word;
   overflow-wrap: anywhere;
@@ -327,15 +297,15 @@ $red-logout: #dc2626;
 }
 
 .dashboard-calendar__day--muted {
-  background: #fafafa;
+  background: var(--app-cal-muted);
 }
 
 .dashboard-calendar__day--muted:hover {
-  background: #f4f4f5;
+  background: var(--app-cal-muted-hover);
 }
 
 .dashboard-calendar__day--muted .dashboard-calendar__day-num {
-  color: #cbd5e1;
+  color: var(--app-text-muted);
 }
 
 .dashboard-calendar__day--holiday .dashboard-calendar__day-num {
@@ -348,12 +318,12 @@ $red-logout: #dc2626;
 }
 
 .dashboard-calendar__day--today {
-  background: #fafafa;
-  box-shadow: inset 0 0 0 1px #1e3a5f;
+  background: var(--app-cal-cell-hover);
+  box-shadow: inset 0 0 0 1px var(--app-accent-solid);
 }
 
 .dashboard-calendar__day--today .dashboard-calendar__day-num {
-  color: #1e3a5f;
+  color: var(--app-accent-solid);
   font-weight: 700;
 }
 
@@ -362,17 +332,17 @@ $red-logout: #dc2626;
 }
 
 .dashboard-calendar__day--has-preview {
-  background: #fff;
+  background: var(--app-cal-cell-bg);
 }
 
 .dashboard-calendar__day--has-preview:hover {
-  background: #fafafa;
+  background: var(--app-cal-cell-hover);
 }
 
 .day-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.45);
+  background: var(--app-modal-backdrop);
   z-index: 200;
 }
 
@@ -385,11 +355,13 @@ $red-logout: #dc2626;
   width: min(420px, calc(100vw - 2rem));
   max-height: min(85vh, 560px);
   overflow-y: auto;
-  background: #fff;
+  background: var(--app-card);
+  color: var(--app-text);
   border-radius: 20px;
   padding: 1.5rem 1.35rem 1.35rem;
-  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.2);
-  font-family: $sans;
+  box-shadow: var(--app-shadow-md);
+  border: 1px solid var(--app-border);
+  font-family: var(--font-family);
 }
 
 .day-modal__close {
@@ -402,21 +374,21 @@ $red-logout: #dc2626;
   background: transparent;
   font-size: 1.5rem;
   line-height: 1;
-  color: #64748b;
+  color: var(--app-text-muted);
   cursor: pointer;
   border-radius: 8px;
 }
 
 .day-modal__close:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--app-icon-btn-hover);
+  color: var(--app-text);
 }
 
 .day-modal__title {
-  font-family: $serif;
+  font-family: var(--font-family);
   font-size: 1.2rem;
   font-weight: 700;
-  color: #1e3a5f;
+  color: var(--app-link);
   margin: 0 2rem 0.5rem 0;
   line-height: 1.3;
 }
@@ -443,7 +415,7 @@ $red-logout: #dc2626;
   gap: 0.5rem;
   padding: 0.5rem 0.65rem;
   margin-bottom: 0.35rem;
-  background: #f8fafc;
+  background: var(--app-muted-bg);
   border-radius: 10px;
   font-size: 0.9rem;
   word-break: break-word;
@@ -458,7 +430,7 @@ $red-logout: #dc2626;
   flex-shrink: 0;
   border: none;
   background: transparent;
-  color: #94a3b8;
+  color: var(--app-text-muted);
   cursor: pointer;
   font-size: 1.1rem;
   line-height: 1;
@@ -473,7 +445,7 @@ $red-logout: #dc2626;
   display: block;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--app-text-muted);
   margin-bottom: 0.35rem;
 }
 
@@ -488,8 +460,8 @@ $red-logout: #dc2626;
   width: 2.1rem;
   height: 2.1rem;
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  background: #fff;
+  border: 1px solid var(--app-border-strong);
+  background: var(--app-input-bg);
   font-size: 1.1rem;
   cursor: pointer;
   line-height: 1;
@@ -497,25 +469,27 @@ $red-logout: #dc2626;
 }
 
 .day-modal__emoji:hover {
-  background: #f1f5f9;
+  background: var(--app-muted-bg);
 }
 
 .day-modal__textarea {
   width: 100%;
   box-sizing: border-box;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--app-border-strong);
   border-radius: 12px;
   padding: 0.65rem 0.75rem;
-  font-family: $sans;
+  font-family: var(--font-family);
   font-size: 0.9rem;
   resize: vertical;
   margin-bottom: 0.75rem;
+  background: var(--app-input-bg);
+  color: var(--app-text);
 }
 
 .day-modal__textarea:focus {
   outline: none;
-  border-color: #1e3a5f;
-  box-shadow: 0 0 0 2px rgba(30, 58, 95, 0.12);
+  border-color: var(--app-accent-solid);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
 .day-modal__add {
@@ -523,9 +497,9 @@ $red-logout: #dc2626;
   padding: 0.65rem 1rem;
   border: none;
   border-radius: 12px;
-  background: #1e3a5f;
+  background: var(--app-accent-solid);
   color: #fff;
-  font-family: $sans;
+  font-family: var(--font-family);
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
@@ -538,39 +512,5 @@ $red-logout: #dc2626;
 @media (max-width: 960px) {
   .dashboard-home__layout {
     flex-direction: column;
-  }
-
-  .dashboard-sidebar {
-    flex: none;
-    width: 100%;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    padding: 1rem;
-  }
-
-  .dashboard-sidebar__nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-    flex: 1;
-  }
-
-  .dashboard-sidebar__divider {
-    display: none;
-  }
-
-  .dashboard-sidebar__nav--bottom {
-    flex-direction: row;
-    margin-top: 0;
-    padding-top: 0;
-    width: 100%;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .dashboard-sidebar__logout {
-    width: auto;
-    margin-top: 0;
   }
 }

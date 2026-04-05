@@ -1,0 +1,102 @@
+<div class="uai-page">
+  <div class="uai-layout">
+    <app-sidebar />
+
+    <div class="uai-main">
+      <header class="uai-hero">
+        <img class="uai-hero__avatar" [src]="avatarUrl" width="96" height="96" alt="" />
+        <div class="uai-hero__text">
+          <p class="uai-hero__handle">{{ userHandle }}</p>
+          <p class="uai-hero__subtitle">Gestiona tu cuenta</p>
+        </div>
+        <a routerLink="/tasks/new" class="uai-hero__cta">+ Nueva Tarea</a>
+      </header>
+      <div class="uai-hero__rule" role="presentation"></div>
+
+      <div class="uai-panels">
+        <section class="uai-panel uai-panel--list" aria-labelledby="uai-conv-title">
+          <h2 id="uai-conv-title" class="uai-panel__title">
+            <span class="uai-panel__title-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </span>
+            Conversaciones
+          </h2>
+          <ul class="uai-conv-list">
+            @for (c of conversations; track c.id) {
+              <li>
+                <button
+                  type="button"
+                  class="uai-conv-item"
+                  [class.uai-conv-item--active]="selectedId() === c.id"
+                  (click)="selectConversation(c.id)"
+                >
+                  @if (selectedId() === c.id) {
+                    <span class="uai-conv-item__dot" aria-hidden="true"></span>
+                  }
+                  <span class="uai-conv-item__text">{{ c.label }}</span>
+                </button>
+              </li>
+            }
+          </ul>
+        </section>
+
+        <section class="uai-panel uai-panel--chat" aria-label="Chat con el asistente">
+          <div class="uai-chat-scroll">
+            @for (msg of messages(); track $index) {
+              @if (msg.role === 'user') {
+                <div class="uai-msg uai-msg--user">
+                  <div class="uai-msg__bubble uai-msg__bubble--user">
+                    {{ msg.text }}
+                  </div>
+                  <img class="uai-msg__avatar" [src]="avatarUrl" width="36" height="36" alt="" />
+                </div>
+              } @else {
+                <div class="uai-msg uai-msg--bot">
+                  <div class="uai-msg__bot-icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><rect x="4" y="8" width="16" height="12" rx="2"/><circle cx="9" cy="13" r="1" fill="#7c3aed" stroke="none"/><circle cx="15" cy="13" r="1" fill="#7c3aed" stroke="none"/><path d="M9 17h6"/><path d="M12 8V5"/><path d="M8 5h8"/></svg>
+                  </div>
+                  <div class="uai-msg__bubble uai-msg__bubble--bot">
+                    <p class="uai-msg__text">{{ msg.text }}</p>
+                    @if (msg.bullets?.length) {
+                      <ul class="uai-msg__list">
+                        @for (line of msg.bullets; track line) {
+                          <li>{{ line }}</li>
+                        }
+                      </ul>
+                    }
+                  </div>
+                </div>
+              }
+            }
+          </div>
+
+          <div class="uai-suggestions">
+            <p class="uai-suggestions__label">Sugerencias rápidas</p>
+            <div class="uai-suggestions__row">
+              @for (s of quickSuggestions; track s) {
+                <button type="button" class="uai-chip" (click)="applySuggestion(s)">{{ s }}</button>
+              }
+            </div>
+          </div>
+
+          <div class="uai-compose">
+            <label class="uai-compose__label sr-only" for="uai-input">Escribe un mensaje</label>
+            <textarea
+              id="uai-input"
+              class="uai-compose__input"
+              rows="2"
+              placeholder="Ejemplo: Ayúdame a organizar..."
+              [ngModel]="draft()"
+              (ngModelChange)="draft.set($event)"
+              (keydown)="onKeydown($event)"
+            ></textarea>
+            <button type="button" class="uai-compose__send" (click)="send()">
+              Enviar
+              <span class="uai-compose__send-icon" aria-hidden="true">→</span>
+            </button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>

@@ -3,23 +3,23 @@
     <div class="footer-grid">
       <div class="footer-col footer-brand">
         <span class="footer-logo">TaskMaster</span>
-        <p class="footer-tagline">Gestor inteligente de tareas para equipos y profesionales.</p>
+        <p class="footer-tagline">{{ L().tagline }}</p>
       </div>
       <div class="footer-col">
-        <h4 class="footer-heading">Navegación</h4>
-        <a routerLink="/">Inicio</a>
-        <a routerLink="/funcionalidades">Funcionalidades</a>
-        <a routerLink="/productividad">Productividad</a>
-        <a routerLink="/login">Iniciar sesión</a>
-        <a routerLink="/register">Registrarse</a>
+        <h4 class="footer-heading">{{ L().nav }}</h4>
+        <a routerLink="/">{{ L().home }}</a>
+        <a routerLink="/funcionalidades">{{ L().features }}</a>
+        <a routerLink="/productividad">{{ L().productivity }}</a>
+        <a routerLink="/login">{{ L().login }}</a>
+        <a routerLink="/register">{{ L().register }}</a>
       </div>
       <div class="footer-col">
-        <h4 class="footer-heading">Contacto</h4>
-        <p>Universidad Autónoma de Manizales</p>
+        <h4 class="footer-heading">{{ L().contact }}</h4>
+        <p>{{ L().contactLine }}</p>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 TaskMaster. Todos los derechos reservados.</p>
+      <p>{{ L().copy }}</p>
     </div>
   </div>
 </footer>

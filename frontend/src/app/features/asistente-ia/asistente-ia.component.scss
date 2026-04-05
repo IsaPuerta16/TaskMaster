@@ -1,46 +1,19 @@
 // Mockup hero: panel #1A2332, avatar borde claro, tarjetas: icono | (título + desc bajo título)
 
-$ia-bg: #f4f7f6;
-$ia-navy: #1a2332;
+// Panel hero + referencia de marca (azul pizarra / slate ~ Tailwind slate-800)
+$ia-navy: #1e293b;
 // Mismo azul corporativo que header / enlaces (#1e3a5f en header.component.scss)
-$ia-brand: #1e3a5f;
-$ia-chat-strip: #eceef0;
-// Tarjeta “Respuesta instantánea” (mockup)
-$ia-response-card-bg: #1e293b;
-$ia-muted: #64748b;
+$ia-brand: var(--app-link);
+$ia-brand-solid: #1e3a5f;
+$ia-chat-strip: var(--app-muted-bg);
 $ia-bubble: #94a3b8;
 $radius-lg: 20px;
-$font-serif: 'Playfair Display', Georgia, serif;
-$font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
 .asistente {
-  font-family: $font-sans;
+  font-family: var(--font-family);
   min-height: 100vh;
-  background: linear-gradient(165deg, #f8fafc 0%, $ia-bg 38%, #eef4f2 100%);
-  color: $ia-navy;
-}
-
-.asistente ::ng-deep app-header .header {
-  background: #fff;
-  padding: 1rem 2.5rem;
-  border-bottom: 1px solid #e8ecf0;
-  box-shadow: 0 1px 2px rgba(30, 42, 56, 0.05);
-}
-
-.asistente ::ng-deep app-header .logo {
-  font-family: $font-serif;
-  font-size: 2rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: 0.02em;
-}
-
-.asistente ::ng-deep app-header .search-bar {
-  border-radius: 999px;
-  min-width: 280px;
-  padding: 0.55rem 1.25rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  background: var(--app-bg);
+  color: var(--app-text);
 }
 
 .main {
@@ -49,25 +22,47 @@ $font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   padding: 0 2rem 4rem;
 }
 
+@media (max-width: 1024px) {
+  .main {
+    padding: 0 1.25rem 3rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .main {
+    padding: 0 1rem 2.5rem;
+  }
+
+  .ia-chat {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .ia-hero {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+  }
+}
+
 .ia-hero {
   padding: 2.5rem 0 2.75rem;
   text-align: center;
 }
 
 .ia-hero__title {
-  font-family: $font-serif;
+  font-family: var(--font-family);
   font-size: clamp(1.75rem, 4vw, 2.35rem);
   font-weight: 700;
-  color: #0f172a;
+  color: var(--app-text);
   margin: 0 0 0.75rem;
   line-height: 1.3;
   letter-spacing: -0.02em;
 }
 
 .ia-hero__subtitle {
-  font-family: $font-sans;
+  font-family: var(--font-family);
   font-size: 1rem;
-  color: $ia-muted;
+  color: var(--app-text-muted);
   max-width: 520px;
   margin: 0 auto 2.5rem;
   line-height: 1.6;
@@ -78,10 +73,16 @@ $font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   flex-direction: column;
   align-items: center;
   background: $ia-navy;
+  border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: $radius-lg;
   padding: 1.75rem 1.5rem 2.5rem;
   margin-top: 3rem;
-  box-shadow: 0 24px 56px rgba(10, 15, 25, 0.42);
+  box-shadow: 0 22px 52px rgba(15, 23, 42, 0.38);
+}
+
+.asistente--dark .ia-navy-panel {
+  border: none;
+  box-shadow: 0 24px 56px rgba(10, 15, 25, 0.45);
 }
 
 // Avatar: siempre dentro del panel (sin solapar el borde superior)
@@ -115,10 +116,19 @@ $font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   width: 88px;
   height: 88px;
   border-radius: 50%;
-  border: 3px solid #fff;
+  border: 3px solid var(--app-border-strong);
   overflow: hidden;
   box-sizing: border-box;
   background: $ia-brand;
+}
+
+/* Sobre el panel #1e293b (claro u oscuro): borde claro del avatar */
+.ia-navy-panel .ia-robot-badge__ring {
+  border-color: #fff;
+}
+
+.asistente--dark .ia-robot-badge__ring {
+  border-color: #fff;
 }
 
 .ia-robot-badge__img {
@@ -149,7 +159,7 @@ $font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  background: #fff;
+  background: var(--app-card);
   border-radius: 15px;
   padding: 1.5rem;
   text-align: left;
@@ -181,29 +191,38 @@ $font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   height: 44px;
   display: block;
   object-fit: contain;
+  mix-blend-mode: normal;
+}
+
+.asistente--dark .ia-feature-card__icon-img--bolt {
+  mix-blend-mode: screen;
 }
 
 .ia-feature-card__title {
-  font-family: $font-serif;
+  font-family: var(--font-family);
   font-size: 0.9375rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--app-text);
   margin: 0;
   line-height: 1.28;
   flex: 1;
   min-width: 0;
   text-align: left;
+  text-shadow: none;
+  -webkit-font-smoothing: antialiased;
 }
 
 // Fila 2: mismo ancho que la tarjeta; alineada al borde izquierdo del icono (referencia)
 .ia-feature-card__desc {
-  font-family: $font-serif;
+  font-family: var(--font-family);
   font-size: 0.875rem;
   font-weight: 400;
-  color: #6b7280;
+  color: var(--app-text-muted);
   margin: 0.65rem 0 0;
   line-height: 1.45;
   text-align: left;
+  text-shadow: none;
+  -webkit-font-smoothing: antialiased;
 }
 
 // Franja gris claro a ancho completo (mockup “Habla con él…”)
@@ -233,20 +252,20 @@ $font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .ia-chat__title {
-  font-family: $font-serif;
+  font-family: var(--font-family);
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 700;
-  color: #0a0a0a;
+  color: var(--app-text);
   margin: 0 0 1rem;
   line-height: 1.25;
   text-align: left;
 }
 
 .ia-chat__text {
-  font-family: $font-serif;
+  font-family: var(--font-family);
   font-size: 1rem;
   font-weight: 400;
-  color: #374151;
+  color: var(--app-text-label);
   line-height: 1.65;
   margin: 0 0 1.5rem;
   text-align: left;
@@ -296,7 +315,7 @@ $font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   min-width: 0;
   background: #9ca3af;
   color: #fff;
-  font-family: $font-sans;
+  font-family: var(--font-family);
   font-size: 0.9375rem;
   font-weight: 400;
   line-height: 1.5;
@@ -319,7 +338,7 @@ $font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: $ia-response-card-bg;
+  background: $ia-navy;
   border-radius: 28px;
   padding: 2.5rem 2rem 2.25rem;
   box-shadow: 0 20px 48px rgba(15, 23, 42, 0.35);
@@ -352,10 +371,11 @@ $font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   height: auto;
   object-fit: contain;
   vertical-align: middle;
+  mix-blend-mode: normal;
 }
 
 .ia-response-card__title {
-  font-family: $font-serif;
+  font-family: var(--font-family);
   font-size: 1.35rem;
   font-weight: 700;
   color: #fff;
@@ -387,7 +407,7 @@ $font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .ia-response-card__value {
-  font-family: $font-serif;
+  font-family: var(--font-family);
   font-size: 1.85rem;
   font-weight: 700;
   color: #fff;
@@ -395,7 +415,7 @@ $font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .ia-response-card__label {
-  font-family: $font-serif;
+  font-family: var(--font-family);
   font-size: 0.625rem;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -430,7 +450,7 @@ $font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
   padding: 0.6rem 1rem 0.6rem 0.65rem;
-  font-family: $font-serif;
+  font-family: var(--font-family);
   font-size: 0.875rem;
   font-weight: 400;
   color: #fff;
@@ -463,7 +483,7 @@ $ia-accent-violet: #7c3aed;
 $ia-accent-amber: #d97706;
 
 .ia-section-eyebrow {
-  font-family: $font-sans;
+  font-family: var(--font-family);
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.22em;
@@ -474,10 +494,10 @@ $ia-accent-amber: #d97706;
 }
 
 .ia-section-title {
-  font-family: $font-serif;
+  font-family: var(--font-family);
   font-size: clamp(1.45rem, 3vw, 1.85rem);
   font-weight: 700;
-  color: #0f172a;
+  color: var(--app-text);
   margin: 0 0 0.75rem;
   line-height: 1.25;
   text-align: center;
@@ -485,9 +505,9 @@ $ia-accent-amber: #d97706;
 }
 
 .ia-section-lead {
-  font-family: $font-sans;
+  font-family: var(--font-family);
   font-size: 0.98rem;
-  color: $ia-muted;
+  color: var(--app-text-muted);
   line-height: 1.6;
   max-width: 640px;
   margin: 0 auto 2rem;
@@ -530,11 +550,11 @@ $ia-accent-amber: #d97706;
 
 .ia-example-card {
   position: relative;
-  background: #fff;
+  background: var(--app-card);
   border-radius: 18px;
   padding: 1.5rem 1.45rem 1.4rem;
-  box-shadow: 0 4px 22px rgba(15, 23, 42, 0.06);
-  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: var(--app-shadow-card);
+  border: 1px solid var(--app-border);
   overflow: hidden;
   transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
 }
@@ -575,7 +595,7 @@ $ia-accent-amber: #d97706;
 
 .ia-example-card__tag {
   display: inline-block;
-  font-family: $font-sans;
+  font-family: var(--font-family);
   font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -588,18 +608,18 @@ $ia-accent-amber: #d97706;
 }
 
 .ia-example-card__quote {
-  font-family: $font-serif;
+  font-family: var(--font-family);
   font-size: 0.95rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--app-text);
   margin: 0 0 0.65rem;
   line-height: 1.45;
 }
 
 .ia-example-card__hint {
-  font-family: $font-sans;
+  font-family: var(--font-family);
   font-size: 0.8125rem;
-  color: $ia-muted;
+  color: var(--app-text-muted);
   margin: 0;
   line-height: 1.5;
 }
@@ -627,7 +647,7 @@ $ia-accent-amber: #d97706;
   bottom: 22px;
   width: 3px;
   border-radius: 999px;
-  background: linear-gradient(180deg, $ia-accent-teal 0%, $ia-brand 45%, $ia-accent-violet 100%);
+  background: linear-gradient(180deg, $ia-accent-teal 0%, $ia-brand-solid 45%, $ia-accent-violet 100%);
   opacity: 0.35;
 }
 
@@ -648,7 +668,7 @@ $ia-accent-amber: #d97706;
 }
 
 .ia-steps__item:hover {
-  background: rgba(255, 255, 255, 0.65);
+  background: var(--app-muted-bg);
 }
 
 .ia-steps__num {
@@ -656,9 +676,9 @@ $ia-accent-amber: #d97706;
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: linear-gradient(145deg, lighten($ia-brand, 6%) 0%, $ia-brand 100%);
+  background: linear-gradient(145deg, lighten($ia-brand-solid, 6%) 0%, $ia-brand-solid 100%);
   color: #fff;
-  font-family: $font-serif;
+  font-family: var(--font-family);
   font-size: 1.1rem;
   font-weight: 700;
   display: flex;
@@ -671,17 +691,17 @@ $ia-accent-amber: #d97706;
 }
 
 .ia-steps__heading {
-  font-family: $font-serif;
+  font-family: var(--font-family);
   font-size: 1.05rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--app-text);
   margin: 0 0 0.35rem;
 }
 
 .ia-steps__text {
-  font-family: $font-sans;
+  font-family: var(--font-family);
   font-size: 0.9rem;
-  color: $ia-muted;
+  color: var(--app-text-muted);
   margin: 0;
   line-height: 1.55;
 }
@@ -694,15 +714,15 @@ $ia-accent-amber: #d97706;
   max-width: 720px;
   margin: 1.5rem auto 0;
   padding: 0.35rem 1.35rem 0.5rem;
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--app-card);
   border-radius: 20px;
-  border: 1px solid rgba(226, 232, 240, 0.95);
-  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.06);
+  border: 1px solid var(--app-border);
+  box-shadow: var(--app-shadow-card);
   backdrop-filter: blur(8px);
 }
 
 .ia-faq-item {
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--app-border);
   padding: 0.15rem 0;
 }
 
@@ -715,10 +735,10 @@ $ia-accent-amber: #d97706;
 }
 
 .ia-faq-item__q {
-  font-family: $font-serif;
+  font-family: var(--font-family);
   font-size: 1rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--app-text);
   cursor: pointer;
   list-style: none;
   padding: 0.95rem 0;
@@ -742,8 +762,8 @@ $ia-accent-amber: #d97706;
   top: 50%;
   width: 8px;
   height: 8px;
-  border-right: 2px solid $ia-muted;
-  border-bottom: 2px solid $ia-muted;
+  border-right: 2px solid var(--app-text-muted);
+  border-bottom: 2px solid var(--app-text-muted);
   transform: translateY(-60%) rotate(45deg);
   transition: transform 0.25s ease, border-color 0.2s ease;
 }
@@ -754,9 +774,9 @@ $ia-accent-amber: #d97706;
 }
 
 .ia-faq-item__a {
-  font-family: $font-sans;
+  font-family: var(--font-family);
   font-size: 0.9rem;
-  color: $ia-muted;
+  color: var(--app-text-muted);
   line-height: 1.6;
   margin: 0 0 1rem;
   padding-right: 0.5rem;
@@ -768,20 +788,10 @@ $ia-accent-amber: #d97706;
   width: 100vw;
   margin: 2.5rem calc(50% - 50vw) 0;
   padding: 3.25rem 2rem 3.5rem;
-  background: linear-gradient(135deg, #1a2332 0%, #0f172a 48%, #1e293b 100%);
+  /* Un solo degradado suave (sin parada central que marque “costura” vertical) */
+  background: linear-gradient(180deg, #0f172a 0%, #0b1120 100%);
   box-sizing: border-box;
   text-align: center;
-}
-
-.ia-cta__glow {
-  position: absolute;
-  right: -20%;
-  top: -40%;
-  width: 70%;
-  height: 140%;
-  background: radial-gradient(circle at 30% 50%, rgba(45, 212, 191, 0.18) 0%, transparent 55%),
-    radial-gradient(circle at 70% 60%, rgba(124, 58, 237, 0.15) 0%, transparent 50%);
-  pointer-events: none;
 }
 
 .ia-cta__inner {
@@ -792,17 +802,17 @@ $ia-accent-amber: #d97706;
 }
 
 .ia-cta__title {
-  font-family: $font-serif;
+  font-family: var(--font-family);
   font-size: clamp(1.4rem, 3vw, 1.85rem);
   font-weight: 700;
   color: #fff;
   margin: 0 0 0.75rem;
   line-height: 1.3;
-  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.25);
+  text-shadow: none;
 }
 
 .ia-cta__text {
-  font-family: $font-sans;
+  font-family: var(--font-family);
   font-size: 0.95rem;
   color: rgba(255, 255, 255, 0.82);
   line-height: 1.6;
@@ -824,7 +834,7 @@ $ia-accent-amber: #d97706;
   min-height: 46px;
   padding: 0 1.65rem;
   border-radius: 999px;
-  font-family: $font-sans;
+  font-family: var(--font-family);
   font-size: 0.9rem;
   font-weight: 600;
   text-decoration: none;
@@ -832,27 +842,26 @@ $ia-accent-amber: #d97706;
 }
 
 .ia-cta__btn--primary {
-  background: linear-gradient(180deg, #fff 0%, #f1f5f9 100%);
+  background: #fff;
   color: $ia-navy;
-  border: 2px solid #fff;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2);
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .ia-cta__btn--primary:hover {
-  background: #fff;
+  background: #f8fafc;
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
 }
 
 .ia-cta__btn--ghost {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
-  border: 2px solid rgba(255, 255, 255, 0.45);
+  border: none;
 }
 
 .ia-cta__btn--ghost:hover {
-  border-color: rgba(255, 255, 255, 0.85);
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.16);
   transform: translateY(-2px);
 }
 

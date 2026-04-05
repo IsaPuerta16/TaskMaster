@@ -1,10 +1,113 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 
+/* Tema de aplicación (Apariencia: claro / oscuro / sistema) — tokens globales */
+:root {
+  --app-bg: #f6f9fb;
+  --app-text: #0f172a;
+  --app-text-muted: #64748b;
+  --app-text-label: #475569;
+  --app-surface: #ffffff;
+  --app-card: #ffffff;
+  --app-border: #e8ecf0;
+  --app-border-strong: #e2e8f0;
+  --app-input-bg: #ffffff;
+  --app-muted-bg: #f1f5f9;
+  --app-link: #1e3a5f;
+  --app-header-bg: #ffffff;
+  --app-header-border: #e8ecf0;
+  --app-search-bg: #f1f5f9;
+  --app-hero-rule: #e2e8f0;
+  --app-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --app-shadow-md: 0 4px 24px rgba(15, 23, 42, 0.08);
+  --app-shadow-card: 0 2px 12px rgba(15, 23, 42, 0.06);
+  --app-sidebar-bg: #2c3444;
+  --app-sidebar-text: rgba(255, 255, 255, 0.95);
+  --app-sidebar-hover: rgba(255, 255, 255, 0.08);
+  --app-sidebar-active: #3b5998;
+  --app-sidebar-shadow: 0 12px 40px rgba(15, 23, 42, 0.12);
+  --app-sidebar-divider: rgba(255, 255, 255, 0.12);
+  --app-footer-bg: #ffffff;
+  --app-footer-border: #e2e8f0;
+  --app-toolbar-title: #1a1a1a;
+  --app-seg-bg: #ffffff;
+  --app-seg-border: #d1d5db;
+  --app-seg-divider: #e5e7eb;
+  --app-seg-text: #374151;
+  --app-seg-hover-bg: #f9fafb;
+  --app-seg-hover-text: #1f2937;
+  --app-icon-btn-hover: #f1f5f9;
+  --app-cal-thead-bg: #f8fafc;
+  --app-cal-cell-bg: #ffffff;
+  --app-cal-cell-hover: #fafafa;
+  --app-cal-muted: #fafafa;
+  --app-cal-muted-hover: #f4f4f5;
+  --app-cal-border: #e5e7eb;
+  --app-modal-backdrop: rgba(15, 23, 42, 0.45);
+  --app-accent-solid: #1e3a5f;
+  --app-teal: #148c84;
+  /* Navegación superior: inactivo / activo (claro) */
+  --app-header-nav-muted: var(--app-text-muted);
+  --app-header-nav-active: var(--app-link);
+  --app-header-focus-ring: rgba(30, 58, 95, 0.2);
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --app-bg: #0b1120;
+  --app-text: #f1f5f9;
+  --app-text-muted: #94a3b8;
+  --app-text-label: #94a3b8;
+  --app-surface: #1e293b;
+  --app-card: #1e293b;
+  --app-border: #334155;
+  --app-border-strong: #475569;
+  --app-input-bg: #0f172a;
+  --app-muted-bg: #172033;
+  --app-link: #93c5fd;
+  --app-header-bg: rgba(15, 23, 42, 0.78);
+  --app-header-border: rgba(51, 65, 85, 0.85);
+  --app-search-bg: #0f172a;
+  --app-hero-rule: #334155;
+  --app-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --app-shadow-md: 0 12px 40px rgba(0, 0, 0, 0.45);
+  --app-shadow-card: 0 4px 20px rgba(0, 0, 0, 0.35);
+  --app-sidebar-bg: #111827;
+  --app-sidebar-text: rgba(248, 250, 252, 0.95);
+  --app-sidebar-hover: rgba(255, 255, 255, 0.07);
+  --app-sidebar-active: #2563eb;
+  --app-sidebar-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+  --app-sidebar-divider: rgba(148, 163, 184, 0.18);
+  --app-footer-bg: #0f172a;
+  --app-footer-border: #1e293b;
+  --app-toolbar-title: #f1f5f9;
+  --app-seg-bg: #1e293b;
+  --app-seg-border: #475569;
+  --app-seg-divider: #334155;
+  --app-seg-text: #cbd5e1;
+  --app-seg-hover-bg: #334155;
+  --app-seg-hover-text: #f8fafc;
+  --app-icon-btn-hover: rgba(255, 255, 255, 0.08);
+  --app-cal-thead-bg: #0f172a;
+  --app-cal-cell-bg: #1e293b;
+  --app-cal-cell-hover: #334155;
+  --app-cal-muted: #172033;
+  --app-cal-muted-hover: #1e293b;
+  --app-cal-border: #334155;
+  --app-modal-backdrop: rgba(0, 0, 0, 0.65);
+  --app-accent-solid: #60a5fa;
+  --app-teal: #2dd4bf;
+  /* Enlaces inactivos más apagados sobre barra oscura; activo = acento claro */
+  --app-header-nav-muted: #64748b;
+  --app-header-nav-active: #93c5fd;
+  --app-header-focus-ring: rgba(96, 165, 250, 0.38);
+}
+
 /* Sistema tipográfico unificado (misma pila que la página Funcionalidades) */
 :root {
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-logo: var(--font-family);
+  /* Marca TM / logo: como antes (Playfair); el resto de la UI usa --font-family */
+  --font-logo: 'Playfair Display', Georgia, serif;
   --text-h1: 2rem;
   --text-h2: 1.5rem;
   --text-h3: 1.25rem;
@@ -34,14 +137,44 @@ html { scroll-behavior: smooth; }
 ::view-transition-new(root) {
   animation: routeEnter 0.4s ease-out;
 }
+/* Tamaño de fuente (configuración de usuario) */
+html[data-font-size='pequeno'] {
+  font-size: 93.75%;
+}
+html[data-font-size='mediano'],
+html:not([data-font-size]) {
+  font-size: 100%;
+}
+html[data-font-size='grande'] {
+  font-size: 112.5%;
+}
+
 body {
   margin: 0;
   font-family: var(--font-family);
   font-size: var(--text-body);
   font-weight: var(--weight-regular);
-  background: #F6F9FB;
-  color: #334155;
+  background: var(--app-bg);
+  color: var(--app-text);
   line-height: 1.5;
+  overflow-x: hidden;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  transition: background 0.25s ease, color 0.2s ease;
+}
+
+html[data-theme='dark'] body {
+  background: linear-gradient(165deg, #070b14 0%, #0b1120 35%, #0f172a 70%, #111827 100%);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: rgba(59, 130, 246, 0.28);
+  color: inherit;
+}
+
+html[data-theme='dark'] ::selection {
+  background: rgba(96, 165, 250, 0.35);
 }
 
 h1, .h1 { font-size: var(--text-h1); font-weight: var(--weight-bold); line-height: 1.2; }

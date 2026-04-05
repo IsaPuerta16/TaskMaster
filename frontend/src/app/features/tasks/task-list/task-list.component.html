@@ -1,0 +1,102 @@
+<div class="tasks-page">
+  <div class="tasks-page__layout">
+    <app-sidebar />
+
+    <div class="tasks-page__main">
+      <header class="tasks-hero">
+        <img class="tasks-hero__avatar" [src]="avatarUrl" width="96" height="96" alt="" />
+        <div class="tasks-hero__text">
+          <p class="tasks-hero__handle">{{ userHandle }}</p>
+          <p class="tasks-hero__subtitle">Gestiona tu cuenta</p>
+        </div>
+      </header>
+      <div class="tasks-hero__rule" role="presentation"></div>
+
+      <div class="tasks-toolbar">
+        <h1 class="tasks-toolbar__title">Mis Tareas</h1>
+        <div class="tasks-toolbar__actions">
+          <div class="tasks-seg-group" role="group" aria-label="Filtrar por fecha">
+            <button
+              type="button"
+              class="tasks-seg"
+              [class.tasks-seg--active]="dateFilter === 'hoy'"
+              (click)="setFilter('hoy')"
+            >
+              Hoy
+            </button>
+            <button
+              type="button"
+              class="tasks-seg"
+              [class.tasks-seg--active]="dateFilter === 'semana'"
+              (click)="setFilter('semana')"
+            >
+              Esta semana
+            </button>
+            <button
+              type="button"
+              class="tasks-seg"
+              [class.tasks-seg--active]="dateFilter === 'todas'"
+              (click)="setFilter('todas')"
+            >
+              Todas
+            </button>
+          </div>
+          <a routerLink="/tasks/new" class="tasks-toolbar__cta">+ Nueva tarea</a>
+        </div>
+      </div>
+
+      @if (loading) {
+        <p class="tasks-state">Cargando…</p>
+      } @else if (filteredTasks.length === 0) {
+        <p class="tasks-state">
+          No hay tareas en esta vista.
+          <a routerLink="/tasks/new" class="tasks-state__link">Crear una</a>
+        </p>
+      } @else {
+        <ul class="tasks-grid">
+          @for (task of filteredTasks; track task.id; let i = $index) {
+            <li
+              class="task-card"
+              [class.task-card--pink]="cardVariant(i) === 'pink'"
+              [class.task-card--blue]="cardVariant(i) === 'blue'"
+              [class.task-card--green]="cardVariant(i) === 'green'"
+              [class.task-card--teal]="cardVariant(i) === 'teal'"
+            >
+              <div class="task-card__top">
+                <span class="task-card__deco" aria-hidden="true">
+                  @switch (i % 4) {
+                    @case (0) {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8M8 11h6"/></svg>
+                    }
+                    @case (1) {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+                    }
+                    @case (2) {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+                    }
+                    @default {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="7"/><path d="M12 5v3M12 16v3M5 12h3M16 12h3"/><circle cx="12" cy="12" r="2"/></svg>
+                    }
+                  }
+                </span>
+                <div class="task-card__actions">
+                  <a [routerLink]="['/tasks', task.id, 'edit']" class="task-card__icon-btn" aria-label="Editar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  </a>
+                  <button type="button" class="task-card__icon-btn" aria-label="Eliminar" (click)="deleteTask(task, $event)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  </button>
+                </div>
+              </div>
+              <a [routerLink]="['/tasks', task.id, 'edit']" class="task-card__title-link">{{ task.title }}</a>
+              <p class="task-card__time">{{ datedTask(task) }}</p>
+              @if (task.description) {
+                <p class="task-card__desc">{{ task.description }}</p>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+</div>

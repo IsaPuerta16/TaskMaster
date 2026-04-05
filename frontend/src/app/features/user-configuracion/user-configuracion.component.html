@@ -1,0 +1,270 @@
+<div class="uc-page">
+  <div class="uc-layout">
+    <app-sidebar />
+
+    <div class="uc-main">
+      <header class="uc-hero">
+        <img class="uc-hero__avatar" [src]="avatarUrl" width="96" height="96" alt="" />
+        <div class="uc-hero__text">
+          <p class="uc-hero__handle">{{ userHandle }}</p>
+          <p class="uc-hero__subtitle">{{ L().subtitle }}</p>
+        </div>
+        <a routerLink="/tasks/new" class="uc-hero__cta">{{ L().newTask }}</a>
+      </header>
+      <div class="uc-hero__rule" role="presentation"></div>
+
+      <div class="uc-grid">
+        <section class="uc-card" aria-labelledby="uc-apariencia-title">
+          <h2 id="uc-apariencia-title" class="uc-card__title">
+            <span class="uc-card__icon uc-card__icon--palette" aria-hidden="true">🎨</span>
+            {{ L().apariencia }}
+          </h2>
+
+          <div class="uc-field">
+            <label class="uc-label">{{ L().tema }}</label>
+            <div class="uc-theme-seg" role="group" [attr.aria-label]="L().tema">
+              <button
+                type="button"
+                class="uc-theme-btn"
+                [class.uc-theme-btn--active]="settings().theme === 'claro'"
+                (click)="setTheme('claro')"
+              >
+                {{ L().claro }}
+              </button>
+              <button
+                type="button"
+                class="uc-theme-btn"
+                [class.uc-theme-btn--active]="settings().theme === 'oscuro'"
+                (click)="setTheme('oscuro')"
+              >
+                {{ L().oscuro }}
+              </button>
+              <button
+                type="button"
+                class="uc-theme-btn"
+                [class.uc-theme-btn--active]="settings().theme === 'sistema'"
+                (click)="setTheme('sistema')"
+              >
+                {{ L().sistema }}
+              </button>
+            </div>
+          </div>
+
+          <div class="uc-field">
+            <label class="uc-label" for="uc-font">{{ L().fontSize }}</label>
+            <select
+              id="uc-font"
+              class="uc-select"
+              [ngModel]="settings().fontSize"
+              (ngModelChange)="onPatch('fontSize', $event)"
+            >
+              @for (o of fontSizeOptions(); track o.value) {
+                <option [value]="o.value">{{ o.label }}</option>
+              }
+            </select>
+          </div>
+        </section>
+
+        <section class="uc-card" aria-labelledby="uc-general-title">
+          <h2 id="uc-general-title" class="uc-card__title">
+            <span class="uc-card__icon uc-card__icon--gear" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            </span>
+            {{ L().general }}
+          </h2>
+
+          <div class="uc-field">
+            <label class="uc-label" for="uc-lang">{{ L().idioma }}</label>
+            <select
+              id="uc-lang"
+              class="uc-select"
+              [ngModel]="settings().idioma"
+              (ngModelChange)="onPatch('idioma', $event)"
+            >
+              @for (o of idiomaOptions; track o.value) {
+                <option [value]="o.value">{{ o.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="uc-field">
+            <label class="uc-label" for="uc-date">{{ L().dateFormat }}</label>
+            <select
+              id="uc-date"
+              class="uc-select"
+              [ngModel]="settings().dateFormat"
+              (ngModelChange)="onPatch('dateFormat', $event)"
+            >
+              @for (o of dateFormatOptions(); track o.value) {
+                <option [value]="o.value">{{ o.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="uc-field">
+            <label class="uc-label" for="uc-time">{{ L().timeFormat }}</label>
+            <select
+              id="uc-time"
+              class="uc-select"
+              [ngModel]="settings().timeFormat"
+              (ngModelChange)="onPatch('timeFormat', $event)"
+            >
+              @for (o of timeFormatOptions(); track o.value) {
+                <option [value]="o.value">{{ o.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="uc-field">
+            <label class="uc-label" for="uc-tz">{{ L().timezone }}</label>
+            <select
+              id="uc-tz"
+              class="uc-select"
+              [ngModel]="settings().timezone"
+              (ngModelChange)="onPatch('timezone', $event)"
+            >
+              @for (o of timezoneOptions(); track o.value) {
+                <option [value]="o.value">{{ o.label }}</option>
+              }
+            </select>
+          </div>
+        </section>
+
+        <section class="uc-card" aria-labelledby="uc-notif-title">
+          <h2 id="uc-notif-title" class="uc-card__title">
+            <span class="uc-card__icon" aria-hidden="true">🔔</span>
+            {{ L().notificaciones }}
+          </h2>
+
+          <ul class="uc-prefs">
+            <li class="uc-pref">
+              <div class="uc-pref__text">
+                <span class="uc-pref__label">{{ L().n1 }}</span>
+                <span class="uc-pref__hint">{{ L().n1h }}</span>
+              </div>
+              <button
+                type="button"
+                class="uc-toggle"
+                [class.uc-toggle--on]="notif.prefs().recordatorios"
+                [attr.aria-pressed]="notif.prefs().recordatorios"
+                (click)="toggleNotifPref('recordatorios')"
+              >
+                <span class="uc-toggle__knob"></span>
+              </button>
+            </li>
+            <li class="uc-pref">
+              <div class="uc-pref__text">
+                <span class="uc-pref__label">{{ L().n2 }}</span>
+                <span class="uc-pref__hint">{{ L().n2h }}</span>
+              </div>
+              <button
+                type="button"
+                class="uc-toggle"
+                [class.uc-toggle--on]="notif.prefs().resumenDiario"
+                [attr.aria-pressed]="notif.prefs().resumenDiario"
+                (click)="toggleNotifPref('resumenDiario')"
+              >
+                <span class="uc-toggle__knob"></span>
+              </button>
+            </li>
+            <li class="uc-pref">
+              <div class="uc-pref__text">
+                <span class="uc-pref__label">{{ L().n3 }}</span>
+                <span class="uc-pref__hint">{{ L().n3h }}</span>
+              </div>
+              <button
+                type="button"
+                class="uc-toggle"
+                [class.uc-toggle--on]="notif.prefs().resumenSemanal"
+                [attr.aria-pressed]="notif.prefs().resumenSemanal"
+                (click)="toggleNotifPref('resumenSemanal')"
+              >
+                <span class="uc-toggle__knob"></span>
+              </button>
+            </li>
+            <li class="uc-pref">
+              <div class="uc-pref__text">
+                <span class="uc-pref__label">{{ L().n4 }}</span>
+                <span class="uc-pref__hint">{{ L().n4h }}</span>
+              </div>
+              <button
+                type="button"
+                class="uc-toggle"
+                [class.uc-toggle--on]="notif.prefs().sonidos"
+                [attr.aria-pressed]="notif.prefs().sonidos"
+                (click)="toggleNotifPref('sonidos')"
+              >
+                <span class="uc-toggle__knob"></span>
+              </button>
+            </li>
+            <li class="uc-pref">
+              <div class="uc-pref__text">
+                <span class="uc-pref__label">{{ L().n5 }}</span>
+                <span class="uc-pref__hint">{{ L().n5h }}</span>
+              </div>
+              <button
+                type="button"
+                class="uc-toggle"
+                [class.uc-toggle--on]="notif.prefs().escritorio"
+                [attr.aria-pressed]="notif.prefs().escritorio"
+                (click)="toggleNotifPref('escritorio')"
+              >
+                <span class="uc-toggle__knob"></span>
+              </button>
+            </li>
+            <li *ngIf="escritorioEnvHint() as hint" class="uc-pref uc-pref--warn">
+              <p class="uc-pref__warn">{{ hint }}</p>
+            </li>
+          </ul>
+
+          <p class="uc-card__footer">
+            <a routerLink="/mi-notificaciones" class="uc-card__more">{{ L().notifFooter }}</a>
+          </p>
+        </section>
+
+        <section class="uc-card" aria-labelledby="uc-prod-title">
+          <h2 id="uc-prod-title" class="uc-card__title">
+            <span class="uc-card__icon" aria-hidden="true">📊</span>
+            {{ L().productividad }}
+          </h2>
+
+          <div class="uc-field">
+            <label class="uc-label" for="uc-prod-range">{{ L().prodRange }}</label>
+            <select
+              id="uc-prod-range"
+              class="uc-select"
+              [ngModel]="prodRange()"
+              (ngModelChange)="setProductividadRange($event)"
+            >
+              @for (o of productividadRangoOptions(); track o.value) {
+                <option [value]="o.value">{{ o.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="uc-field uc-field--pref">
+            <div class="uc-pref uc-pref--inline">
+              <div class="uc-pref__text">
+                <span class="uc-pref__label">{{ L().insights }}</span>
+                <span class="uc-pref__hint">{{ L().insightsHint }}</span>
+              </div>
+              <button
+                type="button"
+                class="uc-toggle"
+                [class.uc-toggle--on]="prodPrefs().showInsights"
+                [attr.aria-pressed]="prodPrefs().showInsights"
+                (click)="toggleProductividadInsights()"
+              >
+                <span class="uc-toggle__knob"></span>
+              </button>
+            </div>
+          </div>
+
+          <p class="uc-card__footer">
+            <a routerLink="/mi-productividad" class="uc-card__more">{{ L().prodFooter }}</a>
+          </p>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,74 @@
+<div class="tf-page">
+  <div class="tf-shell">
+    <a routerLink="/tasks" class="tf-back">← Volver</a>
+
+    <div class="tf-card">
+      <h1 class="tf-card__title">{{ isEdit ? 'Editar tarea' : 'Nueva tarea' }}</h1>
+
+      @if (!auth.isAuthenticated() && !useLocalApi) {
+        <div class="tf-alert" role="status">
+          Para guardar tareas necesitas una sesión iniciada.
+          <a routerLink="/login" [queryParams]="{ returnUrl: loginReturnUrl }">Iniciar sesión</a>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="tf-form" novalidate>
+        <div class="tf-field">
+          <label class="tf-label" for="title">Título <span class="tf-req" aria-hidden="true">*</span></label>
+          <input
+            id="title"
+            type="text"
+            class="tf-input"
+            formControlName="title"
+            placeholder="Nombre de la tarea"
+            autocomplete="off"
+          />
+          @if (form.get('title')?.invalid && form.get('title')?.touched) {
+            <span class="tf-error">El título es obligatorio</span>
+          }
+        </div>
+
+        <div class="tf-field">
+          <label class="tf-label" for="description">Descripción</label>
+          <textarea
+            id="description"
+            class="tf-input tf-textarea"
+            formControlName="description"
+            rows="4"
+            placeholder="Detalles opcionales"
+          ></textarea>
+        </div>
+
+        <div class="tf-row">
+          <div class="tf-field">
+            <label class="tf-label" for="dueDate">Fecha límite <span class="tf-req" aria-hidden="true">*</span></label>
+            <input id="dueDate" type="datetime-local" class="tf-input" formControlName="dueDate" />
+            @if (form.get('dueDate')?.invalid && form.get('dueDate')?.touched) {
+              <span class="tf-error">Fecha obligatoria</span>
+            }
+          </div>
+          <div class="tf-field">
+            <label class="tf-label" for="priority">Prioridad</label>
+            <select id="priority" class="tf-input tf-select" formControlName="priority">
+              <option value="baja">Baja</option>
+              <option value="media">Media</option>
+              <option value="alta">Alta</option>
+              <option value="urgente">Urgente</option>
+            </select>
+          </div>
+        </div>
+
+        @if (errorMessage) {
+          <div class="tf-alert" role="alert">{{ errorMessage }}</div>
+        }
+
+        <div class="tf-actions">
+          <button type="submit" class="tf-btn tf-btn--primary" [disabled]="loading">
+            {{ loading ? 'Guardando...' : (isEdit ? 'Guardar cambios' : 'Crear tarea') }}
+          </button>
+          <a routerLink="/tasks" class="tf-btn tf-btn--ghost">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

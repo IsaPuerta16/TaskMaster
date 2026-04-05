@@ -11,16 +11,13 @@ import {
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 import { safeInternalPath } from '@core/utils/return-url';
-import { HeaderComponent } from '@shared/layout';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, HeaderComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
     <div class="register-page">
-      <app-header />
-
       <div class="register-page__main">
         <div class="register-card">
           <h1 class="register-card__brand">TaskMaster</h1>
@@ -170,7 +167,7 @@ export class RegisterComponent {
       .subscribe({
         next: () => {
           const ret = safeInternalPath(this.route.snapshot.queryParamMap.get('returnUrl'));
-          void this.router.navigateByUrl(ret ?? '/dashboard', { replaceUrl: true });
+          void this.router.navigateByUrl(ret ?? '/perfil', { replaceUrl: true });
         },
         error: (err: { error?: { message?: string } }) => {
           this.errorMessage = err.error?.message || 'Error al registrar';

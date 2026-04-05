@@ -1,0 +1,70 @@
+<div class="profile-page">
+  <div class="profile-page__layout">
+    <app-sidebar />
+
+    <div class="profile-page__main">
+      <header class="profile-hero">
+        <img class="profile-hero__avatar" [src]="avatarUrl" width="120" height="120" alt="" />
+        <div class="profile-hero__text">
+          <p class="profile-hero__handle">{{ userHandle }}</p>
+          <p class="profile-hero__subtitle">Gestiona tu cuenta</p>
+          <a routerLink="/tasks/new" class="profile-hero__cta">+ Nueva Tarea</a>
+        </div>
+      </header>
+
+      <section class="profile-stats" aria-label="Resumen de actividad">
+        <article class="profile-stat profile-stat--green">
+          <span class="profile-stat__accent" aria-hidden="true"></span>
+          <div class="profile-stat__body">
+            <span class="profile-stat__value">{{ completed }}</span>
+            <span class="profile-stat__label">Tareas completadas</span>
+          </div>
+        </article>
+        <article class="profile-stat profile-stat--teal">
+          <span class="profile-stat__accent" aria-hidden="true"></span>
+          <div class="profile-stat__body">
+            <span class="profile-stat__value">{{ streakDays }}</span>
+            <span class="profile-stat__label">Días de racha</span>
+          </div>
+        </article>
+        <article class="profile-stat profile-stat--blue">
+          <span class="profile-stat__accent" aria-hidden="true"></span>
+          <div class="profile-stat__body">
+            <span class="profile-stat__value">{{ completionRate }}%</span>
+            <span class="profile-stat__label">Cumplimiento</span>
+          </div>
+        </article>
+      </section>
+
+      <section class="profile-card" aria-labelledby="profile-info-title">
+        <h2 id="profile-info-title" class="profile-card__title">Información personal</h2>
+        <form [formGroup]="form" (ngSubmit)="saveProfile()" class="profile-card__form" novalidate>
+          <div class="profile-card__grid">
+            <label class="profile-field">
+              <span class="profile-field__label">Nombre</span>
+              <input type="text" formControlName="firstName" class="profile-field__input" placeholder="Tu nombre" autocomplete="given-name" />
+            </label>
+            <label class="profile-field">
+              <span class="profile-field__label">Apellido</span>
+              <input type="text" formControlName="lastName" class="profile-field__input" placeholder="Tu apellido" autocomplete="family-name" />
+            </label>
+            <label class="profile-field profile-field--full">
+              <span class="profile-field__label">Correo</span>
+              <input type="email" formControlName="email" class="profile-field__input" placeholder="correo@ejemplo.com" autocomplete="email" />
+            </label>
+            <label class="profile-field profile-field--full">
+              <span class="profile-field__label">Rol</span>
+              <select formControlName="role" class="profile-field__input profile-field__select">
+                @for (opt of roleOptions; track opt.value) {
+                  <option [value]="opt.value">{{ opt.label }}</option>
+                }
+              </select>
+            </label>
+          </div>
+          <button type="submit" class="profile-card__submit">Guardar cambios</button>
+        </form>
+        <p class="profile-card__hint">Usamos estos datos para personalizar tus recomendaciones.</p>
+      </section>
+    </div>
+  </div>
+</div>

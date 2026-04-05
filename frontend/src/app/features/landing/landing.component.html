@@ -1,0 +1,199 @@
+<div class="landing">
+  <main class="main">
+    <section class="hero-banner" id="inicio">
+      <h1 class="hero-banner-title">{{ L().heroTitle }}</h1>
+      <h2 class="hero-banner-subtitle">{{ L().heroSubtitle }}</h2>
+      <p class="hero-banner-desc">{{ L().heroDesc }}</p>
+      <div class="hero-banner-buttons">
+        <a routerLink="/register" class="btn btn-dark">{{ L().btnCreate }}</a>
+        <a href="#beneficios" class="btn btn-outline-light">{{ L().btnExplore }}</a>
+      </div>
+    </section>
+
+    <section class="que-hace-module" id="beneficios">
+      <div class="que-hace-inner">
+        <h2 class="que-hace-title">{{ L().queTitle }}</h2>
+        <p class="que-hace-desc">{{ L().queDesc }}</p>
+        <div class="que-hace-grid">
+          <article class="beneficio-card beneficio-1">
+            <div class="beneficio-icon-wrap">
+              <span class="beneficio-icon">🧠</span>
+            </div>
+            <h3>{{ L().b1h }}</h3>
+            <p>{{ L().b1p }}</p>
+          </article>
+          <article class="beneficio-card beneficio-2">
+            <div class="beneficio-icon-wrap">
+              <span class="beneficio-icon">📈</span>
+            </div>
+            <h3>{{ L().b2h }}</h3>
+            <p>{{ L().b2p }}</p>
+          </article>
+          <article class="beneficio-card beneficio-3">
+            <div class="beneficio-icon-wrap">
+              <span class="beneficio-icon">🤖</span>
+            </div>
+            <h3>{{ L().b3h }}</h3>
+            <p>{{ L().b3p }}</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="board-section" id="funcionalidades">
+      <div class="board-content">
+        <div class="board-text">
+          <h2>{{ L().boardH }}</h2>
+          <p>{{ L().boardP }}</p>
+          <ul class="feature-list">
+            <li>
+              <span class="check-wrap">
+                <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M20 6L9 17l-5-5"/>
+                </svg>
+              </span>
+              {{ L().boardLi1 }}
+            </li>
+            <li>
+              <span class="check-wrap">
+                <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M20 6L9 17l-5-5"/>
+                </svg>
+              </span>
+              {{ L().boardLi2 }}
+            </li>
+            <li>
+              <span class="check-wrap">
+                <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M20 6L9 17l-5-5"/>
+                </svg>
+              </span>
+              {{ L().boardLi3 }}
+            </li>
+          </ul>
+        </div>
+        <div class="board-preview">
+          <div class="board-card">
+            <div class="board-header">{{ L().mockBoard }}</div>
+            <div class="board-columns">
+              <div class="board-col col-pendiente">
+                <h4>{{ L().colPending }}</h4>
+                <div class="task-card">{{ L().mockT1 }}</div>
+                <div class="task-card">{{ L().mockT2 }}</div>
+              </div>
+              <div class="board-col col-proceso">
+                <h4>{{ L().colProgress }}</h4>
+                <div class="task-card">{{ L().mockT3 }}</div>
+                <div class="task-card">{{ L().mockT4 }}</div>
+                <div class="task-card">{{ L().mockT5 }}</div>
+              </div>
+              <div class="board-col col-hecho">
+                <h4>{{ L().colDone }}</h4>
+                <div class="task-card">{{ L().mockT6 }}</div>
+                <div class="task-card">{{ L().mockT7 }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-split-section" aria-labelledby="landing-priority-heading">
+      <div class="landing-split-inner landing-split-inner--reverse">
+        <div class="split-visual">
+          <div class="priority-mock" aria-hidden="true">
+            <div class="priority-mock-header">
+              <span class="priority-mock-title">{{ L().pmTitle }}</span>
+              <span class="priority-mock-badge">{{ L().pmBadge }}</span>
+            </div>
+            <div class="priority-mock-row">
+              <span class="pm-task">{{ L().pmTask1 }}</span>
+              <span class="pm-pill pm-pill--high">{{ L().pmUrgent }}</span>
+              <span class="pm-date">{{ L().pmD1 }}</span>
+            </div>
+            <div class="priority-mock-row">
+              <span class="pm-task">{{ L().pmTask2 }}</span>
+              <span class="pm-pill pm-pill--mid">{{ L().pmMid }}</span>
+              <span class="pm-date">{{ L().pmD2 }}</span>
+            </div>
+            <div class="priority-mock-row">
+              <span class="pm-task">{{ L().pmTask3 }}</span>
+              <span class="pm-pill pm-pill--low">{{ L().pmLow }}</span>
+              <span class="pm-date">{{ L().pmD3 }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="split-copy">
+          <h2 id="landing-priority-heading">{{ L().splitPriH }}</h2>
+          <p class="split-lead">{{ L().splitPriLead }}</p>
+          <ul class="split-points">
+            <li>{{ L().splitPri1 }}</li>
+            <li>{{ L().splitPri2 }}</li>
+            <li>{{ L().splitPri3 }}</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-split-section landing-split-section--alt" aria-labelledby="landing-dash-heading">
+      <div class="landing-split-inner">
+        <div class="split-copy">
+          <h2 id="landing-dash-heading">{{ L().splitDashH }}</h2>
+          <p class="split-lead">{{ L().splitDashLead }}</p>
+          <ul class="split-points">
+            <li>{{ L().splitDash1 }}</li>
+            <li>{{ L().splitDash2 }}</li>
+            <li>{{ L().splitDash3 }}</li>
+          </ul>
+        </div>
+        <div class="split-visual">
+          <div class="stats-mock" aria-hidden="true">
+            <div class="stats-mock-title">{{ L().statsTitle }}</div>
+            <div class="stats-mock-grid">
+              <div class="stat-tile">
+                <span class="stat-num">24</span>
+                <span class="stat-label">{{ L().statTotal }}</span>
+              </div>
+              <div class="stat-tile stat-tile--ok">
+                <span class="stat-num">9</span>
+                <span class="stat-label">{{ L().statDone }}</span>
+              </div>
+              <div class="stat-tile stat-tile--warn">
+                <span class="stat-num">12</span>
+                <span class="stat-label">{{ L().statPending }}</span>
+              </div>
+              <div class="stat-tile stat-tile--alert">
+                <span class="stat-num">3</span>
+                <span class="stat-label">{{ L().statOverdue }}</span>
+              </div>
+            </div>
+            <div class="stats-mock-bar">
+              <span class="stats-mock-bar-label">{{ L().statCompliance }}</span>
+              <div class="stats-mock-bar-track">
+                <div class="stats-mock-bar-fill"></div>
+              </div>
+              <span class="stats-mock-bar-pct">38%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-ia-band" aria-labelledby="landing-ia-heading">
+      <div class="landing-ia-inner">
+        <div class="landing-ia-copy">
+          <span class="landing-ia-eyebrow">{{ L().iaEyebrow }}</span>
+          <h2 id="landing-ia-heading">{{ L().iaH }}</h2>
+          <p>{{ L().iaP }}</p>
+        </div>
+        <div class="landing-ia-actions">
+          <a routerLink="/asistente-ia" class="btn-landing-ghost">{{ L().iaGhost }}</a>
+          <a routerLink="/register" class="btn-landing-solid">{{ L().iaSolid }}</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <app-footer />
+</div>

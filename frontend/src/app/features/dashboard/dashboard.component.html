@@ -1,81 +1,62 @@
 <div class="dashboard-home">
-  <app-header />
-
   <div class="dashboard-home__layout">
-    <aside class="dashboard-sidebar" aria-label="Menú de la aplicación">
-      <nav class="dashboard-sidebar__nav">
-        <a routerLink="/dashboard" class="dashboard-sidebar__link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-          <span class="dashboard-sidebar__icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          </span>
-          Mi Perfil
-        </a>
-        <a routerLink="/tasks" class="dashboard-sidebar__link" routerLinkActive="active">
-          <span class="dashboard-sidebar__icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          </span>
-          Mis Tareas
-        </a>
-        <a routerLink="/productividad" class="dashboard-sidebar__link" routerLinkActive="active">
-          <span class="dashboard-sidebar__icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-          </span>
-          Productividad
-        </a>
-        <a routerLink="/asistente-ia" class="dashboard-sidebar__link" routerLinkActive="active">
-          <span class="dashboard-sidebar__icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M1 9h3M20 15h3M1 15h3"/></svg>
-          </span>
-          Asistente IA
-        </a>
-        <a href="#" class="dashboard-sidebar__link" (click)="$event.preventDefault()">
-          <span class="dashboard-sidebar__icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          </span>
-          Notificaciones
-        </a>
-      </nav>
-      <div class="dashboard-sidebar__divider" role="presentation"></div>
-      <nav class="dashboard-sidebar__nav dashboard-sidebar__nav--bottom">
-        <a href="#" class="dashboard-sidebar__link" (click)="$event.preventDefault()">
-          <span class="dashboard-sidebar__icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-          </span>
-          Configuración
-        </a>
-        <button type="button" class="dashboard-sidebar__logout" (click)="auth.logout()">
-          Cerrar Sesión
-        </button>
-      </nav>
-    </aside>
+    <app-sidebar />
 
     <div class="dashboard-home__content">
-      <header class="dashboard-profile">
-        <img
-          class="dashboard-profile__avatar"
-          [src]="avatarUrl"
-          width="120"
-          height="120"
-          alt=""
-        />
-        <div class="dashboard-profile__text">
-          <p class="dashboard-profile__handle">{{ userHandle }}</p>
-          <p class="dashboard-profile__subtitle">Gestiona tu cuenta</p>
-          <a routerLink="/tasks/new" class="dashboard-profile__cta">+ Nueva Tarea</a>
-        </div>
-      </header>
-
       <section class="dashboard-calendar" aria-labelledby="calendar-title">
         <div class="dashboard-calendar__toolbar">
           <div class="dashboard-calendar__month-nav">
             <button type="button" class="dashboard-calendar__nav-btn" (click)="prevMonth()" aria-label="Mes anterior">
               <span class="dashboard-calendar__nav-icon" aria-hidden="true">‹</span>
             </button>
-            <h1 id="calendar-title" class="dashboard-calendar__title">{{ monthTitle }}</h1>
+            <button
+              type="button"
+              class="dashboard-calendar__title-btn"
+              (click)="toggleDateFilter()"
+              [attr.aria-expanded]="dateFilterOpen()"
+              aria-controls="calendar-date-filters"
+              [attr.aria-label]="'Elegir mes y año. Mes actual: ' + monthTitle"
+            >
+              <h1 id="calendar-title" class="dashboard-calendar__title">{{ monthTitle }}</h1>
+            </button>
             <button type="button" class="dashboard-calendar__nav-btn" (click)="nextMonth()" aria-label="Mes siguiente">
               <span class="dashboard-calendar__nav-icon" aria-hidden="true">›</span>
             </button>
           </div>
+          @if (dateFilterOpen()) {
+            <div id="calendar-date-filters" class="dashboard-calendar__filters" role="region" aria-label="Filtro de fecha">
+              <label class="dashboard-calendar__filter">
+                <span class="dashboard-calendar__filter-label">Año</span>
+                <select
+                  class="dashboard-calendar__select"
+                  [ngModel]="year"
+                  (ngModelChange)="setYear($event)"
+                  [attr.aria-label]="'Seleccionar año'"
+                >
+                  @for (y of yearOptions; track y) {
+                    <option [ngValue]="y">{{ y }}</option>
+                  }
+                </select>
+              </label>
+              <label class="dashboard-calendar__filter">
+                <span class="dashboard-calendar__filter-label">Mes</span>
+                <select
+                  class="dashboard-calendar__select"
+                  [ngModel]="month"
+                  (ngModelChange)="setMonth($event)"
+                  [attr.aria-label]="'Seleccionar mes'"
+                >
+                  @for (m of monthOptions; track m.value) {
+                    <option [ngValue]="m.value">{{ m.label }}</option>
+                  }
+                </select>
+              </label>
+              <button type="button" class="dashboard-calendar__today-btn" (click)="goToday()">Hoy</button>
+              <button type="button" class="dashboard-calendar__filter-close" (click)="closeDateFilter()" aria-label="Cerrar filtro de fecha">
+                Listo
+              </button>
+            </div>
+          }
         </div>
 
         <div class="dashboard-calendar__wrap">

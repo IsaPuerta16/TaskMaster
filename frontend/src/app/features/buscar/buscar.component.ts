@@ -1,13 +1,13 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { HeaderComponent, FooterComponent } from '@shared/layout';
+import { FooterComponent } from '@shared/layout';
 import { SearchService } from '@core/services/search.service';
 import { SearchableItem } from '@core/search/search-index';
 
 @Component({
   selector: 'app-buscar',
   standalone: true,
-  imports: [HeaderComponent, FooterComponent, RouterLink],
+  imports: [FooterComponent, RouterLink],
   templateUrl: './buscar.component.html',
   styleUrl: './buscar.component.scss',
 })

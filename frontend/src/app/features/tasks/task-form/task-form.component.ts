@@ -1,72 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TaskService, TaskPriority, Task } from '@core/services/task.service';
-import { HeaderComponent } from '@shared/layout';
+import { AuthService } from '@core/services/auth.service';
+import { environment } from '@env/environment';
 
 @Component({
   selector: 'app-task-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, HeaderComponent],
-  template: `
-    <div class="task-form-page">
-      <app-header />
-
-      <div class="task-form-page__toolbar">
-        <a routerLink="/tasks" class="back">← Volver</a>
-        <h1>{{ isEdit ? 'Editar tarea' : 'Nueva tarea' }}</h1>
-      </div>
-
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
-        <div class="form-group">
-          <label for="title">Título *</label>
-          <input id="title" type="text" formControlName="title" placeholder="Nombre de la tarea" />
-          @if (form.get('title')?.invalid && form.get('title')?.touched) {
-            <span class="error">El título es obligatorio</span>
-          }
-        </div>
-
-        <div class="form-group">
-          <label for="description">Descripción</label>
-          <textarea id="description" formControlName="description" rows="3" placeholder="Detalles opcionales"></textarea>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="dueDate">Fecha límite *</label>
-            <input id="dueDate" type="datetime-local" formControlName="dueDate" />
-            @if (form.get('dueDate')?.invalid && form.get('dueDate')?.touched) {
-              <span class="error">Fecha obligatoria</span>
-            }
-          </div>
-          <div class="form-group">
-            <label for="priority">Prioridad</label>
-            <select id="priority" formControlName="priority">
-              <option value="baja">Baja</option>
-              <option value="media">Media</option>
-              <option value="alta">Alta</option>
-              <option value="urgente">Urgente</option>
-            </select>
-          </div>
-        </div>
-
-        @if (errorMessage) {
-          <div class="alert alert-error">{{ errorMessage }}</div>
-        }
-
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary" [disabled]="loading">
-            {{ loading ? 'Guardando...' : (isEdit ? 'Guardar cambios' : 'Crear tarea') }}
-          </button>
-          <a routerLink="/tasks" class="btn btn-secondary">Cancelar</a>
-        </div>
-      </form>
-    </div>
-  `,
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  templateUrl: './task-form.component.html',
   styleUrls: ['./task-form.component.scss'],
 })
 export class TaskFormComponent implements OnInit {
+  readonly useLocalApi = environment.useLocalApi;
+
   form: FormGroup;
   isEdit = false;
   taskId: string | null = null;
@@ -76,6 +26,7 @@ export class TaskFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private taskService: TaskService,
+    public auth: AuthService,
     private route: ActivatedRoute,
     private router: Router,
   ) {
@@ -115,23 +66,57 @@ export class TaskFormComponent implements OnInit {
     }
   }
 
+  get loginReturnUrl(): string {
+    return this.router.url;
+  }
+
+  private parseApiError(err: HttpErrorResponse): string {
+    if (err.status === 0) {
+      return 'No hay conexión con el servidor. Comprueba que el backend esté en marcha (puerto 3000).';
+    }
+    if (err.status === 401) {
+      return 'Debes iniciar sesión para guardar tareas.';
+    }
+    const e = err.error as { message?: string | string[] } | null;
+    if (e && Array.isArray(e.message)) {
+      return e.message.join('. ');
+    }
+    if (e && typeof e.message === 'string') {
+      return e.message;
+    }
+    return 'No se pudo guardar la tarea.';
+  }
+
   onSubmit() {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    if (!this.useLocalApi && !this.auth.isAuthenticated()) {
+      this.errorMessage =
+        'Inicia sesión para crear o editar tareas. Usa el enlace de abajo si no estás registrado.';
+      return;
+    }
+    const value = this.form.value;
+    const parsed = new Date(value.dueDate);
+    if (Number.isNaN(parsed.getTime())) {
+      this.errorMessage = 'La fecha límite no es válida.';
+      return;
+    }
     this.loading = true;
     this.errorMessage = '';
-    const value = this.form.value;
     const dto = {
       title: value.title,
       description: value.description || undefined,
-      dueDate: new Date(value.dueDate).toISOString(),
+      dueDate: parsed.toISOString(),
       priority: value.priority,
     };
 
     if (this.isEdit && this.taskId) {
       this.taskService.updateTask(this.taskId, dto).subscribe({
         next: () => this.router.navigate(['/tasks']),
-        error: (err: { error?: { message?: string } }) => {
-          this.errorMessage = err.error?.message || 'Error al guardar';
+        error: (err: HttpErrorResponse) => {
+          this.errorMessage = this.parseApiError(err);
           this.loading = false;
         },
         complete: () => (this.loading = false),
@@ -139,8 +124,8 @@ export class TaskFormComponent implements OnInit {
     } else {
       this.taskService.createTask(dto).subscribe({
         next: () => this.router.navigate(['/tasks']),
-        error: (err: { error?: { message?: string } }) => {
-          this.errorMessage = err.error?.message || 'Error al crear';
+        error: (err: HttpErrorResponse) => {
+          this.errorMessage = this.parseApiError(err);
           this.loading = false;
         },
         complete: () => (this.loading = false),

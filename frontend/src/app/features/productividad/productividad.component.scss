@@ -1,9 +1,9 @@
 // Productividad — tipografía Inter (misma que Funcionalidades)
 // Fondo #F4F7F9, texto #1A2B48, sombras según mockup
 
-$bg-page: #f4f7f9;
-$navy: #1a2b48;
-$text-body: #5b6b7d;
+$bg-page: var(--app-bg);
+$navy: var(--app-text);
+$text-body: var(--app-text-muted);
 $shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
 $shadow-hover: 0 12px 20px -4px rgba(0, 0, 0, 0.08);
 $radius-lg: 20px;
@@ -11,7 +11,7 @@ $radius-md: 16px;
 $radius-icon: 14px;
 
 .productividad {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-family);
   min-height: 100vh;
   background: $bg-page;
   color: $navy;
@@ -21,6 +21,18 @@ $radius-icon: 14px;
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+@media (max-width: 1024px) {
+  .main {
+    padding: 1.25rem 1rem 2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .main {
+    padding: 1rem 0.75rem 1.5rem;
+  }
 }
 
 // Hero — tipografía Inter (igual que Funcionalidades)
@@ -60,7 +72,7 @@ $radius-icon: 14px;
 .activity-card {
   flex: 1 1 calc(25% - 1rem);
   min-width: 140px;
-  background: #fff;
+  background: var(--app-card);
   border-radius: $radius-md;
   padding: 1.5rem 1rem;
   box-shadow: $shadow-card;
@@ -181,7 +193,7 @@ $radius-icon: 14px;
 
   &--efficiency {
     position: relative;
-    background: #fff;
+    background: var(--app-card);
     padding-top: calc(1.75rem + 4px);
     overflow: hidden;
 
@@ -219,8 +231,8 @@ $radius-icon: 14px;
   }
 
   &--reminder {
-    background: #e8eaf6;
-    border: none;
+    background: var(--app-muted-bg);
+    border: 1px solid var(--app-border);
   }
 
   &__inner {
@@ -234,12 +246,13 @@ $radius-icon: 14px;
     width: 52px;
     height: 52px;
     flex-shrink: 0;
-    background: #fff;
+    background: var(--app-card);
+    border: 1px solid var(--app-border);
     border-radius: $radius-icon;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--app-shadow-sm);
   }
 
   &__bell-icon {
@@ -264,7 +277,7 @@ $radius-icon: 14px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid #e8eaf6;
+    border: 2px solid var(--app-card);
   }
 }
 
@@ -362,11 +375,11 @@ $radius-icon: 14px;
 
 .more-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.85);
+  background: color-mix(in srgb, var(--app-card) 92%, transparent);
   backdrop-filter: blur(8px);
   border-radius: $radius-lg;
   padding: 1.75rem 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--app-border);
   box-shadow:
     0 4px 24px rgba(26, 43, 72, 0.06),
     0 1px 0 rgba(255, 255, 255, 0.8) inset;
@@ -577,7 +590,7 @@ $radius-icon: 14px;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  background: linear-gradient(180deg, #fff 0%, #faf8ff 100%);
+  background: linear-gradient(180deg, var(--app-card) 0%, var(--app-muted-bg) 100%);
   border-radius: $radius-lg;
   padding: 2rem 1.5rem 1.75rem;
   border: 1px solid rgba(124, 58, 237, 0.12);
@@ -682,11 +695,11 @@ $radius-icon: 14px;
 }
 
 .faq-item {
-  background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+  background: linear-gradient(135deg, var(--app-card) 0%, var(--app-muted-bg) 100%);
   border-radius: $radius-md;
   margin-bottom: 0.85rem;
   overflow: hidden;
-  border: 1px solid rgba(26, 43, 72, 0.08);
+  border: 1px solid var(--app-border);
   box-shadow: 0 4px 20px rgba(26, 43, 72, 0.04);
   transition: border-color 0.25s, box-shadow 0.25s;
 

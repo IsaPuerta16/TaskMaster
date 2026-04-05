@@ -1,15 +1,49 @@
-<header class="header">
-  <a routerLink="/" class="logo">TM</a>
-  <nav class="nav">
-    <a routerLink="/" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-      Inicio
+<header
+  class="header"
+  [class.header--dark]="appSettings.themeIsDark()"
+  [class.header--logo-underline]="routeUrl().startsWith('/mi-productividad')"
+>
+  <button
+    type="button"
+    class="header__menu-toggle"
+    (click)="toggleMenu()"
+    [attr.aria-expanded]="menuOpen()"
+    aria-controls="header-nav"
+    [attr.aria-label]="ui().header.menuToggle"
+  >
+    @if (menuOpen()) {
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M18 6 6 18M6 6l12 12" />
+      </svg>
+    } @else {
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    }
+  </button>
+  <a routerLink="/" class="logo" (click)="closeMenu()">TM</a>
+  <nav id="header-nav" class="nav" [class.nav--open]="menuOpen()">
+    <a routerLink="/" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">
+      {{ ui().header.home }}
     </a>
-    <a routerLink="/funcionalidades" class="nav-link" routerLinkActive="active">Funcionalidades</a>
-    <a routerLink="/productividad" class="nav-link" routerLinkActive="active">Productividad</a>
-    <a routerLink="/asistente-ia" class="nav-link" routerLinkActive="active">Asistente IA</a>
-    <a routerLink="/nosotros" class="nav-link" routerLinkActive="active">Nosotros</a>
+    <a routerLink="/funcionalidades" class="nav-link" routerLinkActive="active" (click)="closeMenu()">{{ ui().header.features }}</a>
+    <a
+      [routerLink]="auth.isAuthenticated() ? '/mi-productividad' : '/productividad'"
+      class="nav-link"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      (click)="closeMenu()"
+    >{{ ui().header.productivity }}</a>
+    <a
+      [routerLink]="auth.isAuthenticated() ? '/mi-asistente-ia' : '/asistente-ia'"
+      class="nav-link"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      (click)="closeMenu()"
+    >{{ ui().header.aiAssistant }}</a>
+    <a routerLink="/nosotros" class="nav-link" routerLinkActive="active" (click)="closeMenu()">{{ ui().header.about }}</a>
   </nav>
-  <form class="search-bar" (submit)="$event.preventDefault(); goSearch()" role="search" aria-label="Buscar en el sitio">
+  <form class="search-bar" (submit)="$event.preventDefault(); goSearch(); closeMenu()" role="search" [attr.aria-label]="ui().header.searchSite">
     <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
       <circle cx="11" cy="11" r="8" />
       <path d="m21 21-4.35-4.35" />
@@ -17,17 +51,18 @@
     <input
       type="search"
       name="q"
-      placeholder="Buscar..."
+      [placeholder]="ui().header.searchPlaceholder"
       autocomplete="off"
       [value]="search.query()"
       (input)="search.setQuery($any($event.target).value)"
-      aria-label="Término de búsqueda"
+      [attr.aria-label]="ui().header.searchTerm"
     />
   </form>
   <a
-    [routerLink]="auth.isAuthenticated() ? '/dashboard' : '/login'"
+    [routerLink]="auth.isAuthenticated() ? '/perfil' : '/login'"
     class="user-icon"
-    [attr.aria-label]="auth.isAuthenticated() ? 'Mi cuenta' : 'Iniciar sesión'"
+    [attr.aria-label]="auth.isAuthenticated() ? ui().header.account : ui().header.signIn"
+    (click)="closeMenu()"
   >
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
       <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
@@ -35,3 +70,6 @@
     </svg>
   </a>
 </header>
+@if (menuOpen()) {
+  <div class="header__backdrop" (click)="closeMenu()" role="presentation" aria-hidden="true"></div>
+}

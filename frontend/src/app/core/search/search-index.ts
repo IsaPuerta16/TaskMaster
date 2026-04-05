@@ -50,10 +50,16 @@ export const SEARCH_INDEX: SearchableItem[] = [
     keywords: ['registro', 'registrarse', 'crear cuenta', 'sign up'],
   },
   {
-    title: 'Panel (Dashboard)',
-    description: 'Resumen de tus tareas y estadísticas (requiere sesión).',
+    title: 'Mi perfil',
+    description: 'Datos personales, estadísticas y rol en TaskMaster.',
+    route: '/perfil',
+    keywords: ['perfil', 'cuenta', 'usuario', 'nombre', 'correo', 'rol'],
+  },
+  {
+    title: 'Calendario',
+    description: 'Vista mensual con notas y festivos (requiere sesión).',
     route: '/dashboard',
-    keywords: ['dashboard', 'panel', 'inicio sesión', 'estadísticas', 'tareas'],
+    keywords: ['dashboard', 'calendario', 'panel', 'estadísticas', 'tareas'],
   },
   {
     title: 'Mis tareas',

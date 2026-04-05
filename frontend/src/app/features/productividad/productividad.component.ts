@@ -1,29 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { HeaderComponent, FooterComponent } from '@shared/layout';
-
-interface Activity {
-  id: string;
-  label: string;
-  theme: 'exercise' | 'collaborate' | 'cook' | 'work';
-  icon: 'exercise' | 'collaborate' | 'cook' | 'work';
-}
-
-const ACTIVITIES: Activity[] = [
-  { id: '1', label: 'Ejercicio', theme: 'exercise', icon: 'exercise' },
-  { id: '2', label: 'Colaborar', theme: 'collaborate', icon: 'collaborate' },
-  { id: '3', label: 'Cocinar', theme: 'cook', icon: 'cook' },
-  { id: '4', label: 'Trabajo', theme: 'work', icon: 'work' },
-];
+import { FooterComponent } from '@shared/layout';
+import { AppSettingsService } from '@core/services/app-settings.service';
 
 @Component({
   selector: 'app-productividad',
   standalone: true,
-  imports: [RouterLink, HeaderComponent, FooterComponent],
+  imports: [RouterLink, FooterComponent],
   templateUrl: './productividad.component.html',
   styleUrl: './productividad.component.scss',
 })
 export class ProductividadComponent {
-  readonly activities = ACTIVITIES;
+  readonly appSettings = inject(AppSettingsService);
+  readonly F = computed(() => this.appSettings.ui().productividadPage);
   readonly notificationCount = 1;
 }
