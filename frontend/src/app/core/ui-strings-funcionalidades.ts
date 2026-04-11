@@ -1,4 +1,3 @@
-/** Textos de la página pública /funcionalidades (ES/EN). */
 export const FUNCIONALIDADES_ES = {
   intro: {
     title: 'Todo lo que necesitas para organizar tu vida',

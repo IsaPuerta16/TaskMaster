@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { TaskService, Task } from '@core/services/task.service';
+import { TaskService, type Task, type TaskPriority } from '@features/tasks/data-access';
 import { AuthService } from '@core/services/auth.service';
 import { AppSidebarComponent } from '@shared/layout';
 import { NotificationService } from '@core/services/notification.service';
@@ -87,12 +87,15 @@ export class TaskListComponent implements OnInit {
     return td >= monday && td <= sunday;
   }
 
-  cardVariant(index: number): 'pink' | 'blue' | 'green' | 'teal' {
-    const v = index % 4;
-    if (v === 0) return 'pink';
-    if (v === 1) return 'blue';
-    if (v === 2) return 'green';
-    return 'teal';
+  /** Etiqueta legible de prioridad / importancia. */
+  priorityLabel(p: TaskPriority): string {
+    const labels: Record<TaskPriority, string> = {
+      baja: 'Baja',
+      media: 'Media',
+      alta: 'Alta',
+      urgente: 'Urgente',
+    };
+    return labels[p] ?? p;
   }
 
   /** Re-evalúa cuando cambian preferencias de fecha/hora */

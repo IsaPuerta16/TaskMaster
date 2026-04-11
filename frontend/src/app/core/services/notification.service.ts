@@ -1,7 +1,13 @@
-import { Injectable, NgZone, computed, inject, signal } from '@angular/core';
-import type { Task } from '@core/models';
+import { effect, Injectable, NgZone, computed, inject, signal } from '@angular/core';
+import type { Task } from '@features/tasks/data-access';
 import { AppSettingsService } from './app-settings.service';
-import { TaskService } from './task.service';
+import { TaskService } from '@features/tasks/data-access';
+import { AuthService } from './auth.service';
+import { UserSettingsService } from '@features/user-settings/data-access/user-settings.service';
+import type {
+  NotifPrefs,
+  UserSettingsResponse,
+} from '@features/user-settings/data-access/user-settings.model';
 
 export type NotifFilter = 'todas' | 'pendientes' | 'leidas';
 
@@ -12,19 +18,7 @@ export interface NotificationItem {
   time: string;
 }
 
-export interface NotifPrefs {
-  recordatorios: boolean;
-  resumenDiario: boolean;
-  resumenSemanal: boolean;
-  sonidos: boolean;
-  /** Notificaciones nativas del navegador (requiere permiso) */
-  escritorio: boolean;
-}
-
-const PREFS_KEY = 'taskmaster_notif_prefs';
-const READ_IDS_KEY = 'taskmaster_notif_read_ids';
-/** Usuario apagó el interruptor en la app; no forzar verde aunque el navegador siga con permiso concedido. */
-const ESCRITORIO_USER_OFF_KEY = 'taskmaster_escritorio_user_off';
+export type { NotifPrefs };
 
 export const DEFAULT_NOTIF_PREFS: NotifPrefs = {
   recordatorios: true,
@@ -66,10 +60,13 @@ function computeStreak(tasks: Task[]): number {
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
+  private readonly auth = inject(AuthService);
   private readonly appSettings = inject(AppSettingsService);
   private readonly taskService = inject(TaskService);
+  private readonly userSettingsService = inject(UserSettingsService);
   private readonly ngZone = inject(NgZone);
   private readonly tasks = signal<Task[]>([]);
+  private readonly desktopUserOff = signal(false);
 
   readonly prefs = signal<NotifPrefs>({ ...DEFAULT_NOTIF_PREFS });
   readonly readIds = signal<Set<string>>(new Set());
@@ -96,11 +93,44 @@ export class NotificationService {
   });
 
   constructor() {
-    this.loadPrefs();
+    effect(
+      () => {
+        const user = this.auth.user();
+        if (user) {
+          this.loadFromServer();
+          return;
+        }
+        this.resetState();
+      },
+      { allowSignalWrites: true },
+    );
+  }
+
+  private loadFromServer(): void {
+    this.userSettingsService.getSettings().subscribe({
+      next: (snapshot) => this.applySettingsSnapshot(snapshot),
+    });
+  }
+
+  private applySettingsSnapshot(snapshot: UserSettingsResponse): void {
+    this.prefs.set({
+      recordatorios: snapshot.notifications.recordatorios,
+      resumenDiario: snapshot.notifications.resumenDiario,
+      resumenSemanal: snapshot.notifications.resumenSemanal,
+      sonidos: snapshot.notifications.sonidos,
+      escritorio: snapshot.notifications.escritorio,
+    });
+    this.readIds.set(new Set(snapshot.notifications.readIds ?? []));
+    this.desktopUserOff.set(!!snapshot.notifications.desktopUserOff);
     this.applyEscritorioFromGrantedPermissionOnInit();
     this.syncEscritorioWithBrowserPermission();
-    this.loadReadIds();
     this.refreshTasksIfDesktopEnabled();
+  }
+
+  private resetState(): void {
+    this.prefs.set({ ...DEFAULT_NOTIF_PREFS });
+    this.readIds.set(new Set());
+    this.desktopUserOff.set(false);
   }
 
   /**
@@ -112,14 +142,10 @@ export class NotificationService {
     if (typeof window === 'undefined' || !('Notification' in window)) return;
     if (!window.isSecureContext) return;
     if (Notification.permission !== 'granted') return;
-    try {
-      if (localStorage.getItem(ESCRITORIO_USER_OFF_KEY) === '1') return;
-    } catch {
-      /* ignore */
-    }
+    if (this.desktopUserOff()) return;
     if (!this.prefs().escritorio) {
       this.prefs.update((p) => ({ ...p, escritorio: true }));
-      this.persistPrefs();
+      this.persistState();
     }
   }
 
@@ -132,7 +158,7 @@ export class NotificationService {
     if (Notification.permission !== 'denied') return;
     if (this.prefs().escritorio) {
       this.prefs.update((p) => ({ ...p, escritorio: false }));
-      this.persistPrefs();
+      this.persistState();
     }
   }
 
@@ -159,7 +185,7 @@ export class NotificationService {
       next.add(id);
       return next;
     });
-    this.persistRead();
+    this.persistState();
   }
 
   markAllRead(): void {
@@ -168,7 +194,7 @@ export class NotificationService {
       all.add(i.id);
     }
     this.readIds.set(all);
-    this.persistRead();
+    this.persistState();
   }
 
   togglePref(key: keyof NotifPrefs): void {
@@ -178,17 +204,13 @@ export class NotificationService {
         this.enableEscritorioFromUserGesture();
       } else {
         this.prefs.update((p) => ({ ...p, escritorio: false }));
-        try {
-          localStorage.setItem(ESCRITORIO_USER_OFF_KEY, '1');
-        } catch {
-          /* ignore */
-        }
-        this.persistPrefs();
+        this.desktopUserOff.set(true);
+        this.persistState();
       }
       return;
     }
     this.prefs.update((p) => ({ ...p, [key]: !p[key] }));
-    this.persistPrefs();
+    this.persistState();
   }
 
   /**
@@ -210,12 +232,8 @@ export class NotificationService {
       // antes solo cargábamos tareas y el interruptor seguía gris.
       this.ngZone.run(() => {
         this.prefs.update((p) => ({ ...p, escritorio: true }));
-        try {
-          localStorage.removeItem(ESCRITORIO_USER_OFF_KEY);
-        } catch {
-          /* ignore */
-        }
-        this.persistPrefs();
+        this.desktopUserOff.set(false);
+        this.persistState();
         this.persistEscritorioOnAndLoadTasks();
       });
       return;
@@ -227,13 +245,9 @@ export class NotificationService {
         const ok = perm === 'granted';
         this.prefs.update((p) => ({ ...p, escritorio: ok }));
         if (ok) {
-          try {
-            localStorage.removeItem(ESCRITORIO_USER_OFF_KEY);
-          } catch {
-            /* ignore */
-          }
+          this.desktopUserOff.set(false);
         }
-        this.persistPrefs();
+        this.persistState();
         if (ok) {
           this.persistEscritorioOnAndLoadTasks();
         }
@@ -287,44 +301,19 @@ export class NotificationService {
     return p === 'granted';
   }
 
-  private loadPrefs(): void {
-    try {
-      const raw = localStorage.getItem(PREFS_KEY);
-      if (raw) {
-        const p = JSON.parse(raw) as Partial<NotifPrefs>;
-        this.prefs.set({ ...DEFAULT_NOTIF_PREFS, ...p });
-      }
-    } catch {
-      /* ignore */
-    }
-  }
-
-  private persistPrefs(): void {
-    try {
-      localStorage.setItem(PREFS_KEY, JSON.stringify(this.prefs()));
-    } catch {
-      /* ignore */
-    }
-  }
-
-  private loadReadIds(): void {
-    try {
-      const raw = localStorage.getItem(READ_IDS_KEY);
-      if (raw) {
-        const arr = JSON.parse(raw) as string[];
-        this.readIds.set(new Set(Array.isArray(arr) ? arr : []));
-      }
-    } catch {
-      /* ignore */
-    }
-  }
-
-  private persistRead(): void {
-    try {
-      localStorage.setItem(READ_IDS_KEY, JSON.stringify([...this.readIds()]));
-    } catch {
-      /* ignore */
-    }
+  private persistState(): void {
+    if (!this.auth.isAuthenticated()) return;
+    this.userSettingsService
+      .patchSettings({
+        notifications: {
+          ...this.prefs(),
+          readIds: [...this.readIds()],
+          desktopUserOff: this.desktopUserOff(),
+        },
+      })
+      .subscribe({
+        next: (snapshot) => this.applySettingsSnapshot(snapshot),
+      });
   }
 
   private buildItems(tasks: Task[]): NotificationItem[] {

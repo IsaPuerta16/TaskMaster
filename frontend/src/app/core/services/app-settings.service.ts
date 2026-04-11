@@ -1,25 +1,17 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, effect, Injectable, inject, signal } from '@angular/core';
 import { UI_EN, UI_ES, type UiStrings } from '../ui-strings';
 import {
   DEFAULT_PRODUCTIVIDAD_PREFS,
-  PRODUCTIVIDAD_PREFS_KEY,
-  PRODUCTIVIDAD_RANGE_KEY,
   type ProductividadPrefs,
   type ProductividadRange,
 } from '@core/productividad-settings';
-
-export const APP_SETTINGS_KEY = 'taskmaster_app_settings';
-
-export type ThemeChoice = 'claro' | 'oscuro' | 'sistema';
-
-export interface AppSettings {
-  theme: ThemeChoice;
-  fontSize: string;
-  idioma: string;
-  dateFormat: string;
-  timeFormat: string;
-  timezone: string;
-}
+import { AuthService } from '@core/services/auth.service';
+import { UserSettingsService } from '@features/user-settings/data-access/user-settings.service';
+import type {
+  AppSettings,
+  ThemeChoice,
+  UserSettingsResponse,
+} from '@features/user-settings/data-access/user-settings.model';
 
 const DEFAULTS: AppSettings = {
   theme: 'claro',
@@ -37,8 +29,13 @@ export const TIMEZONE_IANA: Record<string, string> = {
   europe_madrid: 'Europe/Madrid',
 };
 
+export type { AppSettings, ThemeChoice };
+
 @Injectable({ providedIn: 'root' })
 export class AppSettingsService {
+  private readonly auth = inject(AuthService);
+  private readonly userSettingsService = inject(UserSettingsService);
+
   readonly settings = signal<AppSettings>({ ...DEFAULTS });
 
   /** Textos de interfaz según idioma (tema/claro-oscuro siguen en applyTheme) */
@@ -52,8 +49,18 @@ export class AppSettingsService {
   readonly themeIsDark = signal(false);
 
   constructor() {
-    this.loadFromStorage();
     this.applyAll();
+    effect(
+      () => {
+        const user = this.auth.user();
+        if (user) {
+          this.loadFromServer();
+          return;
+        }
+        this.resetToDefaults();
+      },
+      { allowSignalWrites: true },
+    );
     if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
       window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
         if (this.settings().theme === 'sistema') {
@@ -63,41 +70,40 @@ export class AppSettingsService {
     }
   }
 
-  private loadFromStorage(): void {
-    try {
-      const raw = localStorage.getItem(APP_SETTINGS_KEY);
-      if (raw) {
-        const p = JSON.parse(raw) as Partial<AppSettings>;
-        this.settings.set({ ...DEFAULTS, ...p });
-      }
-    } catch {
-      /* ignore */
-    }
+  private loadFromServer(): void {
+    this.userSettingsService.getSettings().subscribe({
+      next: (snapshot) => this.applyRemoteSettings(snapshot),
+    });
+  }
 
-    try {
-      const r = localStorage.getItem(PRODUCTIVIDAD_RANGE_KEY);
-      if (r === '7' || r === '30') {
-        this.productividadRange.set(r);
-      }
-      const pr = localStorage.getItem(PRODUCTIVIDAD_PREFS_KEY);
-      if (pr) {
-        const p = JSON.parse(pr) as Partial<ProductividadPrefs>;
-        this.productividadPrefs.set({ ...DEFAULT_PRODUCTIVIDAD_PREFS, ...p });
-      }
-    } catch {
-      /* ignore */
-    }
+  private resetToDefaults(): void {
+    this.settings.set({ ...DEFAULTS });
+    this.productividadRange.set('7');
+    this.productividadPrefs.set({ ...DEFAULT_PRODUCTIVIDAD_PREFS });
+    this.applyAll();
+  }
+
+  private applyRemoteSettings(snapshot: UserSettingsResponse): void {
+    this.settings.set({
+      ...DEFAULTS,
+      ...snapshot.appSettings,
+    });
+    this.productividadRange.set(snapshot.productivity.range);
+    this.productividadPrefs.set({
+      ...DEFAULT_PRODUCTIVIDAD_PREFS,
+      showInsights: snapshot.productivity.showInsights,
+    });
+    this.applyAll();
   }
 
   setTheme(theme: ThemeChoice): void {
     this.settings.update((s) => ({ ...s, theme }));
-    this.persistSettings();
     this.applyTheme();
+    this.persistRemote({ appSettings: { theme } });
   }
 
   patch<K extends keyof AppSettings>(key: K, value: AppSettings[K]): void {
     this.settings.update((s) => ({ ...s, [key]: value }));
-    this.persistSettings();
     if (key === 'theme') {
       this.applyTheme();
     } else if (key === 'fontSize') {
@@ -105,38 +111,34 @@ export class AppSettingsService {
     } else if (key === 'idioma') {
       this.applyLang();
     }
+    this.persistRemote({ appSettings: { [key]: value } });
   }
 
   setProductividadRange(value: ProductividadRange): void {
     this.productividadRange.set(value);
-    try {
-      localStorage.setItem(PRODUCTIVIDAD_RANGE_KEY, value);
-    } catch {
-      /* ignore */
-    }
+    this.persistRemote({ productivity: { range: value } });
   }
 
   toggleProductividadInsights(): void {
-    this.productividadPrefs.update((p) => ({ ...p, showInsights: !p.showInsights }));
-    try {
-      localStorage.setItem(PRODUCTIVIDAD_PREFS_KEY, JSON.stringify(this.productividadPrefs()));
-    } catch {
-      /* ignore */
-    }
-  }
-
-  private persistSettings(): void {
-    try {
-      localStorage.setItem(APP_SETTINGS_KEY, JSON.stringify(this.settings()));
-    } catch {
-      /* ignore */
-    }
+    const showInsights = !this.productividadPrefs().showInsights;
+    this.productividadPrefs.update((p) => ({ ...p, showInsights }));
+    this.persistRemote({ productivity: { showInsights } });
   }
 
   private applyAll(): void {
     this.applyTheme();
     this.applyFontSize();
     this.applyLang();
+  }
+
+  private persistRemote(payload: {
+    appSettings?: Partial<AppSettings>;
+    productivity?: Partial<{ range: ProductividadRange; showInsights: boolean }>;
+  }): void {
+    if (!this.auth.isAuthenticated()) return;
+    this.userSettingsService.patchSettings(payload).subscribe({
+      next: (snapshot) => this.applyRemoteSettings(snapshot),
+    });
   }
 
   private applyTheme(): void {

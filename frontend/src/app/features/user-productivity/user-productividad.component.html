@@ -1,0 +1,131 @@
+<div class="up-page">
+  <div class="up-layout">
+    <app-sidebar />
+
+    <div class="up-main">
+      <div class="up-toolbar">
+        <div class="up-seg" role="group" aria-label="Periodo">
+          <button
+            type="button"
+            class="up-seg__btn"
+            [class.up-seg__btn--active]="range() === '7'"
+            (click)="setRange('7')"
+          >
+            Últimos 7 días
+          </button>
+          <button
+            type="button"
+            class="up-seg__btn"
+            [class.up-seg__btn--active]="range() === '30'"
+            (click)="setRange('30')"
+          >
+            Últimos 30 días
+          </button>
+        </div>
+        <a routerLink="/tasks/new" class="up-toolbar__cta">+ Nueva tarea</a>
+      </div>
+
+      @if (loading()) {
+        <p class="up-state">Cargando...</p>
+      } @else {
+        <div
+          class="up-top-grid"
+          [class.up-top-grid--single]="!prodPrefs().showInsights"
+        >
+          <section class="up-card up-card--vision" aria-labelledby="up-vision-title">
+            <h2 id="up-vision-title" class="up-card__title up-card__title--with-icon">
+              <span class="up-card__title-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 20V10" />
+                  <path d="M12 20V4" />
+                  <path d="M6 20v-6" />
+                </svg>
+              </span>
+              Visión general
+            </h2>
+            <div class="up-metrics">
+              <div class="up-metric up-metric--teal">
+                <span class="up-metric__value">{{ completedInRange() }}</span>
+                <span class="up-metric__label">Completadas</span>
+              </div>
+              <div class="up-metric up-metric--compliance">
+                <span class="up-metric__value">{{ compliancePct() }}%</span>
+                <span class="up-metric__label">Cumplimiento</span>
+              </div>
+              <div class="up-metric up-metric--amber">
+                <span class="up-metric__value">{{ streakDays() }}</span>
+                <span class="up-metric__label">Días seguidos</span>
+              </div>
+            </div>
+          </section>
+
+          @if (prodPrefs().showInsights) {
+            <section class="up-card up-card--insights" aria-labelledby="up-insights-title">
+              <h2 id="up-insights-title" class="up-card__title up-card__title--with-icon">
+                <span class="up-insights__bulb" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18h6M10 22h4" />
+                    <path d="M12 2a7 7 0 0 0-4 12.5V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.5A7 7 0 0 0 12 2z" />
+                  </svg>
+                </span>
+                Insights rápidos
+              </h2>
+              <ul class="up-insights__list">
+                @for (line of insights(); track line) {
+                  <li class="up-insights__item">
+                    <span class="up-insights__bullet" aria-hidden="true">•</span>
+                    <span>{{ line }}</span>
+                  </li>
+                }
+              </ul>
+            </section>
+          }
+        </div>
+
+        <div class="up-charts">
+          <section class="up-card up-card--chart" aria-labelledby="up-activity-title">
+            <div class="up-card__head">
+              <h2 id="up-activity-title" class="up-card__title">Actividad por día</h2>
+              <span class="up-card__badge">{{ daysLabel() }}</span>
+            </div>
+            <div class="up-bars" role="img" [attr.aria-label]="'Gráfico de barras por día, ' + daysLabel()">
+              @for (bar of activityBars(); track bar.label) {
+                <div class="up-bar-wrap">
+                  <div class="up-bar" [style.height.%]="bar.heightPct"></div>
+                  <span class="up-bar__label">{{ bar.label }}</span>
+                </div>
+              }
+            </div>
+          </section>
+
+          <section class="up-card up-card--chart up-card--priorities" aria-labelledby="up-prio-title">
+            <h2 id="up-prio-title" class="up-card__title up-card__title--center up-card__title--prio">Prioridades</h2>
+            <div class="up-priorities-inner">
+              <div class="up-priorities-chart">
+                <div class="up-donut" [style.background]="donutGradient()" aria-hidden="true">
+                  <div class="up-donut__hole">
+                    <span class="up-donut__center">{{ totalPendingInRange() }}</span>
+                  </div>
+                </div>
+              </div>
+              <ul class="up-legend up-legend--prio" aria-label="Distribución por prioridad">
+                @for (s of prioritySlices(); track s.key) {
+                  @if (s.count > 0) {
+                    <li class="up-legend__row">
+                      <span class="up-legend__dot" [style.background]="s.color"></span>
+                      <span class="up-legend__name">{{ s.label }}</span>
+                      <span class="up-legend__pct">{{ s.pct | number: '1.0-0' }}%</span>
+                    </li>
+                  }
+                }
+              </ul>
+            </div>
+            @if (noPendingPriorities()) {
+              <p class="up-legend__empty">No hay tareas pendientes en este periodo.</p>
+            }
+          </section>
+        </div>
+      }
+    </div>
+  </div>
+</div>

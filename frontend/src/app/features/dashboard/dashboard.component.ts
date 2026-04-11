@@ -1,15 +1,12 @@
-import { Component, HostListener, OnInit, signal } from '@angular/core';
+import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { buildColombiaHolidayMap, toDateKey } from '@core/calendar/colombia-holidays';
 import { AppSidebarComponent } from '@shared/layout';
-
-const NOTES_STORAGE_KEY = 'taskmaster_calendar_day_notes';
-
-export interface DayNote {
-  id: string;
-  text: string;
-}
+import {
+  CalendarNotesService,
+  type DayNote,
+} from './data-access/calendar-notes.service';
 
 export interface CalendarDayCell {
   day: number;
@@ -47,6 +44,7 @@ function getISOWeek(date: Date): number {
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
+  private readonly calendarNotesService = inject(CalendarNotesService);
   year = new Date().getFullYear();
   month = new Date().getMonth();
   calendarWeeks: CalendarWeekRow[] = [];
@@ -77,8 +75,8 @@ export class DashboardComponent implements OnInit {
   readonly dateFilterOpen = signal(false);
 
   ngOnInit() {
-    this.loadNotes();
     this.rebuildCalendar();
+    this.loadVisibleNotes();
   }
 
   @HostListener('document:keydown.escape')
@@ -121,6 +119,7 @@ export class DashboardComponent implements OnInit {
       this.month--;
     }
     this.rebuildCalendar();
+    this.loadVisibleNotes();
   }
 
   nextMonth(): void {
@@ -131,16 +130,19 @@ export class DashboardComponent implements OnInit {
       this.month++;
     }
     this.rebuildCalendar();
+    this.loadVisibleNotes();
   }
 
   setYear(y: number): void {
     this.year = y;
     this.rebuildCalendar();
+    this.loadVisibleNotes();
   }
 
   setMonth(m: number): void {
     this.month = m;
     this.rebuildCalendar();
+    this.loadVisibleNotes();
   }
 
   goToday(): void {
@@ -148,6 +150,7 @@ export class DashboardComponent implements OnInit {
     this.year = t.getFullYear();
     this.month = t.getMonth();
     this.rebuildCalendar();
+    this.loadVisibleNotes();
     this.closeDateFilter();
   }
 
@@ -186,8 +189,8 @@ export class DashboardComponent implements OnInit {
     if (!this.notesMap[this.selectedKey]) this.notesMap[this.selectedKey] = [];
     this.notesMap[this.selectedKey].push({ id, text });
     this.draftText = '';
-    this.persistNotes();
     this.rebuildCalendar();
+    this.persistSelectedNotes();
   }
 
   removeNote(id: string): void {
@@ -197,24 +200,8 @@ export class DashboardComponent implements OnInit {
     if (this.notesMap[this.selectedKey].length === 0) {
       delete this.notesMap[this.selectedKey];
     }
-    this.persistNotes();
     this.rebuildCalendar();
-  }
-
-  private loadNotes(): void {
-    try {
-      const raw = localStorage.getItem(NOTES_STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as Record<string, DayNote[]>;
-        this.notesMap = parsed && typeof parsed === 'object' ? parsed : {};
-      }
-    } catch {
-      this.notesMap = {};
-    }
-  }
-
-  private persistNotes(): void {
-    localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(this.notesMap));
+    this.persistSelectedNotes();
   }
 
   private getHolidayMap(y: number): Map<string, string> {
@@ -228,6 +215,31 @@ export class DashboardComponent implements OnInit {
 
   private rebuildCalendar(): void {
     this.calendarWeeks = this.buildCalendar(this.year, this.month);
+  }
+
+  private loadVisibleNotes(): void {
+    const from = this.calendarWeeks[0]?.days[0]?.dateKey;
+    const lastWeek = this.calendarWeeks[this.calendarWeeks.length - 1];
+    const to = lastWeek?.days[lastWeek.days.length - 1]?.dateKey;
+    if (!from || !to) return;
+    this.calendarNotesService.getRange(from, to).subscribe({
+      next: (rows) => {
+        this.notesMap = Object.fromEntries(
+          rows.map((row) => [row.dateKey, row.notes]),
+        );
+        this.rebuildCalendar();
+      },
+      error: () => {
+        this.notesMap = {};
+        this.rebuildCalendar();
+      },
+    });
+  }
+
+  private persistSelectedNotes(): void {
+    if (!this.selectedKey) return;
+    const notes = this.notesMap[this.selectedKey] ?? [];
+    this.calendarNotesService.saveDate(this.selectedKey, notes).subscribe();
   }
 
   private buildPreview(notes: DayNote[] | undefined): string {

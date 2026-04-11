@@ -73,6 +73,11 @@ TaskMaster/
 └── README.md
 ```
 
+### Arquitectura del código
+
+- **Frontend (Angular):** cliente modular **por funcionalidades** (`features/`: auth, tasks, dashboard, user-*, search, public, etc.), con `core/` (servicios transversales, guards, modelos), `shared/` (layout reutilizable) y `routes/` que agrupan rutas públicas vs autenticadas. Alias: `@core/*`, `@features/*`, `@shared/*`.
+- **Backend (NestJS):** **monolito modular**: un despliegue único (`AppModule`) que importa módulos de dominio en `src/modules/` (`auth`, `users`, `tasks`, `settings`, `calendar-notes`, `assistant`), cada uno con controlador, servicio y entidades propias.
+
 ---
 
 ## Diseño
@@ -108,7 +113,7 @@ npm install
 npm run start:dev
 ```
 
-El API estará en **http://localhost:3000**. Base de datos SQLite en `taskmaster.db`.
+El API queda en `http://localhost:<PORT>/api` (por defecto Nest usa el puerto **3000**; puedes fijar `PORT=3001` en `backend/.env`). La base de datos es **PostgreSQL** (p. ej. Supabase), configurada con `DATABASE_URL` en `.env`.
 
 ### Frontend (Angular)
 
@@ -131,3 +136,13 @@ La aplicación estará en **http://localhost:4200**.
 | GET | /api/tasks/stats | Estadísticas de productividad |
 | PUT | /api/tasks/:id | Actualizar tarea |
 | DELETE | /api/tasks/:id | Eliminar tarea |
+
+---
+
+## Pruebas automáticas
+
+| Ubicación | Comando | Notas |
+|-----------|---------|--------|
+| **Backend** | `cd backend && npm test` | Jest: auth, tareas, formato respuesta n8n |
+| **Backend e2e** | `cd backend && npm run test:e2e` | Requiere `DATABASE_URL` en `.env` |
+| **Frontend (Angular)** | `cd frontend && npm run test:ci` | Karma en Chrome headless |

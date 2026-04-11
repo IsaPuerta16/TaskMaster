@@ -283,20 +283,37 @@ $seg-active-hover: #158a70;
   transition: background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.task-card--pink {
-  border-top-color: #ec4899;
+/* Borde superior = importancia (prioridad) */
+.task-card--pri-baja {
+  border-top-color: #94a3b8;
 }
 
-.task-card--blue {
-  border-top-color: #3b82f6;
+.task-card--pri-media {
+  border-top-color: #ca8a04;
 }
 
-.task-card--green {
-  border-top-color: #22c55e;
+.task-card--pri-alta {
+  border-top-color: #ea580c;
 }
 
-.task-card--teal {
-  border-top-color: #14b8a6;
+.task-card--pri-urgente {
+  border-top-color: #dc2626;
+}
+
+:host-context(html[data-theme='dark']) .task-card--pri-baja {
+  border-top-color: #64748b;
+}
+
+:host-context(html[data-theme='dark']) .task-card--pri-media {
+  border-top-color: #facc15;
+}
+
+:host-context(html[data-theme='dark']) .task-card--pri-alta {
+  border-top-color: #fb923c;
+}
+
+:host-context(html[data-theme='dark']) .task-card--pri-urgente {
+  border-top-color: #f87171;
 }
 
 .task-card__top {
@@ -359,6 +376,59 @@ $seg-active-hover: #158a70;
 
 .task-card__title-link:hover {
   color: var(--app-teal);
+}
+
+.task-card__priority {
+  display: inline-flex;
+  align-self: flex-start;
+  margin: 0.15rem 0 0;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-family: var(--font-family);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.task-card__priority--baja {
+  background: rgba(148, 163, 184, 0.22);
+  color: #475569;
+}
+
+.task-card__priority--media {
+  background: rgba(202, 138, 4, 0.18);
+  color: #a16207;
+}
+
+.task-card__priority--alta {
+  background: rgba(234, 88, 12, 0.16);
+  color: #c2410c;
+}
+
+.task-card__priority--urgente {
+  background: rgba(220, 38, 38, 0.14);
+  color: #b91c1c;
+}
+
+:host-context(html[data-theme='dark']) .task-card__priority--baja {
+  background: rgba(100, 116, 139, 0.35);
+  color: #cbd5e1;
+}
+
+:host-context(html[data-theme='dark']) .task-card__priority--media {
+  background: rgba(250, 204, 21, 0.15);
+  color: #fde047;
+}
+
+:host-context(html[data-theme='dark']) .task-card__priority--alta {
+  background: rgba(251, 146, 60, 0.18);
+  color: #fdba74;
+}
+
+:host-context(html[data-theme='dark']) .task-card__priority--urgente {
+  background: rgba(248, 113, 113, 0.15);
+  color: #fecaca;
 }
 
 .task-card__time {

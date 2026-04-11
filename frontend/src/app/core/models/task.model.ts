@@ -26,4 +26,6 @@ export interface TaskStats {
   pending: number;
   overdue: number;
   completionRate: number;
+  streakDays?: number;
+  insights?: string[];
 }

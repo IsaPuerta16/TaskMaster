@@ -186,14 +186,48 @@
 
 .user-icon {
   display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--app-header-nav-muted, var(--app-text-muted));
   padding: 0.5rem;
-  transition: transform 0.3s ease;
+  text-decoration: none;
+  border-radius: 999px;
+  position: relative;
+  transition: transform 0.3s ease, color 0.2s ease, background 0.2s ease;
 }
 
 .user-icon:hover {
   color: var(--app-header-nav-active, var(--app-link));
   transform: scale(1.1);
+  background: rgba(30, 58, 95, 0.08);
+}
+
+.user-icon__hint {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.92);
+  color: #f8fafc;
+  font-size: 0.82rem;
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.22);
+}
+
+.user-icon:hover .user-icon__hint,
+.user-icon:focus-visible .user-icon__hint {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.header.header--dark .user-icon:hover {
+  background: rgba(148, 163, 184, 0.12);
 }
 
 /* ——— Escritorio: sin botón hamburguesa (estructura actual) ——— */
@@ -259,6 +293,10 @@
     grid-column: 3;
     grid-row: 1;
     flex-shrink: 0;
+  }
+
+  .user-icon__hint {
+    display: none;
   }
 
   .search-bar {

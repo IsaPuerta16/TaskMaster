@@ -3,9 +3,8 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { TaskService, TaskPriority, Task } from '@core/services/task.service';
+import { TaskService, type TaskPriority, type Task } from '@features/tasks/data-access';
 import { AuthService } from '@core/services/auth.service';
-import { environment } from '@env/environment';
 
 @Component({
   selector: 'app-task-form',
@@ -15,8 +14,6 @@ import { environment } from '@env/environment';
   styleUrls: ['./task-form.component.scss'],
 })
 export class TaskFormComponent implements OnInit {
-  readonly useLocalApi = environment.useLocalApi;
-
   form: FormGroup;
   isEdit = false;
   taskId: string | null = null;
@@ -72,7 +69,7 @@ export class TaskFormComponent implements OnInit {
 
   private parseApiError(err: HttpErrorResponse): string {
     if (err.status === 0) {
-      return 'No hay conexión con el servidor. Comprueba que el backend esté en marcha (puerto 3000).';
+      return 'No hay conexión con el servidor. Comprueba que el backend esté en marcha.';
     }
     if (err.status === 401) {
       return 'Debes iniciar sesión para guardar tareas.';
@@ -92,7 +89,7 @@ export class TaskFormComponent implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
-    if (!this.useLocalApi && !this.auth.isAuthenticated()) {
+    if (!this.auth.isAuthenticated()) {
       this.errorMessage =
         'Inicia sesión para crear o editar tareas. Usa el enlace de abajo si no estás registrado.';
       return;

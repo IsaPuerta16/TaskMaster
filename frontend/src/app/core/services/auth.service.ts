@@ -5,9 +5,12 @@ import { tap } from 'rxjs';
 import { environment } from '@env/environment';
 import type { User, AuthResponse } from '@core/models';
 
+const TOKEN_KEY = 'token';
+const USER_KEY = 'user';
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private token = signal<string | null>(localStorage.getItem('token'));
+  private token = signal<string | null>(sessionStorage.getItem(TOKEN_KEY));
   private userData = signal<User | null>(this.getStoredUser());
 
   user = computed(() => this.userData());
@@ -46,21 +49,26 @@ export class AuthService {
   }
 
   private clearSession(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    sessionStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(USER_KEY);
     this.token.set(null);
     this.userData.set(null);
   }
 
   private setSession(res: AuthResponse) {
-    localStorage.setItem('token', res.access_token);
-    localStorage.setItem('user', JSON.stringify(res.user));
+    sessionStorage.setItem(TOKEN_KEY, res.access_token);
+    sessionStorage.setItem(USER_KEY, JSON.stringify(res.user));
     this.token.set(res.access_token);
     this.userData.set(res.user);
   }
 
+  setUser(user: User): void {
+    sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+    this.userData.set(user);
+  }
+
   private getStoredUser(): User | null {
-    const stored = localStorage.getItem('user');
+    const stored = sessionStorage.getItem(USER_KEY);
     return stored ? JSON.parse(stored) : null;
   }
 

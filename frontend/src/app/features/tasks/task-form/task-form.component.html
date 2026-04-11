@@ -5,7 +5,7 @@
     <div class="tf-card">
       <h1 class="tf-card__title">{{ isEdit ? 'Editar tarea' : 'Nueva tarea' }}</h1>
 
-      @if (!auth.isAuthenticated() && !useLocalApi) {
+      @if (!auth.isAuthenticated()) {
         <div class="tf-alert" role="status">
           Para guardar tareas necesitas una sesión iniciada.
           <a routerLink="/login" [queryParams]="{ returnUrl: loginReturnUrl }">Iniciar sesión</a>

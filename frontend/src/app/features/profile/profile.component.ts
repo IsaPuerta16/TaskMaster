@@ -3,10 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
-import { TaskService, TaskStats } from '@core/services/task.service';
-import { AppSidebarComponent, HeaderComponent } from '@shared/layout';
-
-const PROFILE_STORAGE_KEY = 'taskmaster_profile';
+import { TaskService, type TaskStats } from '@features/tasks/data-access';
+import { AppSidebarComponent } from '@shared/layout';
+import { ProfileService } from './data-access/profile.service';
+import type { User } from '@core/models';
 
 @Component({
   selector: 'app-profile',
@@ -33,6 +33,7 @@ export class ProfileComponent implements OnInit {
     public auth: AuthService,
     private taskService: TaskService,
     private fb: FormBuilder,
+    private profileService: ProfileService,
   ) {
     this.form = this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(1)]],
@@ -43,52 +44,32 @@ export class ProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const u = this.auth.user();
-    const email = u?.email ?? 'usuario@ejemplo.com';
-    const local = email.includes('@') ? email.split('@')[0] : email;
-    this.userHandle = `@${local}`;
-    this.avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(u?.id ?? email)}`;
-
-    const full = (u?.fullName ?? 'Usuario').trim();
-    const parts = full.split(/\s+/);
-    const firstName = parts[0] ?? '';
-    const lastName = parts.slice(1).join(' ') || '';
-
-    this.form.patchValue({
-      firstName,
-      lastName,
-      email: u?.email ?? '',
-      role: 'estudiante',
-    });
-
-    try {
-      const raw = localStorage.getItem(PROFILE_STORAGE_KEY);
-      if (raw) {
-        const p = JSON.parse(raw) as Record<string, string>;
+    this.syncUserUi(this.auth.user());
+    this.profileService.getMe().subscribe({
+      next: (user) => {
+        this.auth.setUser(user);
+        this.syncUserUi(user);
         this.form.patchValue({
-          firstName: p['firstName'] ?? firstName,
-          lastName: p['lastName'] ?? lastName,
-          email: p['email'] ?? email,
-          role: p['role'] ?? 'estudiante',
+          firstName: user.firstName ?? '',
+          lastName: user.lastName ?? '',
+          email: user.email,
+          role: user.role ?? 'estudiante',
         });
-      }
-    } catch {
-      /* ignore */
-    }
+      },
+    });
 
     this.taskService.getStats().subscribe({
       next: (s: TaskStats) => {
         this.completed = s.completed;
         this.completionRate = Math.round(s.completionRate);
+        this.streakDays = s.streakDays ?? 0;
       },
       error: () => {
         this.completed = 0;
         this.completionRate = 0;
+        this.streakDays = 0;
       },
     });
-
-    const streakRaw = localStorage.getItem('taskmaster_racha_dias');
-    this.streakDays = streakRaw ? parseInt(streakRaw, 10) || 0 : 0;
   }
 
   saveProfile(): void {
@@ -96,6 +77,18 @@ export class ProfileComponent implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
-    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(this.form.getRawValue()));
+    this.profileService.updateMe(this.form.getRawValue()).subscribe({
+      next: (user) => {
+        this.auth.setUser(user);
+        this.syncUserUi(user);
+      },
+    });
+  }
+
+  private syncUserUi(user: User | null): void {
+    const email = user?.email ?? 'usuario@ejemplo.com';
+    const local = email.includes('@') ? email.split('@')[0] : email;
+    this.userHandle = `@${local}`;
+    this.avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user?.id ?? email)}`;
   }
 }

@@ -57,10 +57,11 @@
           @for (task of filteredTasks; track task.id; let i = $index) {
             <li
               class="task-card"
-              [class.task-card--pink]="cardVariant(i) === 'pink'"
-              [class.task-card--blue]="cardVariant(i) === 'blue'"
-              [class.task-card--green]="cardVariant(i) === 'green'"
-              [class.task-card--teal]="cardVariant(i) === 'teal'"
+              [class.task-card--pri-baja]="task.priority === 'baja'"
+              [class.task-card--pri-media]="task.priority === 'media'"
+              [class.task-card--pri-alta]="task.priority === 'alta'"
+              [class.task-card--pri-urgente]="task.priority === 'urgente'"
+              [attr.aria-label]="task.title + ', prioridad ' + priorityLabel(task.priority)"
             >
               <div class="task-card__top">
                 <span class="task-card__deco" aria-hidden="true">
@@ -89,6 +90,15 @@
                 </div>
               </div>
               <a [routerLink]="['/tasks', task.id, 'edit']" class="task-card__title-link">{{ task.title }}</a>
+              <span
+                class="task-card__priority"
+                [class.task-card__priority--baja]="task.priority === 'baja'"
+                [class.task-card__priority--media]="task.priority === 'media'"
+                [class.task-card__priority--alta]="task.priority === 'alta'"
+                [class.task-card__priority--urgente]="task.priority === 'urgente'"
+              >
+                {{ priorityLabel(task.priority) }}
+              </span>
               <p class="task-card__time">{{ datedTask(task) }}</p>
               @if (task.description) {
                 <p class="task-card__desc">{{ task.description }}</p>
