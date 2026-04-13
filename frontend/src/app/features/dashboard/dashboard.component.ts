@@ -42,6 +42,10 @@ function getISOWeek(date: Date): number {
   imports: [CommonModule, FormsModule, AppSidebarComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
+  host: {
+    style:
+      'display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box',
+  },
 })
 export class DashboardComponent implements OnInit {
   private readonly calendarNotesService = inject(CalendarNotesService);

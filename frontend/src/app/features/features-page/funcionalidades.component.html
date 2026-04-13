@@ -44,51 +44,53 @@
           </ul>
         </div>
 
-        <div class="kanban-board">
-          <div class="kanban-col">
-            <h4 class="kanban-col-title">
-              <span class="col-dot col-dot-orange"></span>
-              {{ F().kanban.colPending }}
-            </h4>
-            <div class="kanban-task">
-              <div class="task-name">{{ F().kanban.t1.name }}</div>
-              <div class="task-meta">
-                <span class="priority-badge priority-alta">{{ F().kanban.t1.prio }}</span>
-                <span class="date-badge">{{ F().kanban.t1.date }}</span>
+        <div class="flow-kanban-wrap">
+          <div class="kanban-board">
+            <div class="kanban-col">
+              <h4 class="kanban-col-title">
+                <span class="col-dot col-dot-orange"></span>
+                {{ F().kanban.colPending }}
+              </h4>
+              <div class="kanban-task">
+                <div class="task-name">{{ F().kanban.t1.name }}</div>
+                <div class="task-meta">
+                  <span class="priority-badge priority-alta">{{ F().kanban.t1.prio }}</span>
+                  <span class="date-badge">{{ F().kanban.t1.date }}</span>
+                </div>
+              </div>
+              <div class="kanban-task">
+                <div class="task-name">{{ F().kanban.t2.name }}</div>
+                <div class="task-meta">
+                  <span class="priority-badge priority-media">{{ F().kanban.t2.prio }}</span>
+                  <span class="date-badge">{{ F().kanban.t2.date }}</span>
+                </div>
               </div>
             </div>
-            <div class="kanban-task">
-              <div class="task-name">{{ F().kanban.t2.name }}</div>
-              <div class="task-meta">
-                <span class="priority-badge priority-media">{{ F().kanban.t2.prio }}</span>
-                <span class="date-badge">{{ F().kanban.t2.date }}</span>
-              </div>
-            </div>
-          </div>
 
-          <div class="kanban-col">
-            <h4 class="kanban-col-title">
-              <span class="col-dot col-dot-blue"></span>
-              {{ F().kanban.colProgress }}
-            </h4>
-            <div class="kanban-task kanban-task-active">
-              <div class="task-name">{{ F().kanban.t3.name }}</div>
-              <div class="task-meta">
-                <span class="priority-badge priority-alta">{{ F().kanban.t3.prio }}</span>
-                <span class="date-badge">{{ F().kanban.t3.date }}</span>
+            <div class="kanban-col">
+              <h4 class="kanban-col-title">
+                <span class="col-dot col-dot-blue"></span>
+                {{ F().kanban.colProgress }}
+              </h4>
+              <div class="kanban-task kanban-task-active">
+                <div class="task-name">{{ F().kanban.t3.name }}</div>
+                <div class="task-meta">
+                  <span class="priority-badge priority-alta">{{ F().kanban.t3.prio }}</span>
+                  <span class="date-badge">{{ F().kanban.t3.date }}</span>
+                </div>
+                <div class="task-progress-bar"></div>
               </div>
-              <div class="task-progress-bar"></div>
             </div>
-          </div>
 
-          <div class="kanban-col">
-            <h4 class="kanban-col-title">
-              <span class="col-dot col-dot-green"></span>
-              {{ F().kanban.colDone }}
-            </h4>
-            <div class="kanban-task kanban-task-done">
-              <div class="task-name">{{ F().kanban.t4.name }}</div>
-              <span class="done-badge">{{ F().kanban.t4.ok }}</span>
+            <div class="kanban-col">
+              <h4 class="kanban-col-title">
+                <span class="col-dot col-dot-green"></span>
+                {{ F().kanban.colDone }}
+              </h4>
+              <div class="kanban-task kanban-task-done">
+                <div class="task-name">{{ F().kanban.t4.name }}</div>
+                <span class="done-badge">{{ F().kanban.t4.ok }}</span>
+              </div>
             </div>
           </div>
         </div>

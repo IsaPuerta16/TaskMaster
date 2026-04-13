@@ -1,7 +1,18 @@
+:host {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
 .dashboard-home {
   min-height: 100vh;
   background: var(--app-bg);
   color: var(--app-text);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .dashboard-home__layout {
@@ -212,6 +223,59 @@
   font-family: var(--font-family);
   font-size: 0.8125rem;
   min-width: 900px;
+}
+
+/* Móvil: la tabla cabe en el ancho (sin columnas microscópicas por scroll forzado) */
+@media (max-width: 767px) {
+  .dashboard-calendar__wrap {
+    overflow-x: visible;
+    -webkit-overflow-scrolling: auto;
+  }
+
+  .dashboard-calendar__grid {
+    min-width: 0;
+    width: 100%;
+    table-layout: fixed;
+    font-size: 0.62rem;
+  }
+
+  .dashboard-calendar__grid thead th {
+    padding: 0.4rem 0.15rem;
+    font-size: 0.58rem;
+    line-height: 1.15;
+    word-break: break-word;
+    hyphens: auto;
+  }
+
+  .dashboard-calendar__th-week {
+    width: 1.75rem;
+    font-size: 0.5rem;
+    padding: 0.35rem 0.1rem;
+  }
+
+  .dashboard-calendar__week-num {
+    padding: 0.35rem 0.1rem;
+    font-size: 0.58rem;
+  }
+
+  .dashboard-calendar__day {
+    min-width: 0;
+  }
+
+  .dashboard-calendar__cell-inner {
+    min-height: 3.5rem;
+    padding: 0.25rem 0.2rem 0.35rem;
+  }
+
+  .dashboard-calendar__day-num {
+    font-size: 0.65rem;
+  }
+
+  .dashboard-calendar__day-preview {
+    font-size: 0.55rem;
+    max-height: 3.2rem;
+    margin-top: 0.2rem;
+  }
 }
 
 .dashboard-calendar__grid thead th {

@@ -185,3 +185,129 @@ p, .text-body { font-size: var(--text-body); font-weight: var(--weight-regular);
 .text-sm { font-size: var(--text-body-sm); }
 .text-caption { font-size: var(--text-caption); }
 .text-small { font-size: var(--text-small); }
+
+/* Shell: el root y las rutas ocupan todo el ancho (los custom elements suelen ser inline y achican la vista). */
+app-root {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+}
+
+app-root > app-landing,
+app-root > app-funcionalidades,
+app-root > app-productividad,
+app-root > app-asistente-ia,
+app-root > app-nosotros,
+app-root > app-register,
+app-root > app-login,
+app-root > app-dashboard,
+app-root > app-profile,
+app-root > app-user-productividad,
+app-root > app-user-asistente-ia,
+app-root > app-user-notificaciones,
+app-root > app-user-configuracion,
+app-root > app-task-list,
+app-root > app-task-form,
+app-root > app-buscar {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Landing: tablero de ejemplo — misma idea que Funcionalidades (global para ganar a cualquier orden de CSS). */
+app-landing {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+app-landing .board-columns {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media (min-width: 1024px) {
+  app-landing .board-columns {
+    flex-direction: row !important;
+    align-items: stretch !important;
+  }
+
+  app-landing .board-columns .board-col {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+  }
+}
+
+/* Página Funcionalidades: grids en móvil (el Kanban no puede quedar en 3 columnas estrechas). */
+app-funcionalidades {
+  display: block;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+app-funcionalidades .flow-content {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) !important;
+}
+
+@media (max-width: 900px) {
+  app-funcionalidades .flow-content {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+app-funcionalidades .flow-kanban-wrap .kanban-board {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 1.25rem !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 1rem !important;
+}
+
+app-funcionalidades .flow-kanban-wrap .kanban-col {
+  min-width: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media (min-width: 1280px) {
+  app-funcionalidades .flow-kanban-wrap .kanban-board {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important;
+    flex-wrap: nowrap !important;
+    gap: 1rem !important;
+    padding: 1.25rem !important;
+  }
+
+  app-funcionalidades .flow-kanban-wrap .kanban-col {
+    flex: 1 1 0 !important;
+  }
+}
+
+app-funcionalidades .cards-grid,
+app-funcionalidades .post-kanban-strip,
+app-funcionalidades .extra-grid,
+app-funcionalidades .personas-grid {
+  grid-template-columns: 1fr !important;
+}
+
+@media (min-width: 901px) {
+  app-funcionalidades .cards-grid,
+  app-funcionalidades .post-kanban-strip,
+  app-funcionalidades .extra-grid,
+  app-funcionalidades .personas-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}

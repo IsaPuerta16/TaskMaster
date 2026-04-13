@@ -979,6 +979,13 @@ $radius-icon: 14px;
   gap: 0.45rem;
 }
 
+@media (max-width: 520px) {
+  .bottom-cta__peek-board {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+}
+
 .bottom-cta__peek-col {
   display: flex;
   flex-direction: column;

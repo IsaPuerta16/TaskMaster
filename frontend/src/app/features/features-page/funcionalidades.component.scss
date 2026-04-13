@@ -47,9 +47,15 @@
 
 .cards-section { margin: 0 2rem 3rem; padding-top: 1rem; animation: fadeInUp 0.6s ease-out 0.1s forwards; opacity: 0; }
 .cards-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
 }
-@media (max-width: 900px) { .cards-grid { grid-template-columns: 1fr; } }
+@media (min-width: 901px) {
+  .cards-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
 
 .func-card {
   background: var(--app-card); border-radius: 12px; padding: 1.5rem;
@@ -81,7 +87,16 @@
 }
 .flow-section { margin: 0 2rem 3rem; animation: fadeInUp 0.6s ease-out 0.3s forwards; opacity: 0; }
 .flow-content {
-  display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem; align-items: start;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 2rem;
+  align-items: start;
+  min-width: 0;
+}
+.flow-kanban-wrap {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
 }
 @media (max-width: 900px) { .flow-content { grid-template-columns: 1fr; } }
 .flow-title {
@@ -114,14 +129,50 @@
   color: #3b82f6; font-weight: var(--weight-bold);
 }
 
+/* Flex en móvil/tablet (grid 3 cols se comprime mal); grid solo en escritorio ancho */
 .kanban-board {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
-  background: var(--app-card); border-radius: 12px;
-  padding: 1.25rem; box-shadow: var(--app-shadow-card);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.25rem;
+  padding: 1rem;
+  background: var(--app-card);
+  border-radius: 12px;
+  box-shadow: var(--app-shadow-card);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+@media (min-width: 1280px) {
+  .kanban-board {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 1rem;
+    padding: 1.25rem;
+  }
+
+  .kanban-col {
+    flex: 1 1 0;
+  }
 }
 .kanban-col {
-  background: var(--app-muted-bg); border-radius: 10px; padding: 1rem;
-  min-height: 200px;
+  background: var(--app-muted-bg);
+  border-radius: 10px;
+  padding: 1rem;
+  min-height: 0;
+  min-width: 0;
+  box-sizing: border-box;
+}
+@media (min-width: 1280px) {
+  .kanban-col {
+    min-height: 200px;
+  }
+}
+@media (max-width: 900px) {
+  .flow-section {
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
 }
 .kanban-col-title {
   font-size: var(--text-body-sm); font-weight: var(--weight-semibold); color: var(--app-text);
@@ -205,12 +256,14 @@
 }
 .post-kanban-strip {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
-@media (max-width: 900px) {
-  .post-kanban-strip { grid-template-columns: 1fr; }
+@media (min-width: 901px) {
+  .post-kanban-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 .pk-spot {
   border-radius: 16px;
@@ -302,9 +355,15 @@
   text-align: center; margin: 0 0 1.5rem;
 }
 .extra-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
 }
-@media (max-width: 900px) { .extra-grid { grid-template-columns: 1fr; } }
+@media (min-width: 901px) {
+  .extra-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
 .extra-card {
   background: var(--app-card); border-radius: 16px; padding: 1.75rem;
   box-shadow: 0 4px 20px rgba(0,0,0,0.06);
@@ -485,11 +544,13 @@
 }
 .personas-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: 1.25rem;
 }
-@media (max-width: 900px) {
-  .personas-grid { grid-template-columns: 1fr; }
+@media (min-width: 901px) {
+  .personas-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 .persona-block {
   text-align: left;

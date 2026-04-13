@@ -10,6 +10,9 @@ import { AppSettingsService } from '@core/services/app-settings.service';
   imports: [CommonModule, RouterLink, FooterComponent],
   templateUrl: './landing.component.html',
   styleUrls: ['./landing.component.scss'],
+  host: {
+    style: 'display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box',
+  },
 })
 export class LandingComponent {
   private readonly appSettings = inject(AppSettingsService);
