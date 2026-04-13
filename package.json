@@ -1,0 +1,5 @@
+{
+  "name": "taskmaster-monorepo",
+  "private": true,
+  "description": "Monorepo root (Vercel / tooling)"
+}
