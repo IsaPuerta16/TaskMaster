@@ -38,7 +38,7 @@ Navegador: `http://localhost:4200/`.
 npm run build
 ```
 
-Salida en `dist/frontend`.
+Salida en `dist/browser` (build de producción).
 
 ## Pruebas unitarias (Karma + Jasmine)
 

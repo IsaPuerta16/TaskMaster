@@ -1,5 +1,8 @@
 {
   "name": "taskmaster-monorepo",
   "private": true,
-  "description": "Monorepo root (Vercel / tooling)"
+  "description": "Monorepo root (Vercel / tooling)",
+  "scripts": {
+    "build": "npm run build --prefix frontend"
+  }
 }
