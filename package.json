@@ -3,6 +3,7 @@
   "private": true,
   "description": "Monorepo root (Vercel / tooling)",
   "scripts": {
+    "postinstall": "npm install --prefix frontend",
     "build": "npm run build --prefix frontend"
   }
 }
