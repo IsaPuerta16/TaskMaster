@@ -7,6 +7,7 @@ import { CalendarNotesModule } from './modules/calendar-notes/calendar-notes.mod
 import { SettingsModule } from './modules/settings/settings.module';
 import { UsersModule } from './modules/users/users.module';
 import { TasksModule } from './modules/tasks/tasks.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -40,5 +41,7 @@ import { TasksModule } from './modules/tasks/tasks.module';
     UsersModule,
     TasksModule,
   ],
+
+  controllers: [AppController],
 })
 export class AppModule {}
