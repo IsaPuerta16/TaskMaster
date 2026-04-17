@@ -2,7 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs';
-import { environment } from '@env/environment';
+import { environment } from '@env/environment.prod';
 import type { User, AuthResponse } from '@core/models';
 
 const TOKEN_KEY = 'token';
