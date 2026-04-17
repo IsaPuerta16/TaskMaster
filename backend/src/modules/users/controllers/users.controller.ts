@@ -22,6 +22,12 @@ export class UsersController {
     return this.toUserResponse(user);
   }
 
+  @Get()
+  async listUsers() {
+    const users = await this.usersService.findAll();
+    return users.map((u: User) => this.toUserResponse(u));
+  }
+
   @Patch('me')
   async updateMe(@GetUser() user: User, @Body() dto: UpdateMeDto) {
     const nextEmail = dto.email ?? user.email;

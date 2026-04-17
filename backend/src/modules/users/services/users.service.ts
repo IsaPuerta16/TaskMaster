@@ -35,6 +35,21 @@ export class UsersService {
     return this.userRepo.findOne({ where: { id } });
   }
 
+  async findAll() {
+    return this.userRepo.find({
+      order: { createdAt: 'DESC' },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+  }
+
   async updateProfile(
     id: string,
     data: {
