@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, HostListener, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -28,9 +28,12 @@ export class UserAsistenteIaComponent implements OnInit {
   userHandle = '@Usuario';
   readonly loading = signal(true);
   readonly sending = signal(false);
+  readonly creatingConversation = signal(false);
+  readonly deletingId = signal<string | null>(null);
   readonly errorMessage = signal('');
   readonly conversations = signal<AssistantConversation[]>([]);
   readonly selectedId = signal<string | null>(null);
+  readonly openMenuId = signal<string | null>(null);
   readonly draft = signal('');
   readonly messages = signal<AssistantMessage[]>([]);
 
@@ -49,9 +52,82 @@ export class UserAsistenteIaComponent implements OnInit {
     this.loadConversations();
   }
 
+  @HostListener('document:click')
+  closeConversationMenu(): void {
+    this.openMenuId.set(null);
+  }
+
+  startNewChat(): void {
+    if (this.creatingConversation()) return;
+    this.creatingConversation.set(true);
+    this.errorMessage.set('');
+    this.assistantService
+      .createConversation()
+      .pipe(finalize(() => this.creatingConversation.set(false)))
+      .subscribe({
+        next: (conversation) => {
+          const withoutDupes = this.conversations().filter(
+            (item) => item.id !== conversation.id,
+          );
+          this.conversations.set([conversation, ...withoutDupes]);
+          this.selectedId.set(conversation.id);
+          this.messages.set([]);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.errorMessage.set('No se pudo crear un nuevo chat.');
+        },
+      });
+  }
+
   selectConversation(id: string): void {
+    if (this.selectedId() === id) {
+      this.openMenuId.set(null);
+      return;
+    }
     this.selectedId.set(id);
+    this.openMenuId.set(null);
     this.loadConversationMessages(id);
+  }
+
+  toggleConversationMenu(id: string, event: MouseEvent): void {
+    event.stopPropagation();
+    this.openMenuId.set(this.openMenuId() === id ? null : id);
+  }
+
+  deleteConversation(id: string, event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.deletingId()) return;
+    this.deletingId.set(id);
+    this.errorMessage.set('');
+    this.assistantService
+      .deleteConversation(id)
+      .pipe(finalize(() => this.deletingId.set(null)))
+      .subscribe({
+        next: () => {
+          const remaining = this.conversations().filter(
+            (conversation) => conversation.id !== id,
+          );
+          this.conversations.set(remaining);
+          this.openMenuId.set(null);
+
+          if (this.selectedId() !== id) {
+            return;
+          }
+
+          if (remaining.length > 0) {
+            this.selectedId.set(remaining[0].id);
+            this.loadConversationMessages(remaining[0].id);
+            return;
+          }
+
+          this.selectedId.set(null);
+          this.messages.set([this.buildWelcomeMessage()]);
+        },
+        error: () => {
+          this.errorMessage.set('No se pudo eliminar la conversacion.');
+        },
+      });
   }
 
   /** Rellena y envía (las chips envían al instante). */
@@ -146,6 +222,9 @@ export class UserAsistenteIaComponent implements OnInit {
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (conversation) => {
+          if (this.selectedId() !== conversationId) {
+            return;
+          }
           this.messages.set(conversation.messages ?? []);
         },
         error: () => {
@@ -154,5 +233,13 @@ export class UserAsistenteIaComponent implements OnInit {
           );
         },
       });
+  }
+
+  private buildWelcomeMessage(): AssistantMessage {
+    return {
+      role: 'assistant',
+      text:
+        'Hola. Cuentame en que tarea, proyecto o semana necesitas ayuda y empezamos.',
+    };
   }
 }

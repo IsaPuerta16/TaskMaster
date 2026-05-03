@@ -27,8 +27,13 @@ export class TaskController {
   }
 
   @Get()
-  findAll(@GetUser() user: User, @Query('status') status?: string) {
-    return this.taskService.findAll(user.id, status as any);
+  findAll(
+    @GetUser() user: User,
+    @Query('status') status?: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ) {
+    return this.taskService.findAll(user.id, status as any, from, to);
   }
 
   @Get('stats')

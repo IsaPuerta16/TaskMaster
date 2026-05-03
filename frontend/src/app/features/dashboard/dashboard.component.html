@@ -83,9 +83,10 @@
                       [class.dashboard-calendar__day--muted]="!cell.inMonth"
                       [class.dashboard-calendar__day--holiday]="cell.isHoliday"
                       [class.dashboard-calendar__day--has-preview]="cell.preview"
+                      [class.dashboard-calendar__day--has-tasks]="cell.taskCount > 0"
                       [class.dashboard-calendar__day--today]="cell.isToday"
                       (click)="openDay(cell)"
-                      [attr.title]="cell.holidayName || (cell.preview ? 'Editar notas' : 'Añadir notas')"
+                      [attr.title]="cell.holidayName || (cell.taskCount ? cell.taskCount + ' tarea(s)' : (cell.preview ? 'Editar notas' : 'Añadir notas'))"
                       role="button"
                       tabindex="0"
                       (keydown.enter)="openDay(cell)"
@@ -93,6 +94,15 @@
                     >
                       <div class="dashboard-calendar__cell-inner">
                         <span class="dashboard-calendar__day-num">{{ cell.day }}</span>
+                        @if (cell.taskCount > 0) {
+                          <div class="dashboard-calendar__task-badge" aria-label="Tareas en esta fecha">
+                            <span class="dashboard-calendar__task-dot" aria-hidden="true"></span>
+                            <span>{{ cell.taskCount }} {{ cell.taskCount === 1 ? 'tarea' : 'tareas' }}</span>
+                          </div>
+                        }
+                        @if (cell.taskPreview) {
+                          <p class="dashboard-calendar__task-preview">{{ cell.taskPreview }}</p>
+                        }
                         @if (cell.preview) {
                           <p class="dashboard-calendar__day-preview">{{ cell.preview }}</p>
                         }
@@ -122,6 +132,28 @@
     <h2 id="day-modal-title" class="day-modal__title">{{ selectedDateLabel }}</h2>
     @if (selectedHolidayName) {
       <p class="day-modal__holiday">Festivo: {{ selectedHolidayName }}</p>
+    }
+
+    @if (tasksForSelected().length > 0) {
+      <section class="day-modal__tasks" aria-label="Tareas de esta fecha">
+        <h3 class="day-modal__section-title">Tareas programadas</h3>
+        <ul class="day-modal__task-list">
+          @for (task of tasksForSelected(); track task.id) {
+            <li class="day-modal__task">
+              <span
+                class="day-modal__task-priority"
+                [class.day-modal__task-priority--alta]="task.priority === 'alta'"
+                [class.day-modal__task-priority--urgente]="task.priority === 'urgente'"
+                aria-hidden="true"
+              ></span>
+              <div class="day-modal__task-body">
+                <span class="day-modal__task-title">{{ task.title }}</span>
+                <span class="day-modal__task-meta">{{ task.priority }} - {{ task.status }}</span>
+              </div>
+            </li>
+          }
+        </ul>
+      </section>
     }
 
     <ul class="day-modal__list">

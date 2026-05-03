@@ -2,6 +2,8 @@ import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { buildColombiaHolidayMap, toDateKey } from '@core/calendar/colombia-holidays';
+import { TaskService } from '@core/services/task.service';
+import type { Task } from '@core/models';
 import { AppSidebarComponent } from '@shared/layout';
 import {
   CalendarNotesService,
@@ -16,6 +18,8 @@ export interface CalendarDayCell {
   holidayName?: string;
   /** Texto resumido de las notas para mostrar en la celda */
   preview: string;
+  taskCount: number;
+  taskPreview: string;
   isToday: boolean;
 }
 
@@ -49,12 +53,15 @@ function getISOWeek(date: Date): number {
 })
 export class DashboardComponent implements OnInit {
   private readonly calendarNotesService = inject(CalendarNotesService);
+  private readonly taskService = inject(TaskService);
   year = new Date().getFullYear();
   month = new Date().getMonth();
   calendarWeeks: CalendarWeekRow[] = [];
 
   /** Notas por YYYY-MM-DD */
   notesMap: Record<string, DayNote[]> = {};
+  /** Tareas por YYYY-MM-DD */
+  tasksMap: Record<string, Task[]> = {};
 
   modalOpen = false;
   selectedKey: string | null = null;
@@ -81,6 +88,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     this.rebuildCalendar();
     this.loadVisibleNotes();
+    this.loadVisibleTasks();
   }
 
   @HostListener('document:keydown.escape')
@@ -115,6 +123,11 @@ export class DashboardComponent implements OnInit {
     return this.notesMap[this.selectedKey] ?? [];
   }
 
+  tasksForSelected(): Task[] {
+    if (!this.selectedKey) return [];
+    return this.tasksMap[this.selectedKey] ?? [];
+  }
+
   prevMonth(): void {
     if (this.month === 0) {
       this.month = 11;
@@ -124,6 +137,7 @@ export class DashboardComponent implements OnInit {
     }
     this.rebuildCalendar();
     this.loadVisibleNotes();
+    this.loadVisibleTasks();
   }
 
   nextMonth(): void {
@@ -135,18 +149,21 @@ export class DashboardComponent implements OnInit {
     }
     this.rebuildCalendar();
     this.loadVisibleNotes();
+    this.loadVisibleTasks();
   }
 
   setYear(y: number): void {
     this.year = y;
     this.rebuildCalendar();
     this.loadVisibleNotes();
+    this.loadVisibleTasks();
   }
 
   setMonth(m: number): void {
     this.month = m;
     this.rebuildCalendar();
     this.loadVisibleNotes();
+    this.loadVisibleTasks();
   }
 
   goToday(): void {
@@ -155,6 +172,7 @@ export class DashboardComponent implements OnInit {
     this.month = t.getMonth();
     this.rebuildCalendar();
     this.loadVisibleNotes();
+    this.loadVisibleTasks();
     this.closeDateFilter();
   }
 
@@ -240,6 +258,29 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  private loadVisibleTasks(): void {
+    const from = this.calendarWeeks[0]?.days[0]?.dateKey;
+    const lastWeek = this.calendarWeeks[this.calendarWeeks.length - 1];
+    const to = lastWeek?.days[lastWeek.days.length - 1]?.dateKey;
+    if (!from || !to) return;
+
+    this.taskService
+      .getTasksByDateRange(
+        this.dateKeyToIso(from, false),
+        this.dateKeyToIso(to, true),
+      )
+      .subscribe({
+        next: (tasks) => {
+          this.tasksMap = this.groupTasksByDate(tasks);
+          this.rebuildCalendar();
+        },
+        error: () => {
+          this.tasksMap = {};
+          this.rebuildCalendar();
+        },
+      });
+  }
+
   private persistSelectedNotes(): void {
     if (!this.selectedKey) return;
     const notes = this.notesMap[this.selectedKey] ?? [];
@@ -254,6 +295,38 @@ export class DashboardComponent implements OnInit {
       .join(' ');
     if (!joined) return '';
     return joined.length > 100 ? joined.slice(0, 97) + '…' : joined;
+  }
+
+  private buildTaskPreview(tasks: Task[] | undefined): string {
+    if (!tasks?.length) return '';
+    const firstTitle = tasks[0].title.trim();
+    if (tasks.length === 1) return firstTitle;
+    return `${firstTitle} +${tasks.length - 1}`;
+  }
+
+  private groupTasksByDate(tasks: Task[]): Record<string, Task[]> {
+    const grouped: Record<string, Task[]> = {};
+    for (const task of tasks) {
+      const date = new Date(task.dueDate);
+      if (Number.isNaN(date.getTime())) continue;
+      const key = toDateKey(date.getFullYear(), date.getMonth(), date.getDate());
+      grouped[key] = [...(grouped[key] ?? []), task];
+    }
+    return grouped;
+  }
+
+  private dateKeyToIso(dateKey: string, endOfDay: boolean): string {
+    const [y, m, d] = dateKey.split('-').map(Number);
+    const date = new Date(
+      y,
+      m - 1,
+      d,
+      endOfDay ? 23 : 0,
+      endOfDay ? 59 : 0,
+      endOfDay ? 59 : 0,
+      endOfDay ? 999 : 0,
+    );
+    return date.toISOString();
   }
 
   private buildCalendar(year: number, month: number): CalendarWeekRow[] {
@@ -285,6 +358,7 @@ export class DashboardComponent implements OnInit {
         const holMap = this.getHolidayMap(cy);
         const hol = holMap.get(key);
         const notes = this.notesMap[key] ?? [];
+        const tasks = this.tasksMap[key] ?? [];
         const isToday =
           cy === today.getFullYear() &&
           cm === today.getMonth() &&
@@ -296,6 +370,8 @@ export class DashboardComponent implements OnInit {
           isHoliday: !!hol,
           holidayName: hol,
           preview: this.buildPreview(notes),
+          taskCount: tasks.length,
+          taskPreview: this.buildTaskPreview(tasks),
           isToday,
         });
       }

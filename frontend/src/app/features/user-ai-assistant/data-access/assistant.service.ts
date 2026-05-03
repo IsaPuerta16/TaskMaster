@@ -20,6 +20,13 @@ export class AssistantService {
     );
   }
 
+  createConversation() {
+    return this.http.post<AssistantConversation>(
+      `${environment.apiUrl}/assistant/conversations`,
+      {},
+    );
+  }
+
   getConversationMessages(conversationId: string) {
     return this.http
       .get<AssistantConversationDetail>(
@@ -32,6 +39,12 @@ export class AssistantService {
     return this.http.post<SendAssistantMessageResponse>(
       `${environment.apiUrl}/assistant/chat`,
       dto,
+    );
+  }
+
+  deleteConversation(conversationId: string) {
+    return this.http.delete<{ message: string }>(
+      `${environment.apiUrl}/assistant/conversations/${conversationId}`,
     );
   }
 

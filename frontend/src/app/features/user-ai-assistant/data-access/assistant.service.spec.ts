@@ -32,6 +32,18 @@ describe('AssistantService', () => {
     req.flush([{ id: 'c1', label: 'Una charla' }]);
   });
 
+  it('createConversation: POST /assistant/conversations', (done) => {
+    service.createConversation().subscribe((conversation) => {
+      expect(conversation.id).toBe('c2');
+      expect(conversation.label).toBe('Nuevo chat');
+      done();
+    });
+    const req = http.expectOne(`${environment.apiUrl}/assistant/conversations`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({});
+    req.flush({ id: 'c2', label: 'Nuevo chat' });
+  });
+
   it('getConversationMessages: normaliza content y created_at', (done) => {
     service.getConversationMessages('c1').subscribe((detail) => {
       expect(detail.messages.length).toBe(1);
@@ -74,5 +86,15 @@ describe('AssistantService', () => {
       userMessage: { role: 'user', text: 'test' },
       assistantMessage: { role: 'assistant', text: 'ok' },
     });
+  });
+
+  it('deleteConversation: DELETE /assistant/conversations/:id', (done) => {
+    service.deleteConversation('c1').subscribe((res) => {
+      expect(res.message).toBe('Conversacion eliminada');
+      done();
+    });
+    const req = http.expectOne(`${environment.apiUrl}/assistant/conversations/c1`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush({ message: 'Conversacion eliminada' });
   });
 });

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -22,9 +23,19 @@ export class AssistantController {
     return this.assistantService.listConversations(user.id);
   }
 
+  @Post('conversations')
+  createConversation(@GetUser() user: User) {
+    return this.assistantService.createBlankConversation(user.id);
+  }
+
   @Get('conversations/:id/messages')
   getConversationMessages(@GetUser() user: User, @Param('id') id: string) {
     return this.assistantService.getConversationMessages(user.id, id);
+  }
+
+  @Delete('conversations/:id')
+  deleteConversation(@GetUser() user: User, @Param('id') id: string) {
+    return this.assistantService.deleteConversation(user.id, id);
   }
 
   @Post('chat')

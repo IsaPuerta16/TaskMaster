@@ -15,6 +15,7 @@ import {
 } from '../utils/assistant-webhook-reply.util';
 
 type AssistantReply = AssistantWebhookReply;
+const NEW_CONVERSATION_TITLE = 'Nuevo chat';
 
 @Injectable()
 export class AssistantService {
@@ -61,6 +62,26 @@ export class AssistantService {
     };
   }
 
+  async createBlankConversation(userId: string) {
+    const conversation = await this.createConversation(
+      userId,
+      NEW_CONVERSATION_TITLE,
+    );
+
+    return {
+      id: conversation.id,
+      label: conversation.title,
+      updatedAt: conversation.updatedAt,
+    };
+  }
+
+  async deleteConversation(userId: string, conversationId: string) {
+    await this.findConversationOrFail(userId, conversationId);
+    await this.conversationRepo.delete({ id: conversationId, userId });
+
+    return { message: 'Conversacion eliminada' };
+  }
+
   async sendMessage(
     user: User,
     payload: { conversationId?: string; message: string },
@@ -73,6 +94,17 @@ export class AssistantService {
     const conversation = payload.conversationId
       ? await this.findConversationOrFail(user.id, payload.conversationId)
       : await this.createConversation(user.id, this.buildConversationTitle(messageText));
+    const shouldRetitleConversation =
+      Boolean(payload.conversationId) &&
+      conversation.title === NEW_CONVERSATION_TITLE &&
+      (await this.messageRepo.count({
+        where: { conversationId: conversation.id },
+      })) === 0;
+
+    if (shouldRetitleConversation) {
+      conversation.title = this.buildConversationTitle(messageText);
+      await this.conversationRepo.save(conversation);
+    }
 
     await this.messageRepo.save(
       this.messageRepo.create({
@@ -151,7 +183,7 @@ export class AssistantService {
     const clean = message.replace(/\s+/g, ' ').trim();
     return clean.length > 48 ? `${clean.slice(0, 45)}...` : clean;
   }
-
+/* 'El asistente todavía no está conectado a n8n. Agrega `N8N_WEBHOOK_URL` en el backend para activarlo.', */
   private async generateAssistantReply(
     user: User,
     conversation: AssistantConversation,
@@ -163,7 +195,7 @@ export class AssistantService {
     if (!webhookUrl) {
       return {
         text:
-          'El asistente todavía no está conectado a n8n. Agrega `N8N_WEBHOOK_URL` en el backend para activarlo.',
+          'El asistente no está disponible en este momento.',
       };
     }
 
