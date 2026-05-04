@@ -2,11 +2,11 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 
-/** Redirige a perfil si el usuario ya está autenticado (para landing, login, register) */
+/** Redirige al panel (calendario) si el usuario ya está autenticado (landing, login, register, etc.) */
 export const guestGuard = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
   if (!auth.isAuthenticated()) return true;
-  router.navigate(['/perfil']);
+  router.navigate(['/dashboard']);
   return false;
 };
