@@ -82,10 +82,10 @@
                       class="dashboard-calendar__day"
                       [class.dashboard-calendar__day--muted]="!cell.inMonth"
                       [class.dashboard-calendar__day--holiday]="cell.isHoliday"
-                      [class.dashboard-calendar__day--has-preview]="cell.preview"
+                      [class.dashboard-calendar__day--has-preview]="cell.previewLines.length"
                       [class.dashboard-calendar__day--today]="cell.isToday"
                       (click)="openDay(cell)"
-                      [attr.title]="cell.holidayName || (cell.preview ? 'Editar notas' : 'Añadir notas')"
+                      [attr.title]="cell.holidayName || (cell.previewLines.length ? 'Editar notas' : 'Añadir notas')"
                       role="button"
                       tabindex="0"
                       (keydown.enter)="openDay(cell)"
@@ -93,8 +93,12 @@
                     >
                       <div class="dashboard-calendar__cell-inner">
                         <span class="dashboard-calendar__day-num">{{ cell.day }}</span>
-                        @if (cell.preview) {
-                          <p class="dashboard-calendar__day-preview">{{ cell.preview }}</p>
+                        @if (cell.previewLines.length) {
+                          <div class="dashboard-calendar__day-preview-stack" role="presentation">
+                            @for (line of cell.previewLines; track $index) {
+                              <p class="dashboard-calendar__day-preview-line">{{ line }}</p>
+                            }
+                          </div>
                         }
                       </div>
                     </td>
@@ -126,26 +130,34 @@
 
     <ul class="day-modal__list">
       @for (note of notesForSelected(); track note.id) {
-        <li class="day-modal__item">
+        <li class="day-modal__item" [class.day-modal__item--editing]="editingNoteId === note.id">
           <span class="day-modal__item-text">{{ note.text }}</span>
-          <button type="button" class="day-modal__remove" (click)="removeNote(note.id)" aria-label="Eliminar nota">×</button>
+          <div class="day-modal__item-actions">
+            <button type="button" class="day-modal__edit" (click)="startEditNote(note)">
+              {{ editNoteButtonLabel }}
+            </button>
+            <button type="button" class="day-modal__remove" (click)="removeNote(note.id)" aria-label="Eliminar nota">×</button>
+          </div>
         </li>
       }
     </ul>
 
-    <label class="day-modal__label" for="day-note-input">Añadir texto o emojis</label>
+    <label class="day-modal__label" for="day-note-input">{{ dayNoteFieldLabel }}</label>
     <div class="day-modal__emoji-row" aria-label="Emojis rápidos">
       @for (em of quickEmojis; track em) {
         <button type="button" class="day-modal__emoji" (click)="insertEmoji(em)" [attr.aria-label]="'Insertar ' + em">{{ em }}</button>
       }
     </div>
+    @if (editingNoteId) {
+      <button type="button" class="day-modal__cancel-edit" (click)="cancelEditNote()">{{ cancelEditLabel }}</button>
+    }
     <textarea
       id="day-note-input"
       class="day-modal__textarea"
       [(ngModel)]="draftText"
       rows="3"
-      placeholder="Escribe aquí… (también puedes pegar emojis desde el teclado)"
+      [attr.placeholder]="dayNotePlaceholder"
     ></textarea>
-    <button type="button" class="day-modal__add" (click)="addNote()">Guardar en esta fecha</button>
+    <button type="button" class="day-modal__add" (click)="saveDayNote()">{{ saveDayNoteButtonLabel }}</button>
   </div>
 }

@@ -91,6 +91,7 @@
           </ul>
           @if (visibleItems().length === 0) {
             <p class="un-empty">No hay notificaciones en esta vista.</p>
+            <p class="un-empty-hint">{{ emptyListHint() }}</p>
           }
         </section>
 
@@ -106,7 +107,7 @@
             <li class="un-pref">
               <div class="un-pref__text">
                 <span class="un-pref__label">Recordatorios de vencimiento</span>
-                <span class="un-pref__hint">1 día y 3 horas antes</span>
+                <span class="un-pref__hint">5, 2 y 1 día antes; el mismo día: menos de 3 h y menos de 1 h</span>
               </div>
               <button
                 type="button"
@@ -174,6 +175,21 @@
                 [class.un-toggle--on]="notif.prefs().escritorio"
                 [attr.aria-pressed]="notif.prefs().escritorio"
                 (click)="togglePref('escritorio')"
+              >
+                <span class="un-toggle__knob"></span>
+              </button>
+            </li>
+            <li class="un-pref">
+              <div class="un-pref__text">
+                <span class="un-pref__label">Resumen por correo</span>
+                <span class="un-pref__hint">Correo diario a tu cuenta (SMTP en el servidor)</span>
+              </div>
+              <button
+                type="button"
+                class="un-toggle"
+                [class.un-toggle--on]="notif.prefs().correo"
+                [attr.aria-pressed]="notif.prefs().correo"
+                (click)="togglePref('correo')"
               >
                 <span class="un-toggle__knob"></span>
               </button>

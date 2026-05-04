@@ -167,7 +167,7 @@ export class RegisterComponent {
       .subscribe({
         next: () => {
           const ret = safeInternalPath(this.route.snapshot.queryParamMap.get('returnUrl'));
-          void this.router.navigateByUrl(ret ?? '/perfil', { replaceUrl: true });
+          void this.router.navigateByUrl(ret ?? '/dashboard', { replaceUrl: true });
         },
         error: (err: { error?: { message?: string } }) => {
           this.errorMessage = err.error?.message || 'Error al registrar';

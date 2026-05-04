@@ -15,6 +15,26 @@
       <div class="tasks-toolbar">
         <h1 class="tasks-toolbar__title">Mis Tareas</h1>
         <div class="tasks-toolbar__actions">
+          <div class="tasks-seg-group tasks-seg-group--view" role="group" [attr.aria-label]="i18nLabel('Vista', 'View')">
+            <button
+              type="button"
+              class="tasks-seg"
+              [class.tasks-seg--active]="viewMode === 'lista'"
+              [attr.title]="i18nLabel('Vista en tarjetas en una sola lista.', 'Single scrollable list of task cards.')"
+              (click)="setViewMode('lista')"
+            >
+              {{ viewModeLabel('lista') }}
+            </button>
+            <button
+              type="button"
+              class="tasks-seg"
+              [class.tasks-seg--active]="viewMode === 'tablero'"
+              [attr.title]="tableroButtonTitle()"
+              (click)="setViewMode('tablero')"
+            >
+              {{ viewModeLabel('tablero') }}
+            </button>
+          </div>
           <div class="tasks-seg-group" role="group" aria-label="Filtrar por fecha">
             <button
               type="button"
@@ -52,11 +72,12 @@
           No hay tareas en esta vista.
           <a routerLink="/tasks/new" class="tasks-state__link">Crear una</a>
         </p>
-      } @else {
+      } @else if (viewMode === 'lista') {
         <ul class="tasks-grid">
           @for (task of filteredTasks; track task.id; let i = $index) {
             <li
               class="task-card"
+              [class.task-card--done]="task.status === 'finalizada'"
               [class.task-card--pri-baja]="task.priority === 'baja'"
               [class.task-card--pri-media]="task.priority === 'media'"
               [class.task-card--pri-alta]="task.priority === 'alta'"
@@ -64,7 +85,18 @@
               [attr.aria-label]="task.title + ', prioridad ' + priorityLabel(task.priority)"
             >
               <div class="task-card__top">
-                <span class="task-card__deco" aria-hidden="true">
+                <div class="task-card__lead">
+                  <label class="task-card__done" [attr.aria-label]="listDoneCheckboxLabel(task)">
+                    <input
+                      type="checkbox"
+                      class="task-card__done-input"
+                      [checked]="task.status === 'finalizada'"
+                      [disabled]="updatingStatusId === task.id"
+                      (click)="$event.stopPropagation()"
+                      (change)="onListDoneToggle(task, $event)"
+                    />
+                  </label>
+                  <span class="task-card__deco" aria-hidden="true">
                   @switch (i % 4) {
                     @case (0) {
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8M8 11h6"/></svg>
@@ -80,6 +112,7 @@
                     }
                   }
                 </span>
+                </div>
                 <div class="task-card__actions">
                   <a [routerLink]="['/tasks', task.id, 'edit']" class="task-card__icon-btn" aria-label="Editar">
                     <svg viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -106,6 +139,148 @@
             </li>
           }
         </ul>
+      } @else {
+        <p id="tasks-kanban-desc" class="tasks-kanban-hint">{{ kanbanBoardHint() }}</p>
+        <div
+          class="kanban"
+          cdkDropListGroup
+          role="region"
+          [attr.aria-label]="i18nLabel('Tablero Kanban', 'Kanban board')"
+          aria-describedby="tasks-kanban-desc"
+        >
+          <section class="kanban-col kanban-col--pendiente" aria-labelledby="kanban-h-pendiente">
+            <h2 id="kanban-h-pendiente" class="kanban-col__head">{{ columnTitle('pendiente') }}</h2>
+            <div
+              class="kanban-col__list"
+              cdkDropList
+              id="drop-pendiente"
+              [cdkDropListData]="boardPending"
+              (cdkDropListDropped)="onBoardDrop($event)"
+            >
+              @for (task of boardPending; track task.id) {
+                <article
+                  class="kanban-card"
+                  cdkDrag
+                  [cdkDragData]="task"
+                  [class.kanban-card--pri-baja]="task.priority === 'baja'"
+                  [class.kanban-card--pri-media]="task.priority === 'media'"
+                  [class.kanban-card--pri-alta]="task.priority === 'alta'"
+                  [class.kanban-card--pri-urgente]="task.priority === 'urgente'"
+                >
+                  <div class="kanban-card__toolbar">
+                    <div class="kanban-card__actions">
+                      <a [routerLink]="['/tasks', task.id, 'edit']" class="task-card__icon-btn" [attr.aria-label]="i18nLabel('Editar', 'Edit')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </a>
+                      <button type="button" class="task-card__icon-btn" [attr.aria-label]="i18nLabel('Eliminar', 'Delete')" (click)="deleteTask(task, $event)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                  <a [routerLink]="['/tasks', task.id, 'edit']" class="kanban-card__title">{{ task.title }}</a>
+                  <span
+                    class="task-card__priority kanban-card__priority"
+                    [class.task-card__priority--baja]="task.priority === 'baja'"
+                    [class.task-card__priority--media]="task.priority === 'media'"
+                    [class.task-card__priority--alta]="task.priority === 'alta'"
+                    [class.task-card__priority--urgente]="task.priority === 'urgente'"
+                  >
+                    {{ priorityLabel(task.priority) }}
+                  </span>
+                  <p class="kanban-card__time">{{ datedTask(task) }}</p>
+                </article>
+              }
+            </div>
+          </section>
+          <section class="kanban-col kanban-col--proceso" aria-labelledby="kanban-h-proceso">
+            <h2 id="kanban-h-proceso" class="kanban-col__head">{{ columnTitle('en_proceso') }}</h2>
+            <div
+              class="kanban-col__list"
+              cdkDropList
+              id="drop-en_proceso"
+              [cdkDropListData]="boardProgress"
+              (cdkDropListDropped)="onBoardDrop($event)"
+            >
+              @for (task of boardProgress; track task.id) {
+                <article
+                  class="kanban-card"
+                  cdkDrag
+                  [cdkDragData]="task"
+                  [class.kanban-card--pri-baja]="task.priority === 'baja'"
+                  [class.kanban-card--pri-media]="task.priority === 'media'"
+                  [class.kanban-card--pri-alta]="task.priority === 'alta'"
+                  [class.kanban-card--pri-urgente]="task.priority === 'urgente'"
+                >
+                  <div class="kanban-card__toolbar">
+                    <div class="kanban-card__actions">
+                      <a [routerLink]="['/tasks', task.id, 'edit']" class="task-card__icon-btn" [attr.aria-label]="i18nLabel('Editar', 'Edit')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </a>
+                      <button type="button" class="task-card__icon-btn" [attr.aria-label]="i18nLabel('Eliminar', 'Delete')" (click)="deleteTask(task, $event)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                  <a [routerLink]="['/tasks', task.id, 'edit']" class="kanban-card__title">{{ task.title }}</a>
+                  <span
+                    class="task-card__priority kanban-card__priority"
+                    [class.task-card__priority--baja]="task.priority === 'baja'"
+                    [class.task-card__priority--media]="task.priority === 'media'"
+                    [class.task-card__priority--alta]="task.priority === 'alta'"
+                    [class.task-card__priority--urgente]="task.priority === 'urgente'"
+                  >
+                    {{ priorityLabel(task.priority) }}
+                  </span>
+                  <p class="kanban-card__time">{{ datedTask(task) }}</p>
+                </article>
+              }
+            </div>
+          </section>
+          <section class="kanban-col kanban-col--hecho" aria-labelledby="kanban-h-hecho">
+            <h2 id="kanban-h-hecho" class="kanban-col__head">{{ columnTitle('finalizada') }}</h2>
+            <div
+              class="kanban-col__list"
+              cdkDropList
+              id="drop-finalizada"
+              [cdkDropListData]="boardDone"
+              (cdkDropListDropped)="onBoardDrop($event)"
+            >
+              @for (task of boardDone; track task.id) {
+                <article
+                  class="kanban-card"
+                  cdkDrag
+                  [cdkDragData]="task"
+                  [class.kanban-card--pri-baja]="task.priority === 'baja'"
+                  [class.kanban-card--pri-media]="task.priority === 'media'"
+                  [class.kanban-card--pri-alta]="task.priority === 'alta'"
+                  [class.kanban-card--pri-urgente]="task.priority === 'urgente'"
+                >
+                  <div class="kanban-card__toolbar">
+                    <div class="kanban-card__actions">
+                      <a [routerLink]="['/tasks', task.id, 'edit']" class="task-card__icon-btn" [attr.aria-label]="i18nLabel('Editar', 'Edit')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </a>
+                      <button type="button" class="task-card__icon-btn" [attr.aria-label]="i18nLabel('Eliminar', 'Delete')" (click)="deleteTask(task, $event)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                  <a [routerLink]="['/tasks', task.id, 'edit']" class="kanban-card__title">{{ task.title }}</a>
+                  <span
+                    class="task-card__priority kanban-card__priority"
+                    [class.task-card__priority--baja]="task.priority === 'baja'"
+                    [class.task-card__priority--media]="task.priority === 'media'"
+                    [class.task-card__priority--alta]="task.priority === 'alta'"
+                    [class.task-card__priority--urgente]="task.priority === 'urgente'"
+                  >
+                    {{ priorityLabel(task.priority) }}
+                  </span>
+                  <p class="kanban-card__time">{{ datedTask(task) }}</p>
+                </article>
+              }
+            </div>
+          </section>
+        </div>
       }
     </div>
   </div>
