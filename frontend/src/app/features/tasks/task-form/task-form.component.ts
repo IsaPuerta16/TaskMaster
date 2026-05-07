@@ -5,6 +5,8 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TaskService, type TaskPriority, type Task } from '@features/tasks/data-access';
 import { AuthService } from '@core/services/auth.service';
+import { AppSettingsService } from '@core/services/app-settings.service';
+import { ToastService } from '@core/services/toast.service';
 
 @Component({
   selector: 'app-task-form',
@@ -26,6 +28,8 @@ export class TaskFormComponent implements OnInit {
     public auth: AuthService,
     private route: ActivatedRoute,
     private router: Router,
+    private toast: ToastService,
+    private appSettings: AppSettingsService,
   ) {
     this.form = this.fb.group({
       title: ['', Validators.required],
@@ -68,20 +72,7 @@ export class TaskFormComponent implements OnInit {
   }
 
   private parseApiError(err: HttpErrorResponse): string {
-    if (err.status === 0) {
-      return 'No hay conexión con el servidor. Comprueba que el backend esté en marcha.';
-    }
-    if (err.status === 401) {
-      return 'Debes iniciar sesión para guardar tareas.';
-    }
-    const e = err.error as { message?: string | string[] } | null;
-    if (e && Array.isArray(e.message)) {
-      return e.message.join('. ');
-    }
-    if (e && typeof e.message === 'string') {
-      return e.message;
-    }
-    return 'No se pudo guardar la tarea.';
+    return this.toast.taskSaveHttpError(err);
   }
 
   onSubmit() {
@@ -90,14 +81,17 @@ export class TaskFormComponent implements OnInit {
       return;
     }
     if (!this.auth.isAuthenticated()) {
-      this.errorMessage =
-        'Inicia sesión para crear o editar tareas. Usa el enlace de abajo si no estás registrado.';
+      this.errorMessage = this.appSettings.isEnglish()
+        ? 'Sign in to create or edit tasks. Use the link below if you are not registered.'
+        : 'Inicia sesión para crear o editar tareas. Usa el enlace de abajo si no estás registrado.';
       return;
     }
     const value = this.form.value;
     const parsed = new Date(value.dueDate);
     if (Number.isNaN(parsed.getTime())) {
-      this.errorMessage = 'La fecha límite no es válida.';
+      this.errorMessage = this.appSettings.isEnglish()
+        ? 'The due date is not valid.'
+        : 'La fecha límite no es válida.';
       return;
     }
     this.loading = true;
@@ -111,18 +105,26 @@ export class TaskFormComponent implements OnInit {
 
     if (this.isEdit && this.taskId) {
       this.taskService.updateTask(this.taskId, dto).subscribe({
-        next: () => this.router.navigate(['/tasks']),
+        next: () => {
+          this.toast.taskUpdated();
+          void this.router.navigate(['/tasks']);
+        },
         error: (err: HttpErrorResponse) => {
           this.errorMessage = this.parseApiError(err);
+          this.toast.show(this.parseApiError(err), 'error');
           this.loading = false;
         },
         complete: () => (this.loading = false),
       });
     } else {
       this.taskService.createTask(dto).subscribe({
-        next: () => this.router.navigate(['/tasks']),
+        next: () => {
+          this.toast.taskCreated();
+          void this.router.navigate(['/tasks']);
+        },
         error: (err: HttpErrorResponse) => {
           this.errorMessage = this.parseApiError(err);
+          this.toast.show(this.parseApiError(err), 'error');
           this.loading = false;
         },
         complete: () => (this.loading = false),

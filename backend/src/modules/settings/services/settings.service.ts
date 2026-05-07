@@ -23,10 +23,13 @@ export class SettingsService {
 
   async updateForUser(userId: string, dto: UpdateSettingsDto) {
     const current = await this.ensureForUser(userId);
+    const prevApp = {
+      ...DEFAULT_APP_SETTINGS,
+      ...(current.appSettings ?? {}),
+    };
     const merged = this.settingsRepo.merge(current, {
       appSettings: {
-        ...DEFAULT_APP_SETTINGS,
-        ...current.appSettings,
+        ...prevApp,
         ...dto.appSettings,
       },
       productivity: {
@@ -60,19 +63,35 @@ export class SettingsService {
   }
 
   private toResponse(settings: UserSettings) {
+    const mergedNotif = {
+      ...DEFAULT_NOTIFICATION_SETTINGS,
+      ...settings.notifications,
+    };
+    // No exponer marca interna de último envío al cliente
+    const { lastDigestEmailAt, ...notificationsForClient } = mergedNotif;
+    void lastDigestEmailAt;
+
     return {
       appSettings: {
         ...DEFAULT_APP_SETTINGS,
-        ...settings.appSettings,
+        ...(settings.appSettings ?? {}),
       },
       productivity: {
         ...DEFAULT_PRODUCTIVITY_SETTINGS,
         ...settings.productivity,
       },
-      notifications: {
-        ...DEFAULT_NOTIFICATION_SETTINGS,
-        ...settings.notifications,
-      },
+      notifications: notificationsForClient,
     };
+  }
+
+  /** Tras enviar el digest por correo (uso interno del módulo de notificaciones). */
+  async markDigestEmailSent(userId: string): Promise<void> {
+    const current = await this.ensureForUser(userId);
+    current.notifications = {
+      ...DEFAULT_NOTIFICATION_SETTINGS,
+      ...current.notifications,
+      lastDigestEmailAt: new Date().toISOString(),
+    };
+    await this.settingsRepo.save(current);
   }
 }
