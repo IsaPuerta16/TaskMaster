@@ -29,15 +29,12 @@ if (missing.length) {
   process.exit(1);
 }
 
-// Sustituir placeholders
+// Sustituir placeholders (reemplazo directo de strings exactos)
 let workflow = fs.readFileSync(templatePath, 'utf8');
 workflow = workflow
-  .replace(/"=\{ 'Bearer ' \+ \$env\.SUPABASE_SERVICE_ROLE_KEY \}"/g,
-    `"Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}"`)
-  .replace(/"=\{ \$env\.SUPABASE_SERVICE_ROLE_KEY \}"/g,
-    `"${env.SUPABASE_SERVICE_ROLE_KEY}"`)
-  .replace(/"=\{ 'Bearer ' \+ \$env\.GROQ_API_KEY \}"/g,
-    `"Bearer ${env.GROQ_API_KEY}"`);
+  .replaceAll(`"={{ 'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY }}"`, `"Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}"`)
+  .replaceAll(`"={{ $env.SUPABASE_SERVICE_ROLE_KEY }}"`, `"${env.SUPABASE_SERVICE_ROLE_KEY}"`)
+  .replaceAll(`"={{ 'Bearer ' + $env.GROQ_API_KEY }}"`, `"Bearer ${env.GROQ_API_KEY}"`);
 
 fs.writeFileSync(outputPath, workflow, 'utf8');
 console.log('✓ Archivo generado:', outputPath);
