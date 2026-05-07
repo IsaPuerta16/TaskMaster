@@ -39,11 +39,11 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer TU_SUPABASE_SERVICE_ROLE_KEY"
+              "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY }}"
             },
             {
               "name": "apikey",
-              "value": "TU_SUPABASE_SERVICE_ROLE_KEY"
+              "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
             },
             {
               "name": "Content-Type",
@@ -85,11 +85,11 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer TU_SUPABASE_SERVICE_ROLE_KEY"
+              "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY }}"
             },
             {
               "name": "apikey",
-              "value": "TU_SUPABASE_SERVICE_ROLE_KEY"
+              "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
             },
             {
               "name": "Content-Type",
@@ -134,7 +134,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer TU_GROQ_API_KEY"
+              "value": "={{ 'Bearer ' + $env.GROQ_API_KEY }}"
             },
             {
               "name": "Content-Type",
