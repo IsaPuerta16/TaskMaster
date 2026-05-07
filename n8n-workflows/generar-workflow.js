@@ -6,12 +6,21 @@ const envPath = path.join(__dirname, '../backend/.env');
 const templatePath = path.join(__dirname, 'routine-agent-workflow.json');
 const outputPath = path.join(__dirname, 'routine-agent-workflow.ready.json');
 
-// Leer .env
+// Leer .env (maneja CRLF de Windows y LF de Linux)
 const env = {};
-fs.readFileSync(envPath, 'utf8').split('\n').forEach(line => {
-  const match = line.match(/^([^#=]+)=(.*)$/);
-  if (match) env[match[1].trim()] = match[2].trim();
-});
+fs.readFileSync(envPath, 'utf8')
+  .replace(/\r\n/g, '\n')
+  .replace(/\r/g, '\n')
+  .split('\n')
+  .forEach(line => {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) return;
+    const idx = trimmed.indexOf('=');
+    if (idx === -1) return;
+    const key = trimmed.slice(0, idx).trim();
+    const val = trimmed.slice(idx + 1).trim();
+    if (key) env[key] = val;
+  });
 
 const required = ['SUPABASE_SERVICE_ROLE_KEY', 'GROQ_API_KEY'];
 const missing = required.filter(k => !env[k]);
