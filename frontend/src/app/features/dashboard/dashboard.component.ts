@@ -7,6 +7,7 @@ import {
   CalendarNotesService,
   type DayNote,
 } from './data-access/calendar-notes.service';
+import { RoutineService } from '@core/services/routine.service';
 
 export interface CalendarDayCell {
   day: number;
@@ -49,6 +50,7 @@ function getISOWeek(date: Date): number {
 })
 export class DashboardComponent implements OnInit {
   private readonly calendarNotesService = inject(CalendarNotesService);
+  private readonly routineService = inject(RoutineService);
   year = new Date().getFullYear();
   month = new Date().getMonth();
   calendarWeeks: CalendarWeekRow[] = [];
@@ -61,6 +63,11 @@ export class DashboardComponent implements OnInit {
   selectedDateLabel = '';
   selectedHolidayName: string | null = null;
   draftText = '';
+
+  // Rutina modal
+  routineModalOpen = false;
+  routineText = '';
+  routineLoading = false;
 
   readonly quickEmojis = ['😀', '🎉', '✅', '📌', '❤️', '⭐', '🔥', '💼', '✏️', '🗓️', '☕', '🎯'];
 
@@ -208,7 +215,26 @@ export class DashboardComponent implements OnInit {
     this.persistSelectedNotes();
   }
 
-  private getHolidayMap(y: number): Map<string, string> {
+  generateRoutine(): void {
+    this.routineLoading = true;
+    this.routineService.generateRoutine().subscribe({
+      next: (response) => {
+        this.routineText = response.text;
+        this.routineModalOpen = true;
+        this.routineLoading = false;
+      },
+      error: () => {
+        this.routineText = 'Error al generar la rutina. Intenta más tarde.';
+        this.routineModalOpen = true;
+        this.routineLoading = false;
+      },
+    });
+  }
+
+  closeRoutineModal(): void {
+    this.routineModalOpen = false;
+    this.routineText = '';
+  }
     let m = this.holidayMaps.get(y);
     if (!m) {
       m = buildColombiaHolidayMap(y);

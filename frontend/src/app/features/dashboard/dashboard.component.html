@@ -6,8 +6,15 @@
       <section class="dashboard-calendar" aria-labelledby="calendar-title">
         <div class="dashboard-calendar__toolbar">
           <div class="dashboard-calendar__month-nav">
-            <button type="button" class="dashboard-calendar__nav-btn" (click)="prevMonth()" aria-label="Mes anterior">
-              <span class="dashboard-calendar__nav-icon" aria-hidden="true">‹</span>
+            <button
+              type="button"
+              class="dashboard-calendar__nav-btn"
+              (click)="prevMonth()"
+              aria-label="Mes anterior"
+            >
+              <span class="dashboard-calendar__nav-icon" aria-hidden="true"
+                >‹</span
+              >
             </button>
             <button
               type="button"
@@ -17,14 +24,37 @@
               aria-controls="calendar-date-filters"
               [attr.aria-label]="'Elegir mes y año. Mes actual: ' + monthTitle"
             >
-              <h1 id="calendar-title" class="dashboard-calendar__title">{{ monthTitle }}</h1>
+              <h1 id="calendar-title" class="dashboard-calendar__title">
+                {{ monthTitle }}
+              </h1>
             </button>
-            <button type="button" class="dashboard-calendar__nav-btn" (click)="nextMonth()" aria-label="Mes siguiente">
-              <span class="dashboard-calendar__nav-icon" aria-hidden="true">›</span>
+            <button
+              type="button"
+              class="dashboard-calendar__nav-btn"
+              (click)="nextMonth()"
+              aria-label="Mes siguiente"
+            >
+              <span class="dashboard-calendar__nav-icon" aria-hidden="true"
+                >›</span
+              >
             </button>
           </div>
+          <button
+            type="button"
+            class="dashboard-calendar__routine-btn"
+            (click)="generateRoutine()"
+            [disabled]="routineLoading"
+            aria-label="Generar rutina diaria"
+          >
+            {{ routineLoading ? "Generando..." : "📋 Generar Rutina" }}
+          </button>
           @if (dateFilterOpen()) {
-            <div id="calendar-date-filters" class="dashboard-calendar__filters" role="region" aria-label="Filtro de fecha">
+            <div
+              id="calendar-date-filters"
+              class="dashboard-calendar__filters"
+              role="region"
+              aria-label="Filtro de fecha"
+            >
               <label class="dashboard-calendar__filter">
                 <span class="dashboard-calendar__filter-label">Año</span>
                 <select
@@ -51,8 +81,19 @@
                   }
                 </select>
               </label>
-              <button type="button" class="dashboard-calendar__today-btn" (click)="goToday()">Hoy</button>
-              <button type="button" class="dashboard-calendar__filter-close" (click)="closeDateFilter()" aria-label="Cerrar filtro de fecha">
+              <button
+                type="button"
+                class="dashboard-calendar__today-btn"
+                (click)="goToday()"
+              >
+                Hoy
+              </button>
+              <button
+                type="button"
+                class="dashboard-calendar__filter-close"
+                (click)="closeDateFilter()"
+                aria-label="Cerrar filtro de fecha"
+              >
                 Listo
               </button>
             </div>
@@ -74,27 +115,38 @@
               </tr>
             </thead>
             <tbody>
-              @for (row of calendarWeeks; track row.weekLabel + '-' + $index) {
+              @for (row of calendarWeeks; track row.weekLabel + "-" + $index) {
                 <tr>
-                  <th scope="row" class="dashboard-calendar__week-num">{{ row.weekLabel }}</th>
+                  <th scope="row" class="dashboard-calendar__week-num">
+                    {{ row.weekLabel }}
+                  </th>
                   @for (cell of row.days; track cell.dateKey) {
                     <td
                       class="dashboard-calendar__day"
                       [class.dashboard-calendar__day--muted]="!cell.inMonth"
                       [class.dashboard-calendar__day--holiday]="cell.isHoliday"
-                      [class.dashboard-calendar__day--has-preview]="cell.preview"
+                      [class.dashboard-calendar__day--has-preview]="
+                        cell.preview
+                      "
                       [class.dashboard-calendar__day--today]="cell.isToday"
                       (click)="openDay(cell)"
-                      [attr.title]="cell.holidayName || (cell.preview ? 'Editar notas' : 'Añadir notas')"
+                      [attr.title]="
+                        cell.holidayName ||
+                        (cell.preview ? 'Editar notas' : 'Añadir notas')
+                      "
                       role="button"
                       tabindex="0"
                       (keydown.enter)="openDay(cell)"
                       (keydown.space)="$event.preventDefault(); openDay(cell)"
                     >
                       <div class="dashboard-calendar__cell-inner">
-                        <span class="dashboard-calendar__day-num">{{ cell.day }}</span>
+                        <span class="dashboard-calendar__day-num">{{
+                          cell.day
+                        }}</span>
                         @if (cell.preview) {
-                          <p class="dashboard-calendar__day-preview">{{ cell.preview }}</p>
+                          <p class="dashboard-calendar__day-preview">
+                            {{ cell.preview }}
+                          </p>
                         }
                       </div>
                     </td>
@@ -110,7 +162,12 @@
 </div>
 
 @if (modalOpen) {
-  <div class="day-modal-backdrop" (click)="closeModal()" role="presentation" aria-hidden="true"></div>
+  <div
+    class="day-modal-backdrop"
+    (click)="closeModal()"
+    role="presentation"
+    aria-hidden="true"
+  ></div>
   <div
     class="day-modal"
     role="dialog"
@@ -118,8 +175,17 @@
     aria-labelledby="day-modal-title"
     (click)="$event.stopPropagation()"
   >
-    <button type="button" class="day-modal__close" (click)="closeModal()" aria-label="Cerrar">×</button>
-    <h2 id="day-modal-title" class="day-modal__title">{{ selectedDateLabel }}</h2>
+    <button
+      type="button"
+      class="day-modal__close"
+      (click)="closeModal()"
+      aria-label="Cerrar"
+    >
+      ×
+    </button>
+    <h2 id="day-modal-title" class="day-modal__title">
+      {{ selectedDateLabel }}
+    </h2>
     @if (selectedHolidayName) {
       <p class="day-modal__holiday">Festivo: {{ selectedHolidayName }}</p>
     }
@@ -128,15 +194,31 @@
       @for (note of notesForSelected(); track note.id) {
         <li class="day-modal__item">
           <span class="day-modal__item-text">{{ note.text }}</span>
-          <button type="button" class="day-modal__remove" (click)="removeNote(note.id)" aria-label="Eliminar nota">×</button>
+          <button
+            type="button"
+            class="day-modal__remove"
+            (click)="removeNote(note.id)"
+            aria-label="Eliminar nota"
+          >
+            ×
+          </button>
         </li>
       }
     </ul>
 
-    <label class="day-modal__label" for="day-note-input">Añadir texto o emojis</label>
+    <label class="day-modal__label" for="day-note-input"
+      >Añadir texto o emojis</label
+    >
     <div class="day-modal__emoji-row" aria-label="Emojis rápidos">
       @for (em of quickEmojis; track em) {
-        <button type="button" class="day-modal__emoji" (click)="insertEmoji(em)" [attr.aria-label]="'Insertar ' + em">{{ em }}</button>
+        <button
+          type="button"
+          class="day-modal__emoji"
+          (click)="insertEmoji(em)"
+          [attr.aria-label]="'Insertar ' + em"
+        >
+          {{ em }}
+        </button>
       }
     </div>
     <textarea
@@ -146,6 +228,8 @@
       rows="3"
       placeholder="Escribe aquí… (también puedes pegar emojis desde el teclado)"
     ></textarea>
-    <button type="button" class="day-modal__add" (click)="addNote()">Guardar en esta fecha</button>
+    <button type="button" class="day-modal__add" (click)="addNote()">
+      Guardar en esta fecha
+    </button>
   </div>
 }

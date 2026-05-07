@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../../../common/decorators/get-user.decorator';
 import { User } from '../../users/entities/user.entity';
@@ -30,5 +23,10 @@ export class AssistantController {
   @Post('chat')
   sendMessage(@GetUser() user: User, @Body() dto: SendChatMessageDto) {
     return this.assistantService.sendMessage(user, dto);
+  }
+
+  @Post('routine')
+  generateRoutine(@GetUser() user: User) {
+    return this.assistantService.generateRoutine(user.id);
   }
 }
