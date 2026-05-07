@@ -23,3 +23,6 @@ Thumbs.db
 
 # Base de datos local
 *.db
+
+# Workflows con keys reales (generados localmente)
+n8n-workflows/*.ready.json
