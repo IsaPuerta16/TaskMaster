@@ -42,7 +42,10 @@ export class AssistantService {
   }
 
   async getConversationMessages(userId: string, conversationId: string) {
-    const conversation = await this.findConversationOrFail(userId, conversationId);
+    const conversation = await this.findConversationOrFail(
+      userId,
+      conversationId,
+    );
     const messages = await this.messageRepo.find({
       where: { conversationId: conversation.id },
       order: { createdAt: 'ASC' },
@@ -72,7 +75,10 @@ export class AssistantService {
 
     const conversation = payload.conversationId
       ? await this.findConversationOrFail(user.id, payload.conversationId)
-      : await this.createConversation(user.id, this.buildConversationTitle(messageText));
+      : await this.createConversation(
+          user.id,
+          this.buildConversationTitle(messageText),
+        );
 
     await this.messageRepo.save(
       this.messageRepo.create({
@@ -93,7 +99,12 @@ export class AssistantService {
       take: 20,
     });
 
-    const assistantReply = await this.generateAssistantReply(user, conversation, history, tasks);
+    const assistantReply = await this.generateAssistantReply(
+      user,
+      conversation,
+      history,
+      tasks,
+    );
 
     const savedAssistantMessage = await this.messageRepo.save(
       this.messageRepo.create({
@@ -152,6 +163,75 @@ export class AssistantService {
     return clean.length > 48 ? `${clean.slice(0, 45)}...` : clean;
   }
 
+  async generateRoutine(userId: string) {
+    const webhookUrl = this.configService.get<string>('N8N_WEBHOOK_URL');
+
+    if (!webhookUrl) {
+      return {
+        text: 'El agente de rutina no está conectado a n8n. Agrega `N8N_WEBHOOK_URL` en el backend.',
+      };
+    }
+
+    const routineWebhookUrl = webhookUrl
+      .replace('/webhook/routine', '')
+      .concat('/webhook/routine-agent');
+
+    const webhookTimeoutMs = Number(
+      this.configService.get<string>('N8N_WEBHOOK_TIMEOUT_MS') ?? '30000',
+    );
+    const timeoutMs =
+      Number.isFinite(webhookTimeoutMs) && webhookTimeoutMs > 0
+        ? webhookTimeoutMs
+        : 30000;
+
+    const response = await fetch(routineWebhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      signal: AbortSignal.timeout(timeoutMs),
+      body: JSON.stringify({
+        userId,
+      }),
+    }).catch((err: unknown) => {
+      const name =
+        err && typeof err === 'object' && 'name' in err
+          ? String((err as { name?: string }).name)
+          : '';
+      if (name === 'TimeoutError' || name === 'AbortError') {
+        return 'timeout' as const;
+      }
+      return null;
+    });
+
+    if (response === 'timeout') {
+      return {
+        text: 'El agente tardó demasiado en responder. Revisa que n8n esté activo.',
+      };
+    }
+
+    if (!response) {
+      return {
+        text: 'No se pudo contactar el agente de n8n. Revisa la URL del webhook.',
+      };
+    }
+
+    if (!response.ok) {
+      return {
+        text: `Error del agente (${response.status}). Intenta más tarde.`,
+      };
+    }
+
+    const payload = await response.json().catch(() => null);
+    if (!payload) {
+      return {
+        text: 'El agente respondió con un formato inválido.',
+      };
+    }
+
+    return normalizeAssistantWebhookReply(payload);
+  }
+
   private async generateAssistantReply(
     user: User,
     conversation: AssistantConversation,
@@ -162,8 +242,7 @@ export class AssistantService {
 
     if (!webhookUrl) {
       return {
-        text:
-          'El asistente todavía no está conectado a n8n. Agrega `N8N_WEBHOOK_URL` en el backend para activarlo.',
+        text: 'El asistente todavía no está conectado a n8n. Agrega `N8N_WEBHOOK_URL` en el backend para activarlo.',
       };
     }
 
@@ -212,7 +291,10 @@ export class AssistantService {
         })),
       }),
     }).catch((err: unknown) => {
-      const name = err && typeof err === 'object' && 'name' in err ? String((err as { name?: string }).name) : '';
+      const name =
+        err && typeof err === 'object' && 'name' in err
+          ? String((err as { name?: string }).name)
+          : '';
       if (name === 'TimeoutError' || name === 'AbortError') {
         return 'timeout' as const;
       }
@@ -221,15 +303,13 @@ export class AssistantService {
 
     if (response === 'timeout') {
       return {
-        text:
-          'n8n tardó demasiado en responder (tiempo agotado). Revisa que el workflow esté activo y que el nodo «Respond to Webhook» devuelva la respuesta.',
+        text: 'n8n tardó demasiado en responder (tiempo agotado). Revisa que el workflow esté activo y que el nodo «Respond to Webhook» devuelva la respuesta.',
       };
     }
 
     if (!response) {
       return {
-        text:
-          'No se pudo contactar el workflow de n8n en este momento. Revisa la URL del webhook y que el flujo esté activo.',
+        text: 'No se pudo contactar el workflow de n8n en este momento. Revisa la URL del webhook y que el flujo esté activo.',
       };
     }
 
@@ -250,8 +330,7 @@ export class AssistantService {
     const payload = await response.json().catch(() => null);
     if (!payload) {
       return {
-        text:
-          'n8n respondió con JSON inválido. Revisa el nodo «Respond to Webhook» y que devuelva un objeto con el campo «text».',
+        text: 'n8n respondió con JSON inválido. Revisa el nodo «Respond to Webhook» y que devuelva un objeto con el campo «text».',
       };
     }
 
