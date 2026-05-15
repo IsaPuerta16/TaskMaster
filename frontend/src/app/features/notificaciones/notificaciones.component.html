@@ -1,0 +1,179 @@
+<app-sidebar-layout>
+
+  <div class="notif-page">
+
+    <div class="notif-page__header">
+      <div>
+        <h1 class="notif-page__title">Notificaciones</h1>
+        <p class="notif-page__subtitle">
+          Tienes <strong>{{ unreadCount() }}</strong> notificación{{ unreadCount() !== 1 ? 'es' : '' }} sin leer.
+        </p>
+      </div>
+      <button type="button" class="btn-mark-all" (click)="markAllRead()">
+        Marcar todas como leídas
+      </button>
+    </div>
+
+    <div class="notif-grid">
+
+      <!-- ── Notification center ───────────────────── -->
+      <div class="card notif-center">
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button
+            type="button"
+            class="tab"
+            [class.tab--active]="activeTab() === 'todos'"
+            (click)="setTab('todos')"
+          >Todos</button>
+          <button
+            type="button"
+            class="tab"
+            [class.tab--active]="activeTab() === 'pendientes'"
+            (click)="setTab('pendientes')"
+          >
+            Pendientes
+            <span class="tab__badge" *ngIf="unreadCount() > 0">{{ unreadCount() }}</span>
+          </button>
+          <button
+            type="button"
+            class="tab"
+            [class.tab--active]="activeTab() === 'leidos'"
+            (click)="setTab('leidos')"
+          >Leídos</button>
+        </div>
+
+        <!-- List -->
+        <ul class="notif-list">
+          <li
+            *ngFor="let n of filtered()"
+            class="notif-item"
+            [class.notif-item--unread]="!n.read"
+            [class.notif-item--type-alert]="n.type === 'alert'"
+          >
+            <!-- Type icon -->
+            <div class="notif-item__icon notif-item__icon--{{ n.type }}">
+              <svg *ngIf="n.type === 'reminder'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+              <svg *ngIf="n.type === 'summary'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+              <svg *ngIf="n.type === 'alert'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+
+            <div class="notif-item__body">
+              <p class="notif-item__title">{{ n.title }}</p>
+              <p class="notif-item__message">{{ n.message }}</p>
+              <span class="notif-item__time">{{ n.time }}</span>
+            </div>
+
+            <div class="notif-item__actions">
+              <span class="unread-dot" *ngIf="!n.read"></span>
+              <button
+                *ngIf="!n.read"
+                type="button"
+                class="btn-read"
+                (click)="markRead(n.id)"
+                aria-label="Marcar como leída"
+              >&#10003;</button>
+            </div>
+          </li>
+
+          <li *ngIf="filtered().length === 0" class="notif-empty">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <p>Sin notificaciones aquí.</p>
+          </li>
+        </ul>
+      </div>
+
+      <!-- ── Preferences panel ─────────────────────── -->
+      <div class="card prefs-panel">
+        <h2 class="prefs-panel__title">Preferencias</h2>
+        <p class="prefs-panel__subtitle">Elige qué notificaciones recibir.</p>
+
+        <ul class="prefs-list">
+
+          <li class="pref-item">
+            <div class="pref-item__info">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+              <div>
+                <p class="pref-item__label">Recordatorios de vencimiento</p>
+                <p class="pref-item__desc">Aviso cuando una tarea está por vencer</p>
+              </div>
+            </div>
+            <label class="toggle" aria-label="Recordatorios de vencimiento">
+              <input type="checkbox" [(ngModel)]="prefs.vencimiento" name="vencimiento"/>
+              <span class="toggle__track"><span class="toggle__thumb"></span></span>
+            </label>
+          </li>
+
+          <li class="pref-item">
+            <div class="pref-item__info">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              <div>
+                <p class="pref-item__label">Resumen diario</p>
+                <p class="pref-item__desc">Un resumen cada mañana de tus tareas</p>
+              </div>
+            </div>
+            <label class="toggle" aria-label="Resumen diario">
+              <input type="checkbox" [(ngModel)]="prefs.resumenDiario" name="resumenDiario"/>
+              <span class="toggle__track"><span class="toggle__thumb"></span></span>
+            </label>
+          </li>
+
+          <li class="pref-item">
+            <div class="pref-item__info">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+              <div>
+                <p class="pref-item__label">Resumen semanal</p>
+                <p class="pref-item__desc">Informe de productividad cada semana</p>
+              </div>
+            </div>
+            <label class="toggle" aria-label="Resumen semanal">
+              <input type="checkbox" [(ngModel)]="prefs.resumenSemanal" name="resumenSemanal"/>
+              <span class="toggle__track"><span class="toggle__thumb"></span></span>
+            </label>
+          </li>
+
+          <li class="pref-item">
+            <div class="pref-item__info">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              </svg>
+              <div>
+                <p class="pref-item__label">Sonidos</p>
+                <p class="pref-item__desc">Reproducir sonido al recibir notificaciones</p>
+              </div>
+            </div>
+            <label class="toggle" aria-label="Sonidos">
+              <input type="checkbox" [(ngModel)]="prefs.sonidos" name="sonidos"/>
+              <span class="toggle__track"><span class="toggle__thumb"></span></span>
+            </label>
+          </li>
+
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+</app-sidebar-layout>

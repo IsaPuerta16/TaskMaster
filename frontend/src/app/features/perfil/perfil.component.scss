@@ -1,0 +1,210 @@
+$accent:   #2dd4bf;
+$card-bg:  #1e1e3a;
+$card-border: rgba(255, 255, 255, 0.06);
+$text:     #e0e0f0;
+$text-muted: #8b8ba7;
+$pink:     #ec4899;
+
+/* ── Page ──────────────────────────────────────── */
+.perfil {
+  max-width: 820px;
+
+  &__header { margin-bottom: 1.75rem; }
+
+  &__title {
+    font-size: 1.625rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.25rem;
+  }
+
+  &__subtitle { font-size: 0.875rem; color: $text-muted; margin: 0; }
+}
+
+.card {
+  background: $card-bg;
+  border: 1px solid $card-border;
+  border-radius: 14px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ── Banner ────────────────────────────────────── */
+.perfil-banner {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+
+  &__avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid $accent;
+    flex-shrink: 0;
+    svg { width: 100%; height: 100%; display: block; }
+  }
+
+  &__name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.2rem;
+  }
+
+  &__handle {
+    font-size: 0.875rem;
+    color: $accent;
+    font-weight: 600;
+    margin: 0 0 0.2rem;
+  }
+
+  &__email {
+    font-size: 0.8125rem;
+    color: $text-muted;
+    margin: 0;
+  }
+}
+
+/* ── Stats row ─────────────────────────────────── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.stat-card {
+  background: $card-bg;
+  border: 1px solid $card-border;
+  border-radius: 14px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  &__icon-wrap {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &--check  { background: rgba(45,212,191,0.15);  color: $accent; }
+    &--flame  { background: rgba(251,146,60,0.15);  color: #fb923c; }
+    &--chart  { background: rgba(167,139,250,0.15); color: #a78bfa; }
+  }
+
+  &__body { display: flex; flex-direction: column; gap: 0.1rem; }
+
+  &__value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1;
+  }
+
+  &__label { font-size: 0.75rem; color: $text-muted; }
+}
+
+/* ── Form card ─────────────────────────────────── */
+.form-card {
+  &__title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid $card-border;
+  }
+}
+
+.perfil-form { display: flex; flex-direction: column; gap: 1rem; }
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: $text-muted;
+}
+
+.form-input {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid $card-border;
+  border-radius: 8px;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  color: $text;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+
+  &::placeholder { color: rgba(139,139,167,0.6); }
+  &:focus { border-color: rgba(45,212,191,0.5); }
+}
+
+.select-wrap {
+  position: relative;
+
+  .select-arrow {
+    position: absolute;
+    right: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: $text-muted;
+  }
+}
+
+.form-select {
+  width: 100%;
+  appearance: none;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid $card-border;
+  border-radius: 8px;
+  padding: 0.625rem 2.5rem 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  color: $text;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+
+  option { background: #1e1e3a; color: $text; }
+  &:focus { border-color: rgba(45,212,191,0.5); }
+}
+
+.form-actions { padding-top: 0.25rem; }
+
+.btn-save {
+  padding: 0.625rem 1.5rem;
+  background: $accent;
+  color: #0f0f23;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s, background 0.3s;
+
+  &:hover { opacity: 0.9; }
+
+  &--ok {
+    background: #4ade80;
+    cursor: default;
+  }
+}

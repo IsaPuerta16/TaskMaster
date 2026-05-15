@@ -1,0 +1,128 @@
+<app-sidebar-layout>
+
+  <div class="home">
+
+    <!-- Page title -->
+    <div class="home__header">
+      <div>
+        <h1 class="home__title">Inicio</h1>
+        <p class="home__subtitle">Bienvenido de nuevo, revisa tus tareas de mayo.</p>
+      </div>
+      <a routerLink="/tasks/new" class="btn-primary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Nueva Tarea
+      </a>
+    </div>
+
+    <!-- Grid: calendar | notes -->
+    <div class="home__grid">
+
+      <!-- ── Calendar ──────────────────────────────── -->
+      <div class="card calendar-card">
+        <div class="calendar-card__head">
+          <h2 class="calendar-card__month">Mayo 2026</h2>
+          <div class="calendar-card__nav">
+            <button type="button" class="cal-nav-btn" aria-label="Mes anterior">&#8592;</button>
+            <button type="button" class="cal-nav-btn" aria-label="Mes siguiente">&#8594;</button>
+          </div>
+        </div>
+
+        <!-- Weekday headers -->
+        <div class="calendar">
+          <div class="calendar__weekdays">
+            <span *ngFor="let d of weekdays">{{ d }}</span>
+          </div>
+          <div class="calendar__grid">
+            <div
+              *ngFor="let day of calendarDays"
+              class="calendar__cell"
+              [class.calendar__cell--empty]="!day"
+              [class.calendar__cell--has-task]="day && taskDays.has(day)"
+            >
+              <span *ngIf="day">{{ day }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="calendar-card__legend">
+          <span class="legend-dot"></span>
+          <span class="legend-label">Tarea programada</span>
+        </div>
+
+        <!-- Upcoming tasks list -->
+        <div class="upcoming">
+          <h3 class="upcoming__title">Próximas tareas</h3>
+          <ul class="upcoming__list">
+            <li *ngFor="let t of upcomingTasks" class="upcoming__item">
+              <span class="upcoming__day">{{ t.day }} may</span>
+              <span class="upcoming__label">{{ t.label }}</span>
+              <span class="upcoming__priority upcoming__priority--{{ t.priority }}">{{ t.priority }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ── Notes & mini-stats ──────────────────── -->
+      <div class="side-col">
+
+        <!-- Quick notes -->
+        <div class="card notes-card">
+          <div class="notes-card__head">
+            <h2 class="notes-card__title">Notas rápidas</h2>
+          </div>
+
+          <ul class="notes-list">
+            <li *ngFor="let note of notes" class="note-item note-item--{{ note.accent }}">
+              <span class="note-item__text">{{ note.text }}</span>
+              <button type="button" class="note-item__remove" (click)="removeNote(note.id)" aria-label="Eliminar nota">&#x2715;</button>
+            </li>
+          </ul>
+
+          <form class="notes-form" (submit)="$event.preventDefault(); addNote()">
+            <input
+              type="text"
+              class="notes-input"
+              placeholder="Escribe una nota..."
+              [(ngModel)]="newNote"
+              name="nota"
+              aria-label="Nueva nota"
+            />
+            <button type="submit" class="notes-add-btn" aria-label="Añadir nota">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </button>
+          </form>
+        </div>
+
+        <!-- Mini stats -->
+        <div class="card mini-stats">
+          <h2 class="mini-stats__title">Esta semana</h2>
+          <div class="mini-stats__grid">
+            <div class="mini-stat">
+              <span class="mini-stat__value">8</span>
+              <span class="mini-stat__label">Completadas</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-stat__value">3</span>
+              <span class="mini-stat__label">Pendientes</span>
+            </div>
+            <div class="mini-stat mini-stat--warning">
+              <span class="mini-stat__value">1</span>
+              <span class="mini-stat__label">Vencidas</span>
+            </div>
+            <div class="mini-stat mini-stat--accent">
+              <span class="mini-stat__value">73%</span>
+              <span class="mini-stat__label">Progreso</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</app-sidebar-layout>
