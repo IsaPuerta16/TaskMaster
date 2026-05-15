@@ -26,3 +26,4 @@ Thumbs.db
 
 # Workflows con keys reales (generados localmente)
 n8n-workflows/*.ready.json
+.vercel
