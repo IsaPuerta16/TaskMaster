@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-import { Task } from '../../tasks/entities/task.entity';
+import { Task, TaskPriority, TaskStatus } from '../../tasks/entities/task.entity';
 import { AssistantConversation } from '../entities/assistant-conversation.entity';
 import {
   AssistantMessage,
@@ -12,6 +12,7 @@ import {
 import {
   normalizeAssistantWebhookReply,
   type AssistantWebhookReply,
+  type TaskAction,
 } from '../utils/assistant-webhook-reply.util';
 
 type AssistantReply = AssistantWebhookReply;
@@ -104,7 +105,13 @@ export class AssistantService {
       conversation,
       history,
       tasks,
+      messageText,
     );
+
+    const actionsExecuted = assistantReply.actions?.length ?? 0;
+    if (actionsExecuted > 0) {
+      await this.executeActions(user.id, assistantReply.actions!);
+    }
 
     const savedAssistantMessage = await this.messageRepo.save(
       this.messageRepo.create({
@@ -136,6 +143,7 @@ export class AssistantService {
         bullets: savedAssistantMessage.bullets ?? undefined,
         createdAt: savedAssistantMessage.createdAt,
       },
+      actionsExecuted: actionsExecuted > 0 ? actionsExecuted : undefined,
     };
   }
 
@@ -163,7 +171,55 @@ export class AssistantService {
     return clean.length > 48 ? `${clean.slice(0, 45)}...` : clean;
   }
 
-  async generateRoutine(userId: string) {
+  private async executeActions(userId: string, actions: TaskAction[]) {
+    for (const action of actions) {
+      if (action.type === 'create_task' && action.title) {
+        await this.taskRepo.save(
+          this.taskRepo.create({
+            userId,
+            title: action.title,
+            description: action.description ?? null,
+            dueDate: action.dueDate ? new Date(action.dueDate) : new Date(),
+            priority: this.parsePriority(action.priority),
+            status: TaskStatus.PENDIENTE,
+          }),
+        );
+      } else if (action.type === 'update_task' && action.taskId) {
+        const task = await this.taskRepo.findOne({
+          where: { id: action.taskId, userId },
+        });
+        if (!task) continue;
+        const updates: Partial<Task> = {};
+        if (action.title) updates.title = action.title;
+        if (action.dueDate) updates.dueDate = new Date(action.dueDate);
+        if (action.priority) updates.priority = this.parsePriority(action.priority);
+        if (action.status) updates.status = this.parseStatus(action.status);
+        if (action.description !== undefined) updates.description = action.description;
+        await this.taskRepo.update({ id: action.taskId }, updates);
+      }
+    }
+  }
+
+  private parsePriority(value?: string): TaskPriority {
+    const map: Record<string, TaskPriority> = {
+      urgente: TaskPriority.URGENTE,
+      alta: TaskPriority.ALTA,
+      baja: TaskPriority.BAJA,
+      media: TaskPriority.MEDIA,
+    };
+    return map[value ?? ''] ?? TaskPriority.MEDIA;
+  }
+
+  private parseStatus(value?: string): TaskStatus {
+    const map: Record<string, TaskStatus> = {
+      en_proceso: TaskStatus.EN_PROCESO,
+      finalizada: TaskStatus.FINALIZADA,
+      pendiente: TaskStatus.PENDIENTE,
+    };
+    return map[value ?? ''] ?? TaskStatus.PENDIENTE;
+  }
+
+  async generateRoutine(user: User) {
     const webhookUrl = this.configService.get<string>('N8N_WEBHOOK_URL');
 
     if (!webhookUrl) {
@@ -172,9 +228,13 @@ export class AssistantService {
       };
     }
 
-    const routineWebhookUrl = webhookUrl
-      .replace('/webhook/routine', '')
-      .concat('/webhook/routine-agent');
+    const baseN8nUrl = webhookUrl.split('/webhook/')[0];
+    const routineWebhookUrl = `${baseN8nUrl}/webhook/routine-agent`;
+
+    const tasks = await this.taskRepo.find({
+      where: { userId: user.id },
+      order: { dueDate: 'ASC' },
+    });
 
     const webhookTimeoutMs = Number(
       this.configService.get<string>('N8N_WEBHOOK_TIMEOUT_MS') ?? '30000',
@@ -191,7 +251,22 @@ export class AssistantService {
       },
       signal: AbortSignal.timeout(timeoutMs),
       body: JSON.stringify({
-        userId,
+        user: {
+          id: user.id,
+          email: user.email,
+          fullName: user.fullName,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+        },
+        tasks: tasks.map((t) => ({
+          id: t.id,
+          title: t.title,
+          description: t.description,
+          dueDate: t.dueDate,
+          priority: t.priority,
+          status: t.status,
+        })),
       }),
     }).catch((err: unknown) => {
       const name =
@@ -237,6 +312,7 @@ export class AssistantService {
     conversation: AssistantConversation,
     history: AssistantMessage[],
     tasks: Task[],
+    currentMessage: string,
   ): Promise<AssistantReply> {
     const webhookUrl = this.configService.get<string>('N8N_WEBHOOK_URL');
 
@@ -273,12 +349,13 @@ export class AssistantService {
           id: conversation.id,
           title: conversation.title,
         },
-        history: history.map((message) => ({
-          role: message.role,
-          text: message.text,
-          bullets: message.bullets ?? [],
-          createdAt: message.createdAt,
-        })),
+        currentMessage,
+        history: history
+          .filter((m) => m.role !== AssistantMessageRole.USER || m.text !== currentMessage)
+          .map((message) => ({
+            role: message.role,
+            text: message.text,
+          })),
         tasks: tasks.map((task) => ({
           id: task.id,
           title: task.title,

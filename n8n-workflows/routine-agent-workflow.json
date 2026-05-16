@@ -17,106 +17,12 @@
     },
     {
       "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-      "name": "Extraer userId",
+      "name": "Extraer Datos",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [460, 380],
       "parameters": {
-        "jsCode": "const data = $input.first().json;\n// Webhook typeVersion 2 anida el body; typeVersion 1 lo pone directo en $json\nconst userId = data.body?.userId ?? data.userId ?? null;\nif (!userId) throw new Error('userId no recibido en el webhook. Verifica que el backend envíe { userId } en el body.');\nreturn [{ json: { userId } }];"
-      }
-    },
-    {
-      "id": "22222222-2222-2222-2222-222222222222",
-      "name": "Consultar Tareas de Supabase",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4,
-      "position": [680, 260],
-      "parameters": {
-        "method": "GET",
-        "url": "https://oqqyxorkjurxhhowzyft.supabase.co/rest/v1/tasks",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY }}"
-            },
-            {
-              "name": "apikey",
-              "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "user_id",
-              "value": "={{ 'eq.' + $('Extraer userId').first().json.userId }}"
-            },
-            {
-              "name": "status",
-              "value": "neq.finalizada"
-            },
-            {
-              "name": "order",
-              "value": "due_date.asc"
-            }
-          ]
-        },
-        "options": {}
-      }
-    },
-    {
-      "id": "33333333-3333-3333-3333-333333333333",
-      "name": "Consultar Usuario de Supabase",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4,
-      "position": [680, 500],
-      "parameters": {
-        "method": "GET",
-        "url": "https://oqqyxorkjurxhhowzyft.supabase.co/rest/v1/users",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY }}"
-            },
-            {
-              "name": "apikey",
-              "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "id",
-              "value": "={{ 'eq.' + $('Extraer userId').first().json.userId }}"
-            }
-          ]
-        },
-        "options": {}
-      }
-    },
-    {
-      "id": "44444444-4444-4444-4444-444444444444",
-      "name": "Construir Prompt del Agente",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [900, 380],
-      "parameters": {
-        "jsCode": "const tasks = $('Consultar Tareas de Supabase').first().json || [];\nconst userData = $('Consultar Usuario de Supabase').first().json || [];\nconst user = Array.isArray(userData) ? (userData[0] || {}) : (userData || {});\n\nconst today = new Date().toLocaleDateString('es-ES', {\n  weekday: 'long',\n  year: 'numeric',\n  month: 'long',\n  day: 'numeric'\n});\n\nconst prioEmoji = { urgente: '🔴', alta: '🟠', media: '🟡', baja: '🟢' };\nconst statusLabel = { pendiente: 'Pendiente', en_proceso: 'En proceso', finalizada: 'Finalizada' };\n\nconst taskArray = Array.isArray(tasks) ? tasks : [];\nconst taskList = taskArray.length > 0\n  ? taskArray.map((t, i) => {\n      const due = t.due_date ? new Date(t.due_date).toLocaleDateString('es-ES') : 'Sin fecha';\n      const emoji = prioEmoji[t.priority] || '⚪';\n      const status = statusLabel[t.status] || t.status;\n      const desc = t.description ? `\\n   📝 ${t.description}` : '';\n      return `${i + 1}. ${emoji} ${t.title} | ${status} | Vence: ${due}${desc}`;\n    }).join('\\n')\n  : 'No tienes tareas registradas aún.';\n\nconst systemPrompt = `Eres un asistente experto en productividad y organización personal. Ayudas a las personas a estructurar su día de forma clara, realista y motivadora.\\n\\nHoy es ${today}.\\n\\nCuando recibas las tareas del usuario:\\n- Analiza prioridades (urgente > alta > media > baja) y fechas límite\\n- Propón un horario o secuencia de tareas para hoy\\n- Agrupa tareas relacionadas si las hay\\n- Destaca las urgentes o próximas a vencer\\n- Termina con un consejo motivacional breve\\n\\nUsa formato claro con secciones. Sé conciso y práctico.`;\n\nconst userName = user.full_name || user.first_name || user.email || 'Usuario';\nconst userPrompt = `Hola! Soy ${userName}. Aquí están mis tareas:\\n\\n${taskList}\\n\\n¿Puedes ayudarme a organizar mi rutina para hoy?`;\n\nreturn [{ json: { systemPrompt, userPrompt } }];"
+        "jsCode": "const data = $input.first().json;\nconst body = data.body ?? data;\n\nconst user = body.user ?? {};\nconst tasks = Array.isArray(body.tasks) ? body.tasks : [];\n\nconst userName = user.fullName || user.firstName || user.email || 'Usuario';\n\nconst today = new Date().toLocaleDateString('es-ES', {\n  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'\n});\n\nconst prioEmoji = { urgente: '🔴', alta: '🟠', media: '🟡', baja: '🟢' };\nconst statusLabel = { pendiente: 'Pendiente', en_proceso: 'En proceso', finalizada: 'Finalizada' };\n\nconst taskList = tasks.length > 0\n  ? tasks.map((t, i) => {\n      const due = t.dueDate ? new Date(t.dueDate).toLocaleDateString('es-ES') : 'Sin fecha';\n      const emoji = prioEmoji[t.priority] || '⚪';\n      const status = statusLabel[t.status] || t.status;\n      const desc = t.description ? `\\n   📝 ${t.description}` : '';\n      return `${i + 1}. ${emoji} ${t.title} | ${status} | Vence: ${due}${desc}`;\n    }).join('\\n')\n  : 'No tienes tareas registradas aún.';\n\nconst systemPrompt = `Eres un asistente experto en productividad y organización personal. Ayudas a las personas a estructurar su día de forma clara, realista y motivadora.\\n\\nHoy es ${today}.\\n\\nCuando recibas las tareas del usuario:\\n- Analiza prioridades (urgente > alta > media > baja) y fechas límite\\n- Propón un horario o secuencia de tareas para hoy\\n- Agrupa tareas relacionadas si las hay\\n- Destaca las urgentes o próximas a vencer\\n- Termina con un consejo motivacional breve\\n\\nUsa formato claro con secciones. Sé conciso y práctico.`;\n\nconst userPrompt = `Hola! Soy ${userName}. Aquí están mis tareas:\\n\\n${taskList}\\n\\n¿Puedes ayudarme a organizar mi rutina para hoy?`;\n\nreturn [{ json: { systemPrompt, userPrompt } }];"
       }
     },
     {
@@ -124,7 +30,7 @@
       "name": "GPT-4o Agente",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
-      "position": [1120, 380],
+      "position": [680, 380],
       "parameters": {
         "method": "POST",
         "url": "https://api.groq.com/openai/v1/chat/completions",
@@ -153,7 +59,7 @@
       "name": "Responder Agente",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [1340, 380],
+      "position": [900, 380],
       "parameters": {
         "respondWith": "json",
         "responseBody": "={{ JSON.stringify({ text: $json.choices[0].message.content }) }}",
@@ -164,26 +70,13 @@
   "connections": {
     "Webhook Agente": {
       "main": [
-        [{ "node": "Extraer userId", "type": "main", "index": 0 }]
+        [{ "node": "Extraer Datos", "type": "main", "index": 0 }]
       ]
     },
-    "Extraer userId": {
+    "Extraer Datos": {
       "main": [
-        [{ "node": "Consultar Tareas de Supabase", "type": "main", "index": 0 }]
+        [{ "node": "GPT-4o Agente", "type": "main", "index": 0 }]
       ]
-    },
-    "Consultar Tareas de Supabase": {
-      "main": [
-        [{ "node": "Consultar Usuario de Supabase", "type": "main", "index": 0 }]
-      ]
-    },
-    "Consultar Usuario de Supabase": {
-      "main": [
-        [{ "node": "Construir Prompt del Agente", "type": "main", "index": 0 }]
-      ]
-    },
-    "Construir Prompt del Agente": {
-      "main": [[{ "node": "GPT-4o Agente", "type": "main", "index": 0 }]]
     },
     "GPT-4o Agente": {
       "main": [[{ "node": "Responder Agente", "type": "main", "index": 0 }]]
@@ -191,7 +84,7 @@
   },
   "active": false,
   "settings": { "executionOrder": "v1" },
-  "versionId": "2",
+  "versionId": "3",
   "meta": { "templateCredsSetupCompleted": true },
   "pinData": {},
   "tags": []

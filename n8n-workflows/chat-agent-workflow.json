@@ -1,0 +1,94 @@
+{
+  "name": "TaskMaster – Chat Asistente",
+  "nodes": [
+    {
+      "id": "chat-wh-01",
+      "name": "Webhook Chat",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "taskmaster-chat-agent",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "assistant-chat",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "chat-code-01",
+      "name": "Construir Contexto",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst body = (data.body && typeof data.body === 'object') ? data.body : data;\n\nconst user = (body.user && typeof body.user === 'object') ? body.user : {};\nconst currentMessage = body.currentMessage || '';\nconst history = Array.isArray(body.history) ? body.history : [];\nconst tasks = Array.isArray(body.tasks) ? body.tasks : [];\n\nif (!currentMessage.trim()) {\n  throw new Error('DEBUG - data keys: ' + JSON.stringify(Object.keys(data)) + ' | body keys: ' + JSON.stringify(Object.keys(body)) + ' | currentMessage: ' + JSON.stringify(body.currentMessage));\n}\n\nconst today = new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });\nconst tomorrow = new Date();\ntomorrow.setDate(tomorrow.getDate() + 1);\nconst tomorrowISO = tomorrow.toISOString().split('T')[0];\n\nconst userName = user.fullName || user.firstName || user.email || 'Usuario';\nconst userRole = user.role || 'estudiante';\n\nconst prioEmoji = { urgente: '🔴', alta: '🟠', media: '🟡', baja: '🟢' };\nconst taskList = tasks.length > 0\n  ? tasks.map((t, i) => {\n      const due = t.dueDate ? new Date(t.dueDate).toLocaleDateString('es-ES') : 'Sin fecha';\n      const emoji = prioEmoji[t.priority] || '⚪';\n      return `${i + 1}. [ID:${t.id}] ${emoji} ${t.title} | Estado: ${t.status} | Vence: ${due}`;\n    }).join('\\n')\n  : 'No hay tareas registradas.';\n\nconst systemPrompt = `Eres un asistente personal inteligente integrado en TaskMaster. Puedes responder cualquier pregunta, dar consejos, conversar sobre cualquier tema, y además gestionar las tareas del usuario cuando te lo pida.\\n\\nFecha de hoy: ${today}\\nUsuario: ${userName} (${userRole})\\n\\nTAREAS ACTUALES DEL USUARIO:\\n${taskList}\\n\\nINSTRUCCIONES:\\n- Responde SIEMPRE en español y en formato JSON válido.\\n- Responde cualquier pregunta libremente, no solo sobre tareas.\\n- Solo usa la lista de tareas si el usuario pregunta por ellas o pide crear/modificar una.\\n- Sé natural, amigable y útil como un asistente general.\\n\\nFORMATO DE RESPUESTA:\\n1. Respuesta normal: { \"text\": \"tu respuesta\" }\\n2. Con acciones de tarea:\\n{\\n  \"text\": \"Confirmación\",\\n  \"actions\": [\\n    { \"type\": \"create_task\", \"title\": \"Nombre\", \"dueDate\": \"2026-05-21T10:00:00Z\", \"priority\": \"media\", \"description\": \"opcional\" },\\n    { \"type\": \"update_task\", \"taskId\": \"id-exacto\", \"dueDate\": \"2026-05-25T00:00:00Z\", \"priority\": \"alta\", \"status\": \"en_proceso\" }\\n  ]\\n}\\n\\nReglas: mañana = ${tomorrowISO}T09:00:00Z | priority: baja/media/alta/urgente | status: pendiente/en_proceso/finalizada | solo IDs de la lista`;\n\nconst prevMessages = history\n  .filter(m => m.text && m.text.trim())\n  .map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.text }));\n\nconst messages = [\n  { role: 'system', content: systemPrompt },\n  ...prevMessages,\n  { role: 'user', content: currentMessage }\n];\n\nreturn [{ json: { messages } }];"
+      }
+    },
+    {
+      "id": "chat-http-01",
+      "name": "Llamar a Groq",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [680, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $env.GROQ_API_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'llama-3.3-70b-versatile', temperature: 0.4, max_tokens: 1500, response_format: { type: 'json_object' }, messages: $json.messages }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "chat-code-02",
+      "name": "Extraer Respuesta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300],
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\nconst content = raw.choices?.[0]?.message?.content ?? '';\n\nlet parsed;\ntry {\n  parsed = JSON.parse(content);\n} catch (e) {\n  parsed = { text: content || 'El asistente no pudo responder. Intenta de nuevo.' };\n}\n\nconst text = typeof parsed.text === 'string' ? parsed.text : JSON.stringify(parsed);\nconst actions = Array.isArray(parsed.actions) && parsed.actions.length > 0 ? parsed.actions : undefined;\n\nconst result = { text };\nif (actions) result.actions = actions;\n\nreturn [{ json: result }];"
+      }
+    },
+    {
+      "id": "chat-respond-01",
+      "name": "Responder",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1120, 300],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Webhook Chat": {
+      "main": [[{ "node": "Construir Contexto", "type": "main", "index": 0 }]]
+    },
+    "Construir Contexto": {
+      "main": [[{ "node": "Llamar a Groq", "type": "main", "index": 0 }]]
+    },
+    "Llamar a Groq": {
+      "main": [[{ "node": "Extraer Respuesta", "type": "main", "index": 0 }]]
+    },
+    "Extraer Respuesta": {
+      "main": [[{ "node": "Responder", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "2",
+  "meta": { "templateCredsSetupCompleted": true },
+  "pinData": {},
+  "tags": []
+}

@@ -1,12 +1,19 @@
+export interface TaskAction {
+  type: 'create_task' | 'update_task';
+  title?: string;
+  dueDate?: string;
+  priority?: string;
+  description?: string;
+  taskId?: string;
+  status?: string;
+}
+
 export interface AssistantWebhookReply {
   text: string;
   bullets?: string[];
+  actions?: TaskAction[];
 }
 
-/**
- * Interpreta el JSON (u otro formato) que devuelve n8n en Respond to Webhook.
- * Cubierto por pruebas unitarias; no requiere llamar al webhook real.
- */
 export function normalizeAssistantWebhookReply(
   payload: unknown,
 ): AssistantWebhookReply {
@@ -40,9 +47,19 @@ export function normalizeAssistantWebhookReply(
       ? bulletsCandidate.filter((item): item is string => typeof item === 'string')
       : undefined;
 
+    const actions = Array.isArray(data['actions'])
+      ? (data['actions'] as unknown[]).filter(
+          (a): a is TaskAction =>
+            a !== null &&
+            typeof a === 'object' &&
+            ('type' in (a as object)),
+        )
+      : undefined;
+
     return {
       text,
       bullets: bullets?.length ? bullets : undefined,
+      actions: actions?.length ? actions : undefined,
     };
   }
 

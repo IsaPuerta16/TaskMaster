@@ -27,6 +27,6 @@ export class AssistantController {
 
   @Post('routine')
   generateRoutine(@GetUser() user: User) {
-    return this.assistantService.generateRoutine(user.id);
+    return this.assistantService.generateRoutine(user);
   }
 }

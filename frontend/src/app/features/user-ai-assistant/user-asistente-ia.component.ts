@@ -88,10 +88,13 @@ export class UserAsistenteIaComponent implements OnInit {
           );
           this.conversations.set([nextConversation, ...withoutDupes]);
           this.selectedId.set(nextConversation.id);
+          const assistantMsg = response.actionsExecuted
+            ? { ...response.assistantMessage, actionsExecuted: response.actionsExecuted }
+            : response.assistantMessage;
           this.messages.update((current) => [
             ...current,
             response.userMessage,
-            response.assistantMessage,
+            assistantMsg,
           ]);
           this.sending.set(false);
         },

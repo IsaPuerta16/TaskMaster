@@ -89,6 +89,11 @@
                           }
                         </ul>
                       }
+                      @if (msg.actionsExecuted) {
+                        <div class="uai-msg__action-badge">
+                          ✓ {{ msg.actionsExecuted === 1 ? '1 tarea actualizada' : msg.actionsExecuted + ' tareas actualizadas' }}
+                        </div>
+                      }
                     </div>
                   </div>
                 }

@@ -434,6 +434,19 @@ $teal: #0d9488;
   }
 }
 
+.uai-msg__action-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 3px 10px;
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
 @media (max-width: 640px) {
   .uai-hero__avatar {
     width: 72px;

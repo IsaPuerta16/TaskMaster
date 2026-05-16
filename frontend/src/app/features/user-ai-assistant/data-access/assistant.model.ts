@@ -9,6 +9,7 @@ export interface AssistantMessage {
   role: 'user' | 'assistant';
   text: string;
   bullets?: string[];
+  actionsExecuted?: number;
   createdAt?: string;
 }
 
@@ -27,4 +28,5 @@ export interface SendAssistantMessageResponse {
   conversation: AssistantConversation;
   userMessage: AssistantMessage;
   assistantMessage: AssistantMessage;
+  actionsExecuted?: number;
 }
