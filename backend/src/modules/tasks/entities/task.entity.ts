@@ -36,6 +36,9 @@ export class Task {
   @Column({ name: 'due_date', type: 'timestamptz' })
   dueDate: Date;
 
+  @Column({ type: 'timestamp', nullable: true })
+  reminderEmailSentAt: Date | null;
+
   @Column({
     type: 'enum',
     enumName: 'task_priority_enum',

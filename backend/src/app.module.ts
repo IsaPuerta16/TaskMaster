@@ -7,6 +7,8 @@ import { CalendarNotesModule } from './modules/calendar-notes/calendar-notes.mod
 import { SettingsModule } from './modules/settings/settings.module';
 import { UsersModule } from './modules/users/users.module';
 import { TasksModule } from './modules/tasks/tasks.module';
+import { MailModule } from './modules/mail/mail.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -39,6 +41,8 @@ import { TasksModule } from './modules/tasks/tasks.module';
     SettingsModule,
     UsersModule,
     TasksModule,
+    MailModule,
+    ScheduleModule.forRoot(),
   ],
 })
 export class AppModule {}
