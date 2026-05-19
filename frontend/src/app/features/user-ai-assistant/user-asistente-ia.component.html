@@ -75,7 +75,7 @@
           @if (errorMessage()) {
             <div class="uai-alert" role="alert">{{ errorMessage() }}</div>
           }
-          <div class="uai-chat-scroll">
+          <div class="uai-chat-scroll" #chatScroll>
             @if (loading()) {
               <div class="uai-msg uai-msg--bot">
                 <div class="uai-msg__bot-icon" aria-hidden="true">
@@ -130,8 +130,8 @@
           <div class="uai-suggestions">
             <p class="uai-suggestions__label">Sugerencias rápidas</p>
             <div class="uai-suggestions__row">
-              @for (s of quickSuggestions; track s) {
-                <button type="button" class="uai-chip" (click)="sendSuggestion(s)">{{ s }}</button>
+              @for (s of quickSuggestions; track s.label) {
+                <button type="button" class="uai-chip" (click)="sendSuggestion(s.prompt)">{{ s.label }}</button>
               }
             </div>
           </div>

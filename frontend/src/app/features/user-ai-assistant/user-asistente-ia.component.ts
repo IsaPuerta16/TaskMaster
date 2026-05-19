@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, inject, signal } from '@angular/core';
+import { Component, HostListener, OnInit, inject, signal, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -37,10 +37,13 @@ export class UserAsistenteIaComponent implements OnInit {
   readonly draft = signal('');
   readonly messages = signal<AssistantMessage[]>([]);
 
+  @ViewChild('chatScroll') private chatScrollRef!: ElementRef<HTMLDivElement>;
+
   readonly quickSuggestions = [
-    'Planear mi día',
-    'Dividir una tarea grande',
-    'Mejorar mi enfoque',
+    {
+      label: 'Planear mi día',
+      prompt: 'Quiero planear mi día de hoy. Analiza todas mis tareas, prioriza las más urgentes o próximas a vencer, sugiere en qué orden abordarlas y dame consejos concretos para mantener el enfoque y ser productivo durante el día.',
+    },
   ];
 
   ngOnInit(): void {
@@ -130,11 +133,17 @@ export class UserAsistenteIaComponent implements OnInit {
       });
   }
 
-  /** Rellena y envía (las chips envían al instante). */
-  sendSuggestion(text: string): void {
+  sendSuggestion(prompt: string): void {
     if (this.sending()) return;
-    this.draft.set(text);
+    this.draft.set(prompt);
     this.send();
+  }
+
+  private scrollToBottom(): void {
+    setTimeout(() => {
+      const el = this.chatScrollRef?.nativeElement;
+      if (el) el.scrollTop = el.scrollHeight;
+    }, 50);
   }
 
   trackMessage(index: number, msg: AssistantMessage): string {
@@ -170,6 +179,7 @@ export class UserAsistenteIaComponent implements OnInit {
             response.assistantMessage,
           ]);
           this.sending.set(false);
+          this.scrollToBottom();
         },
         error: () => {
           this.errorMessage.set(
@@ -197,13 +207,7 @@ export class UserAsistenteIaComponent implements OnInit {
           this.loadConversationMessages(conversations[0].id);
           return;
         }
-        this.messages.set([
-          {
-            role: 'assistant',
-            text:
-              'Hola. Cuéntame en qué tarea, proyecto o semana necesitas ayuda y empezamos.',
-          },
-        ]);
+        this.messages.set([this.buildWelcomeMessage()]);
         this.loading.set(false);
       },
       error: () => {
@@ -226,6 +230,7 @@ export class UserAsistenteIaComponent implements OnInit {
             return;
           }
           this.messages.set(conversation.messages ?? []);
+          this.scrollToBottom();
         },
         error: () => {
           this.errorMessage.set(

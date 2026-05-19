@@ -127,7 +127,9 @@ $teal: #0d9488;
 }
 
 .uai-panel--chat {
-  min-height: 520px;
+  height: calc(100vh - 290px);
+  min-height: 480px;
+  max-height: 860px;
 }
 
 .uai-panel__title {
