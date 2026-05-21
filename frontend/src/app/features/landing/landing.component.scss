@@ -375,9 +375,13 @@
     padding: 0.65rem 0.75rem;
   }
 }
-.board-col h4 {
-  font-size: var(--text-small); font-weight: var(--weight-bold); color: var(--app-text); letter-spacing: 0.05em;
-  margin: 0 0 1rem; padding-bottom: 0.5rem;
+.board-col-title {
+  font-size: var(--text-small);
+  font-weight: var(--weight-bold);
+  color: var(--app-text);
+  letter-spacing: 0.05em;
+  margin: 0 0 1rem;
+  padding-bottom: 0.5rem;
 }
 .task-card {
   background: var(--app-surface); border-radius: 6px; padding: 0.75rem 0.875rem;
@@ -434,7 +438,7 @@
 }
 .split-lead {
   font-size: var(--text-body);
-  color: var(--app-text-muted);
+  color: var(--app-text-label);
   margin: 0 0 1.25rem;
   line-height: 1.65;
 }
@@ -570,7 +574,8 @@
 }
 .stat-label {
   font-size: var(--text-small);
-  color: var(--app-text-muted);
+  color: var(--app-text-label);
+  font-weight: var(--weight-medium);
 }
 .stats-mock-bar {
   display: flex;
@@ -581,7 +586,7 @@
 }
 .stats-mock-bar-label {
   font-size: var(--text-small);
-  color: var(--app-text-muted);
+  color: var(--app-text-label);
   width: 100%;
 }
 .stats-mock-bar-track {
