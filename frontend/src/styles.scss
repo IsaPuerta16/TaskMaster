@@ -1,19 +1,59 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 
-/* Tema de aplicación (Apariencia: claro / oscuro / sistema) — tokens globales */
+
 :root {
+  /* Marca TaskMaster — un solo azul (#1e3a5f, mismo que Inicio) + teal acento */
+  --app-brand: #1e3a5f;
+  --app-brand-hover: #0f3460;
+  --app-brand-deep: #16213e;
+  --app-brand-on-dark: #8da9ca;
+
+  --app-primary: var(--app-brand);
+  --app-primary-hover: var(--app-brand-hover);
+  --app-primary-light: var(--app-brand);
+  --app-mkt-bar: var(--app-brand);
+  --app-mkt-icon-bg: var(--app-primary-soft);
+  --app-mkt-glow: var(--app-primary);
+  --app-primary-soft: rgba(30, 58, 95, 0.08);
+  --app-primary-ring: rgba(30, 58, 95, 0.22);
+
+  --app-accent: #148c84;
+  --app-accent-hover: #0f766e;
+  --app-accent-light: #14b8a6;
+  --app-accent-soft: #f0fdfa;
+  --app-accent-muted: rgba(20, 140, 132, 0.14);
+
+  --app-danger: #e11d48;
+  --app-danger-hover: #be123c;
+  --app-danger-soft: #fff1f2;
+  --app-danger-muted: rgba(225, 29, 72, 0.12);
+
+  --app-warning: #d97706;
+  --app-warning-soft: #fffbeb;
+  --app-warning-muted: rgba(217, 119, 6, 0.14);
+
+  --app-success: #059669;
+  --app-success-soft: #ecfdf5;
+  --app-success-muted: rgba(5, 150, 105, 0.14);
+
+  --app-prio-baja: #94a3b8;
+  --app-prio-media: var(--app-brand);
+  --app-prio-alta: #d97706;
+  --app-prio-urgente: #e11d48;
+
   --app-bg: #f6f9fb;
+  --app-bg-elevated: #ffffff;
   --app-text: #0f172a;
   --app-text-muted: #64748b;
   --app-text-label: #475569;
   --app-surface: #ffffff;
   --app-card: #ffffff;
-  --app-border: #e8ecf0;
-  --app-border-strong: #e2e8f0;
+  --app-border: #e2e8f0;
+  --app-border-strong: #cbd5e1;
   --app-input-bg: #ffffff;
   --app-muted-bg: #f1f5f9;
-  --app-link: #1e3a5f;
+  --app-link: var(--app-brand);
   --app-header-bg: #ffffff;
   --app-header-border: #e8ecf0;
   --app-search-bg: #f1f5f9;
@@ -21,40 +61,96 @@ html { scroll-behavior: smooth; }
   --app-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
   --app-shadow-md: 0 4px 24px rgba(15, 23, 42, 0.08);
   --app-shadow-card: 0 2px 12px rgba(15, 23, 42, 0.06);
+  --app-shadow-glow: 0 12px 40px rgba(30, 58, 95, 0.18);
+
   --app-sidebar-bg: #2c3444;
   --app-sidebar-text: rgba(255, 255, 255, 0.95);
   --app-sidebar-hover: rgba(255, 255, 255, 0.08);
-  --app-sidebar-active: #3b5998;
-  --app-sidebar-shadow: 0 12px 40px rgba(15, 23, 42, 0.12);
-  --app-sidebar-divider: rgba(255, 255, 255, 0.12);
+  --app-sidebar-active: var(--app-brand);
+  --app-sidebar-active-bg: rgba(30, 58, 95, 0.32);
+  --app-sidebar-shadow: 0 12px 40px rgba(15, 23, 42, 0.18);
+  --app-sidebar-divider: rgba(148, 163, 184, 0.14);
+
   --app-footer-bg: #ffffff;
   --app-footer-border: #e2e8f0;
-  --app-toolbar-title: #1a1a1a;
+  --app-toolbar-title: #0f172a;
   --app-seg-bg: #ffffff;
-  --app-seg-border: #d1d5db;
-  --app-seg-divider: #e5e7eb;
-  --app-seg-text: #374151;
-  --app-seg-hover-bg: #f9fafb;
-  --app-seg-hover-text: #1f2937;
-  --app-icon-btn-hover: #f1f5f9;
+  --app-seg-border: #cbd5e1;
+  --app-seg-divider: #e2e8f0;
+  --app-seg-text: #475569;
+  --app-seg-hover-bg: var(--app-primary-soft);
+  --app-seg-hover-text: var(--app-primary-hover);
+  --app-seg-active-bg: var(--app-primary);
+  --app-seg-active-hover: var(--app-primary-hover);
+  --app-icon-btn-hover: var(--app-primary-soft);
   --app-cal-thead-bg: #f8fafc;
   --app-cal-cell-bg: #ffffff;
-  --app-cal-cell-hover: #fafafa;
-  --app-cal-muted: #fafafa;
-  --app-cal-muted-hover: #f4f4f5;
-  --app-cal-border: #e5e7eb;
-  --app-modal-backdrop: rgba(15, 23, 42, 0.45);
-  --app-accent-solid: #1e3a5f;
+  --app-cal-cell-hover: #f8fafc;
+  --app-cal-muted: #f1f5f9;
+  --app-cal-muted-hover: #e2e8f0;
+  --app-cal-border: #e2e8f0;
+  --app-cal-today-ring: var(--app-primary);
+  --app-cal-task: var(--app-accent);
+  --app-modal-backdrop: rgba(15, 23, 42, 0.5);
+
+  /* Alias legacy */
+  --app-accent-solid: var(--app-brand);
   --app-teal: #148c84;
-  /* Navegación superior: inactivo / activo (claro) */
+
   --app-header-nav-muted: var(--app-text-muted);
   --app-header-nav-active: var(--app-link);
   --app-header-focus-ring: rgba(30, 58, 95, 0.2);
+
+  --app-auth-card: #1e3a5f;
+
+  --app-gradient-brand: linear-gradient(160deg, var(--app-brand) 0%, var(--app-brand-hover) 50%, var(--app-brand-deep) 100%);
+  --app-gradient-hero: linear-gradient(180deg, #f6f9fb 0%, #eef4fa 100%);
+  --app-gradient-section-dark: linear-gradient(180deg, var(--app-brand) 0%, #0f172a 45%, #020617 100%);
+  --app-gradient-accent: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-light) 55%, #2dd4bf 100%);
+  --app-gradient-cta: linear-gradient(135deg, var(--app-brand) 0%, var(--app-brand-hover) 55%, var(--app-brand-deep) 100%);
+  --app-gradient-cta-h: linear-gradient(90deg, var(--app-brand-hover) 0%, var(--app-brand) 100%);
+  --app-mkt-shadow: rgba(15, 52, 96, 0.4);
+  --app-mkt-shadow-md: rgba(15, 52, 96, 0.1);
+  --app-mkt-shadow-lg: rgba(15, 52, 96, 0.35);
 }
 
 html[data-theme='dark'] {
   color-scheme: dark;
+  --app-primary: var(--app-brand);
+  --app-primary-hover: var(--app-brand-hover);
+  --app-primary-light: var(--app-brand);
+  --app-mkt-bar: var(--app-brand);
+  --app-mkt-icon-bg: var(--app-primary-soft);
+  --app-mkt-glow: var(--app-primary);
+  --app-primary-soft: rgba(30, 58, 95, 0.22);
+  --app-primary-ring: rgba(30, 58, 95, 0.45);
+
+  --app-accent: #2dd4bf;
+  --app-accent-hover: #5eead4;
+  --app-accent-light: #5eead4;
+  --app-accent-soft: rgba(45, 212, 191, 0.12);
+  --app-accent-muted: rgba(45, 212, 191, 0.18);
+
+  --app-danger: #fb7185;
+  --app-danger-hover: #fda4af;
+  --app-danger-soft: rgba(225, 29, 72, 0.15);
+  --app-danger-muted: rgba(251, 113, 133, 0.2);
+
+  --app-warning: #fbbf24;
+  --app-warning-soft: rgba(251, 191, 36, 0.12);
+  --app-warning-muted: rgba(251, 191, 36, 0.18);
+
+  --app-success: #34d399;
+  --app-success-soft: rgba(52, 211, 153, 0.12);
+  --app-success-muted: rgba(52, 211, 153, 0.18);
+
+  --app-prio-baja: #94a3b8;
+  --app-prio-media: var(--app-brand-on-dark);
+  --app-prio-alta: #fbbf24;
+  --app-prio-urgente: #fb7185;
+
   --app-bg: #0b1120;
+  --app-bg-elevated: #1e293b;
   --app-text: #f1f5f9;
   --app-text-muted: #94a3b8;
   --app-text-label: #94a3b8;
@@ -64,20 +160,24 @@ html[data-theme='dark'] {
   --app-border-strong: #475569;
   --app-input-bg: #0f172a;
   --app-muted-bg: #172033;
-  --app-link: #93c5fd;
+  --app-link: var(--app-brand-on-dark);
   --app-header-bg: rgba(15, 23, 42, 0.78);
-  --app-header-border: rgba(51, 65, 85, 0.85);
+  --app-header-border: rgba(51, 65, 85, 0.9);
   --app-search-bg: #0f172a;
   --app-hero-rule: #334155;
   --app-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
   --app-shadow-md: 0 12px 40px rgba(0, 0, 0, 0.45);
   --app-shadow-card: 0 4px 20px rgba(0, 0, 0, 0.35);
+  --app-shadow-glow: 0 12px 48px rgba(0, 0, 0, 0.45);
+
   --app-sidebar-bg: #111827;
   --app-sidebar-text: rgba(248, 250, 252, 0.95);
   --app-sidebar-hover: rgba(255, 255, 255, 0.07);
-  --app-sidebar-active: #2563eb;
-  --app-sidebar-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
-  --app-sidebar-divider: rgba(148, 163, 184, 0.18);
+  --app-sidebar-active: var(--app-brand);
+  --app-sidebar-active-bg: rgba(30, 58, 95, 0.38);
+  --app-sidebar-shadow: 0 12px 48px rgba(0, 0, 0, 0.55);
+  --app-sidebar-divider: rgba(148, 163, 184, 0.14);
+
   --app-footer-bg: #0f172a;
   --app-footer-border: #1e293b;
   --app-toolbar-title: #f1f5f9;
@@ -87,6 +187,8 @@ html[data-theme='dark'] {
   --app-seg-text: #cbd5e1;
   --app-seg-hover-bg: #334155;
   --app-seg-hover-text: #f8fafc;
+  --app-seg-active-bg: var(--app-brand);
+  --app-seg-active-hover: var(--app-brand-hover);
   --app-icon-btn-hover: rgba(255, 255, 255, 0.08);
   --app-cal-thead-bg: #0f172a;
   --app-cal-cell-bg: #1e293b;
@@ -94,19 +196,34 @@ html[data-theme='dark'] {
   --app-cal-muted: #172033;
   --app-cal-muted-hover: #1e293b;
   --app-cal-border: #334155;
-  --app-modal-backdrop: rgba(0, 0, 0, 0.65);
-  --app-accent-solid: #60a5fa;
-  --app-teal: #2dd4bf;
-  /* Enlaces inactivos más apagados sobre barra oscura; activo = acento claro */
+  --app-cal-today-ring: var(--app-primary);
+  --app-cal-task: var(--app-accent);
+  --app-modal-backdrop: rgba(0, 0, 0, 0.68);
+
+  --app-accent-solid: var(--app-brand);
+  --app-teal: var(--app-accent);
+
   --app-header-nav-muted: #64748b;
-  --app-header-nav-active: #93c5fd;
-  --app-header-focus-ring: rgba(96, 165, 250, 0.38);
+  --app-header-nav-active: var(--app-link);
+  --app-header-focus-ring: rgba(30, 58, 95, 0.45);
+
+  --app-auth-card: #1e3a5f;
+
+  --app-gradient-brand: linear-gradient(160deg, var(--app-brand) 0%, var(--app-brand-hover) 50%, var(--app-brand-deep) 100%);
+  --app-gradient-hero: linear-gradient(180deg, #0b1120 0%, #0f172a 100%);
+  --app-gradient-section-dark: linear-gradient(180deg, var(--app-brand-hover) 0%, #0b1120 45%, #020617 100%);
+  --app-gradient-accent: linear-gradient(135deg, var(--app-accent) 0%, var(--app-accent-light) 55%, #5eead4 100%);
+  --app-gradient-cta: linear-gradient(135deg, var(--app-brand) 0%, var(--app-brand-hover) 55%, var(--app-brand-deep) 100%);
+  --app-gradient-cta-h: linear-gradient(90deg, var(--app-brand-hover) 0%, var(--app-brand) 100%);
+  --app-mkt-shadow: rgba(15, 52, 96, 0.45);
+  --app-mkt-shadow-md: rgba(15, 52, 96, 0.12);
+  --app-mkt-shadow-lg: rgba(15, 52, 96, 0.4);
 }
 
-/* Sistema tipográfico unificado (misma pila que la página Funcionalidades) */
+
 :root {
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  /* Marca TM / logo: como antes (Playfair); el resto de la UI usa --font-family */
+  
   --font-logo: 'Playfair Display', Georgia, serif;
   --text-h1: 2rem;
   --text-h2: 1.5rem;
@@ -122,7 +239,7 @@ html[data-theme='dark'] {
   --weight-regular: 400;
 }
 
-/* Transiciones al navegar entre rutas */
+
 @keyframes routeEnter {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -137,7 +254,7 @@ html[data-theme='dark'] {
 ::view-transition-new(root) {
   animation: routeEnter 0.4s ease-out;
 }
-/* Tamaño de fuente (configuración de usuario) */
+
 html[data-font-size='pequeno'] {
   font-size: 93.75%;
 }
@@ -154,7 +271,8 @@ body {
   font-family: var(--font-family);
   font-size: var(--text-body);
   font-weight: var(--weight-regular);
-  background: var(--app-bg);
+  background: var(--app-gradient-hero);
+  background-attachment: fixed;
   color: var(--app-text);
   line-height: 1.5;
   overflow-x: hidden;
@@ -164,17 +282,17 @@ body {
 }
 
 html[data-theme='dark'] body {
-  background: linear-gradient(165deg, #070b14 0%, #0b1120 35%, #0f172a 70%, #111827 100%);
+  background: var(--app-gradient-hero);
   background-attachment: fixed;
 }
 
 ::selection {
-  background: rgba(59, 130, 246, 0.28);
+  background: var(--app-primary-ring);
   color: inherit;
 }
 
 html[data-theme='dark'] ::selection {
-  background: rgba(96, 165, 250, 0.35);
+  background: rgba(30, 58, 95, 0.55);
 }
 
 h1, .h1 { font-size: var(--text-h1); font-weight: var(--weight-bold); line-height: 1.2; }
@@ -186,7 +304,7 @@ p, .text-body { font-size: var(--text-body); font-weight: var(--weight-regular);
 .text-caption { font-size: var(--text-caption); }
 .text-small { font-size: var(--text-small); }
 
-/* Shell: el root y las rutas ocupan todo el ancho (los custom elements suelen ser inline y achican la vista). */
+
 app-root {
   display: block;
   width: 100%;
@@ -216,7 +334,7 @@ app-root > app-buscar {
   box-sizing: border-box;
 }
 
-/* Landing: tablero de ejemplo — misma idea que Funcionalidades (global para ganar a cualquier orden de CSS). */
+
 app-landing {
   display: block;
   width: 100%;
@@ -247,7 +365,7 @@ app-landing .board-columns {
   }
 }
 
-/* Página Funcionalidades: grids en móvil (el Kanban no puede quedar en 3 columnas estrechas). */
+
 app-funcionalidades {
   display: block;
   max-width: 100%;

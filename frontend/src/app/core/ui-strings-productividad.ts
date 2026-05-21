@@ -1,23 +1,32 @@
-/** Página pública /productividad */
+
 export const PRODUCTIVIDAD_PAGE_ES = {
   hero: {
     title: 'Te ayudamos con tu productividad',
     subtitle: 'Para que puedas disfrutar de tus actividades favoritas.',
   },
   activities: [
-    { id: '1', label: 'Ejercicio', theme: 'exercise' as const, icon: 'exercise' as const },
-    { id: '2', label: 'Colaborar', theme: 'collaborate' as const, icon: 'collaborate' as const },
-    { id: '3', label: 'Cocinar', theme: 'cook' as const, icon: 'cook' as const },
-    { id: '4', label: 'Trabajo', theme: 'work' as const, icon: 'work' as const },
+    { id: '1', label: 'Ejercicio', theme: 'exercise' as const, emoji: '🏃' },
+    { id: '2', label: 'Colaborar', theme: 'collaborate' as const, emoji: '🤝' },
+    { id: '3', label: 'Cocinar', theme: 'cook' as const, emoji: '🍳' },
+    { id: '4', label: 'Trabajo', theme: 'work' as const, emoji: '💼' },
   ],
   ctaEfficiency: {
     title: 'Mejoramos tu eficiencia',
     desc: 'Para que puedas dedicar tiempo a las actividades que te gustan. TaskMaster te ayuda a priorizar, organizar y cumplir tus metas.',
     btn: 'Mostrar sugerencias →',
+    btnAuth: 'Ver mi productividad →',
   },
   ctaReminder: {
     title: '¡Que no se te olvide nada importante!',
     desc: 'Te avisamos antes de que venza cada tarea.',
+  },
+  report: {
+    title: 'Informe semanal',
+    lead: 'Descarga un resumen de tus tareas completadas, pendientes y métricas del periodo.',
+    download: 'Descargar informe',
+    downloading: 'Generando informe...',
+    loginHint: 'Inicia sesión para descargar tu informe personalizado.',
+    loginBtn: 'Iniciar sesión',
   },
   more: {
     pill: 'Productividad sin límites',
@@ -64,6 +73,7 @@ export const PRODUCTIVIDAD_PAGE_ES = {
     desc: 'Únete a TaskMaster y lleva tu productividad al siguiente nivel.',
     trust: 'Miles de tareas organizadas cada semana',
     btnPrimary: 'Crear cuenta gratis',
+    btnPrimaryAuth: 'Abrir mi panel',
     btnGhost: 'Ver funcionalidades',
     peekTitle: 'Mi tablero',
     peekCol1: 'Pendiente',
@@ -82,19 +92,28 @@ export const PRODUCTIVIDAD_PAGE_EN = {
     subtitle: 'So you can enjoy the activities you love.',
   },
   activities: [
-    { id: '1', label: 'Exercise', theme: 'exercise' as const, icon: 'exercise' as const },
-    { id: '2', label: 'Collaborate', theme: 'collaborate' as const, icon: 'collaborate' as const },
-    { id: '3', label: 'Cook', theme: 'cook' as const, icon: 'cook' as const },
-    { id: '4', label: 'Work', theme: 'work' as const, icon: 'work' as const },
+    { id: '1', label: 'Exercise', theme: 'exercise' as const, emoji: '🏃' },
+    { id: '2', label: 'Collaborate', theme: 'collaborate' as const, emoji: '🤝' },
+    { id: '3', label: 'Cook', theme: 'cook' as const, emoji: '🍳' },
+    { id: '4', label: 'Work', theme: 'work' as const, emoji: '💼' },
   ],
   ctaEfficiency: {
     title: 'We boost your efficiency',
     desc: 'So you can spend time on what you enjoy. TaskMaster helps you prioritize, organize, and hit your goals.',
     btn: 'Show suggestions →',
+    btnAuth: 'Open my productivity →',
   },
   ctaReminder: {
     title: "Don't let important things slip!",
     desc: 'We remind you before each task is due.',
+  },
+  report: {
+    title: 'Weekly report',
+    lead: 'Download a summary of completed and pending tasks plus your metrics.',
+    download: 'Download report',
+    downloading: 'Generating report...',
+    loginHint: 'Sign in to download your personalized report.',
+    loginBtn: 'Sign in',
   },
   more: {
     pill: 'Productivity without limits',
@@ -141,6 +160,7 @@ export const PRODUCTIVIDAD_PAGE_EN = {
     desc: 'Join TaskMaster and take your productivity further.',
     trust: 'Thousands of tasks organized every week',
     btnPrimary: 'Create free account',
+    btnPrimaryAuth: 'Open my dashboard',
     btnGhost: 'See features',
     peekTitle: 'My board',
     peekCol1: 'To do',

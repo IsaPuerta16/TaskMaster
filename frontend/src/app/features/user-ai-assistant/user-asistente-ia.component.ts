@@ -1,10 +1,12 @@
-import { Component, HostListener, OnInit, inject, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, HostListener, OnInit, computed, inject, signal, ViewChild, ElementRef } from '@angular/core';
+import { AppSettingsService } from '@core/services/app-settings.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AuthService } from '@core/services/auth.service';
-import { AppSidebarComponent, HeaderComponent } from '@shared/layout';
+import { UserAvatarService } from '@core/services/user-avatar.service';
+import { AppSidebarComponent } from '@shared/layout';
 import {
   AssistantService,
 } from './data-access/assistant.service';
@@ -12,6 +14,7 @@ import type {
   AssistantConversation,
   AssistantMessage,
 } from './data-access/assistant.model';
+import { previewConversationTitle } from './conversation-title';
 
 @Component({
   selector: 'app-user-asistente-ia',
@@ -23,12 +26,15 @@ import type {
 export class UserAsistenteIaComponent implements OnInit {
   readonly auth = inject(AuthService);
   private readonly assistantService = inject(AssistantService);
+  private readonly appSettings = inject(AppSettingsService);
+  private readonly userAvatar = inject(UserAvatarService);
+
+  readonly U = computed(() => this.appSettings.ui().userAsistente);
 
   avatarUrl = '';
   userHandle = '@Usuario';
   readonly loading = signal(true);
   readonly sending = signal(false);
-  readonly creatingConversation = signal(false);
   readonly deletingId = signal<string | null>(null);
   readonly errorMessage = signal('');
   readonly conversations = signal<AssistantConversation[]>([]);
@@ -51,7 +57,7 @@ export class UserAsistenteIaComponent implements OnInit {
     const email = u?.email ?? 'usuario@ejemplo.com';
     const local = email.includes('@') ? email.split('@')[0] : email;
     this.userHandle = `@${local}`;
-    this.avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(u?.id ?? email)}`;
+    this.avatarUrl = this.userAvatar.urlFor(u);
     this.loadConversations();
   }
 
@@ -60,27 +66,23 @@ export class UserAsistenteIaComponent implements OnInit {
     this.openMenuId.set(null);
   }
 
+  
+  isDraftChat(): boolean {
+    return this.selectedId() === null;
+  }
+
+  draftChatLabel(): string {
+    const preview = previewConversationTitle(this.draft());
+    return preview || this.U().draftChat;
+  }
+
   startNewChat(): void {
-    if (this.creatingConversation()) return;
-    this.creatingConversation.set(true);
+    this.selectedId.set(null);
+    this.openMenuId.set(null);
     this.errorMessage.set('');
-    this.assistantService
-      .createConversation()
-      .pipe(finalize(() => this.creatingConversation.set(false)))
-      .subscribe({
-        next: (conversation) => {
-          const withoutDupes = this.conversations().filter(
-            (item) => item.id !== conversation.id,
-          );
-          this.conversations.set([conversation, ...withoutDupes]);
-          this.selectedId.set(conversation.id);
-          this.messages.set([]);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.errorMessage.set('No se pudo crear un nuevo chat.');
-        },
-      });
+    this.draft.set('');
+    this.messages.set([this.buildWelcomeMessage()]);
+    this.loading.set(false);
   }
 
   selectConversation(id: string): void {
@@ -157,24 +159,33 @@ export class UserAsistenteIaComponent implements OnInit {
   send(): void {
     const text = this.draft().trim();
     if (!text || this.sending()) return;
+    const conversationId = this.selectedId();
+    const userBubble: AssistantMessage = { role: 'user', text };
+
     this.sending.set(true);
     this.errorMessage.set('');
     this.draft.set('');
+    if (conversationId === null) {
+      this.messages.set([userBubble]);
+    } else {
+      this.messages.update((current) => [...current, userBubble]);
+    }
+    this.scrollToBottom();
+
     this.assistantService
       .sendMessage({
-        conversationId: this.selectedId() ?? undefined,
+        conversationId: conversationId ?? undefined,
         message: text,
       })
       .subscribe({
         next: (response) => {
           const nextConversation = response.conversation;
           const withoutDupes = this.conversations().filter(
-            (conversation) => conversation.id !== nextConversation.id,
+            (c) => c.id !== nextConversation.id,
           );
           this.conversations.set([nextConversation, ...withoutDupes]);
           this.selectedId.set(nextConversation.id);
-          this.messages.update((current) => [
-            ...current,
+          this.messages.set([
             response.userMessage,
             response.assistantMessage,
           ]);
@@ -185,6 +196,14 @@ export class UserAsistenteIaComponent implements OnInit {
           this.errorMessage.set(
             'No se pudo enviar el mensaje al asistente. Revisa la configuración de n8n.',
           );
+          if (conversationId === null) {
+            this.messages.set([this.buildWelcomeMessage()]);
+          } else {
+            this.messages.update((current) =>
+              current.filter((m) => m !== userBubble),
+            );
+          }
+          this.draft.set(text);
           this.sending.set(false);
         },
       });
@@ -207,6 +226,7 @@ export class UserAsistenteIaComponent implements OnInit {
           this.loadConversationMessages(conversations[0].id);
           return;
         }
+        this.selectedId.set(null);
         this.messages.set([this.buildWelcomeMessage()]);
         this.loading.set(false);
       },

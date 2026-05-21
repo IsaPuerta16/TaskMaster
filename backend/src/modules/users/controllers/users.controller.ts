@@ -60,6 +60,7 @@ export class UsersController {
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role,
+      avatarUrl: user.avatarUrl,
     };
   }
 }

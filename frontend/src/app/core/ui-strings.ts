@@ -4,7 +4,7 @@ import { PRODUCTIVIDAD_PAGE_EN, PRODUCTIVIDAD_PAGE_ES } from './ui-strings-produ
 import { ASISTENTE_IA_PAGE_EN, ASISTENTE_IA_PAGE_ES } from './ui-strings-asistente-ia-page';
 import { NOSOTROS_PAGE_EN, NOSOTROS_PAGE_ES } from './ui-strings-nosotros-page';
 
-/** Amplía literales de cadena para que ES y EN compartan la misma forma tipada. */
+
 type DeepStrings<T> = T extends string
   ? string
   : T extends readonly (infer U)[]
@@ -15,9 +15,7 @@ type DeepStrings<T> = T extends string
       ? { [K in keyof T]: DeepStrings<T[K]> }
       : T;
 
-/**
- * Textos de interfaz (ES/EN) alineados con AppSettingsService.settings().idioma
- */
+
 export const UI_ES = {
   header: {
     menuToggle: 'Abrir o cerrar menú de navegación',
@@ -32,7 +30,7 @@ export const UI_ES = {
     account: 'Mi cuenta',
     signIn: 'Iniciar sesión',
   },
-  /** Misma forma que el objeto L() de configuración (Mi configuración) */
+  
   config: {
     subtitle: 'Gestiona tu cuenta',
     newTask: '+ Nueva Tarea',
@@ -76,11 +74,41 @@ export const UI_ES = {
     today: 'Hoy',
     thisWeek: 'Esta semana',
     all: 'Todas',
-    newTask: '+ Nueva tarea',
+    overdue: 'Vencidas',
+    now: 'Ahora',
+    archived: 'Archivadas',
+    overdueBadge: 'Vencida',
     empty: 'No hay tareas en esta vista.',
+    emptyOverdue: 'No tienes tareas vencidas. ¡Buen trabajo!',
+    emptyArchived: 'No hay tareas archivadas.',
+    snoozeTomorrow: 'Mañana',
+    snooze3days: '+3 días',
+    snoozeWeek: 'Próx. semana',
+    archive: 'Archivar',
+    exportCsv: 'Exportar CSV',
+    weeklyReport: 'Informe semanal',
+    project: 'Proyecto',
+    tags: 'Etiquetas',
+    checklist: 'Subtareas',
+    recurrence: 'Repetir',
+    recNone: 'No repetir',
+    recDaily: 'Diaria',
+    recWeekly: 'Semanal',
+    recMonthly: 'Mensual',
+    newTask: '+ Nueva tarea',
     createOne: 'Crear una',
     edit: 'Editar',
     delete: 'Eliminar',
+    viewList: 'Lista',
+    viewBoard: 'Tablero',
+    boardTitle: 'Mi tablero',
+    colPending: 'Pendiente',
+    colProgress: 'En proceso',
+    colDone: 'Hecho',
+    colEmpty: 'Sin tareas',
+    markDone: 'Marcar como hecha',
+    markUndone: 'Marcar como pendiente',
+    deleteConfirm: '¿Eliminar esta tarea?',
   },
   taskForm: {
     back: '← Volver',
@@ -131,15 +159,10 @@ export const UI_ES = {
     firstName: 'Nombre',
     lastName: 'Apellido',
     email: 'Correo',
-    role: 'Rol',
     phFirst: 'Tu nombre',
     phLast: 'Tu apellido',
     phEmail: 'correo@ejemplo.com',
     save: 'Guardar cambios',
-    hint: 'Usamos estos datos para personalizar tus recomendaciones.',
-    roleStudent: 'Estudiante',
-    rolePro: 'Profesional',
-    roleOther: 'Otro',
   },
   notifications: {
     centerTitle: 'Centro de notificaciones',
@@ -212,6 +235,9 @@ export const UI_ES = {
   },
   userAsistente: {
     conversations: 'Conversaciones',
+    newChat: 'Nuevo chat',
+    draftChat: 'Nueva conversación',
+    convEmpty: 'Tu primer mensaje creará un chat con nombre automático.',
     placeholder: 'Escribe un mensaje…',
     send: 'Enviar',
     hint: 'El asistente usa tus tareas para sugerir el siguiente paso.',
@@ -293,11 +319,41 @@ export const UI_EN: DeepStrings<typeof UI_ES> = {
     today: 'Today',
     thisWeek: 'This week',
     all: 'All',
-    newTask: '+ New task',
+    overdue: 'Overdue',
+    now: 'Now',
+    archived: 'Archived',
+    overdueBadge: 'Overdue',
     empty: 'No tasks in this view.',
+    emptyOverdue: 'You have no overdue tasks. Nice work!',
+    emptyArchived: 'No archived tasks.',
+    snoozeTomorrow: 'Tomorrow',
+    snooze3days: '+3 days',
+    snoozeWeek: 'Next week',
+    archive: 'Archive',
+    exportCsv: 'Export CSV',
+    weeklyReport: 'Weekly report',
+    project: 'Project',
+    tags: 'Tags',
+    checklist: 'Subtasks',
+    recurrence: 'Repeat',
+    recNone: 'No repeat',
+    recDaily: 'Daily',
+    recWeekly: 'Weekly',
+    recMonthly: 'Monthly',
+    newTask: '+ New task',
     createOne: 'Create one',
     edit: 'Edit',
     delete: 'Delete',
+    viewList: 'List',
+    viewBoard: 'Board',
+    boardTitle: 'My board',
+    colPending: 'Pending',
+    colProgress: 'In progress',
+    colDone: 'Done',
+    colEmpty: 'No tasks',
+    markDone: 'Mark as done',
+    markUndone: 'Mark as pending',
+    deleteConfirm: 'Delete this task?',
   },
   taskForm: {
     back: '← Back',
@@ -347,15 +403,10 @@ export const UI_EN: DeepStrings<typeof UI_ES> = {
     firstName: 'First name',
     lastName: 'Last name',
     email: 'Email',
-    role: 'Role',
     phFirst: 'Your first name',
     phLast: 'Your last name',
     phEmail: 'email@example.com',
     save: 'Save changes',
-    hint: 'We use this data to personalize your recommendations.',
-    roleStudent: 'Student',
-    rolePro: 'Professional',
-    roleOther: 'Other',
   },
   notifications: {
     centerTitle: 'Notification center',
@@ -428,6 +479,9 @@ export const UI_EN: DeepStrings<typeof UI_ES> = {
   },
   userAsistente: {
     conversations: 'Conversations',
+    newChat: 'New chat',
+    draftChat: 'New conversation',
+    convEmpty: 'Your first message will create a chat with an auto title.',
     placeholder: 'Write a message…',
     send: 'Send',
     hint: 'The assistant uses your tasks to suggest the next step.',

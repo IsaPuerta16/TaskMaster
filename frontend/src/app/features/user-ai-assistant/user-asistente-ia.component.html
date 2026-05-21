@@ -20,21 +20,34 @@
               <span class="uai-panel__title-icon" aria-hidden="true">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               </span>
-              Conversaciones
+              {{ U().conversations }}
             </h2>
             <button
               type="button"
               class="uai-new-chat"
               (click)="startNewChat(); $event.stopPropagation()"
-              [disabled]="creatingConversation()"
             >
-              <span aria-hidden="true">+</span>
-              Nuevo chat
+              <span class="uai-new-chat__icon" aria-hidden="true">+</span>
+              <span class="uai-new-chat__label">{{ U().newChat }}</span>
             </button>
           </div>
           <ul class="uai-conv-list">
+            @if (conversations().length === 0 && !isDraftChat()) {
+              <li class="uai-conv-empty">{{ U().convEmpty }}</li>
+            }
+            @if (isDraftChat()) {
+              <li class="uai-conv-row uai-conv-row--active uai-conv-row--draft">
+                <div class="uai-conv-item uai-conv-item--draft">
+                  <span class="uai-conv-item__dot" aria-hidden="true"></span>
+                  <span class="uai-conv-item__text">{{ draftChatLabel() }}</span>
+                </div>
+              </li>
+            }
             @for (c of conversations(); track c.id) {
-              <li class="uai-conv-row" [class.uai-conv-row--active]="selectedId() === c.id">
+              <li
+                class="uai-conv-row"
+                [class.uai-conv-row--active]="!isDraftChat() && selectedId() === c.id"
+              >
                 <button
                   type="button"
                   class="uai-conv-item"
@@ -141,7 +154,7 @@
             <textarea
               id="uai-input"
               class="uai-compose__input"
-              rows="2"
+              rows="1"
               placeholder="Ejemplo: Ayúdame a organizar..."
               [ngModel]="draft()"
               (ngModelChange)="draft.set($event)"

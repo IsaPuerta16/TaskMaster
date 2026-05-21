@@ -16,7 +16,7 @@
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
-/* Tema oscuro: colores explícitos + señal `themeIsDark` (no solo variables en `html`) */
+
 .header.header--dark {
   background: rgba(15, 23, 42, 0.78);
   border-bottom-color: rgba(51, 65, 85, 0.85);
@@ -34,14 +34,14 @@
 }
 
 .header.header--dark.header--logo-underline .logo {
-  text-decoration-color: #93c5fd;
+  text-decoration-color: var(--app-link);
 }
 
 .header.header--dark .logo:hover {
-  color: #93c5fd;
+  color: var(--app-link);
 }
 
-/* Enlaces del header en escritorio: más apagados */
+
 @media (min-width: 1025px) {
   .header.header--dark .nav-link {
     color: #64748b;
@@ -49,12 +49,12 @@
 
   .header.header--dark .nav-link:hover,
   .header.header--dark .nav-link.active {
-    color: #93c5fd;
+    color: var(--app-link);
   }
 }
 
 .header.header--dark .nav-link::after {
-  background: #93c5fd;
+  background: var(--app-link);
 }
 
 .header.header--dark .search-bar {
@@ -63,9 +63,9 @@
 }
 
 .header.header--dark .search-bar:focus-within {
-  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.38);
+  box-shadow: 0 0 0 2px var(--app-header-focus-ring);
   background: #0f172a;
-  border-color: #93c5fd;
+  border-color: var(--app-link);
 }
 
 .header.header--dark .search-bar input {
@@ -85,7 +85,7 @@
 }
 
 .header.header--dark .user-icon:hover {
-  color: #93c5fd;
+  color: var(--app-link);
 }
 
 .logo {
@@ -165,9 +165,9 @@
 }
 
 .search-bar:focus-within {
-  box-shadow: 0 0 0 2px var(--app-header-focus-ring, rgba(30, 58, 95, 0.2));
+  box-shadow: 0 0 0 2px var(--app-header-focus-ring);
   background: var(--app-input-bg, #fff);
-  border-color: var(--app-link, #1e3a5f);
+  border-color: var(--app-link);
 }
 
 .search-icon {
@@ -199,7 +199,7 @@
 .user-icon:hover {
   color: var(--app-header-nav-active, var(--app-link));
   transform: scale(1.1);
-  background: rgba(30, 58, 95, 0.08);
+  background: var(--app-primary-soft);
 }
 
 .user-icon__hint {
@@ -230,12 +230,12 @@
   background: rgba(148, 163, 184, 0.12);
 }
 
-/* ——— Escritorio: sin botón hamburguesa (estructura actual) ——— */
+
 .header__menu-toggle {
   display: none;
 }
 
-/* ——— Tablet y móvil (≤1024px): menú desplegable bajo la barra (no drawer lateral) ——— */
+
 @media (max-width: 1024px) {
   .header__menu-toggle {
     display: inline-flex;
@@ -248,7 +248,7 @@
     border: none;
     background: transparent;
     border-radius: 10px;
-    color: var(--app-link, #1e3a5f);
+    color: var(--app-link);
     cursor: pointer;
     flex-shrink: 0;
     -webkit-tap-highlight-color: transparent;
@@ -260,7 +260,7 @@
     background: var(--app-muted-bg, #f1f5f9);
   }
 
-  /* Contraste alto: el azul suave casi desaparece sobre la barra oscura */
+  
   .header.header--dark .header__menu-toggle {
     color: #e2e8f0;
   }
@@ -314,7 +314,7 @@
     border-color: rgba(148, 163, 184, 0.35);
   }
 
-  /* Lista completa debajo de la fila superior + búsqueda (misma columna que las tres rayas) */
+  
   .nav {
     grid-column: 1 / -1;
     grid-row: 3;
@@ -374,7 +374,7 @@
   }
 
   .nav-link.active:hover {
-    background: rgba(30, 58, 95, 0.1);
+    background: var(--app-primary-soft);
   }
 
   .header.header--dark .nav-link {
@@ -387,14 +387,14 @@
   }
 
   .header.header--dark .nav-link.active {
-    background: rgba(96, 165, 250, 0.16);
-    color: #93c5fd;
-    box-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.22);
+    background: var(--app-primary-soft);
+    color: var(--app-link);
+    box-shadow: inset 0 0 0 1px var(--app-primary-ring);
   }
 
   .header.header--dark .nav-link.active:hover {
-    background: rgba(96, 165, 250, 0.22);
-    color: #bfdbfe;
+    background: var(--app-primary-soft);
+    color: var(--app-primary-hover);
   }
 
   .header.header--dark .logo {

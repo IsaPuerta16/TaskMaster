@@ -81,6 +81,9 @@ export class TaskFormComponent implements OnInit {
     if (e && typeof e.message === 'string') {
       return e.message;
     }
+    if (err.status === 500) {
+      return 'Error interno del servidor. Reinicia el backend e inténtalo de nuevo.';
+    }
     return 'No se pudo guardar la tarea.';
   }
 

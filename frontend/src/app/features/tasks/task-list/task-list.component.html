@@ -7,22 +7,40 @@
         <img class="tasks-hero__avatar" [src]="avatarUrl" width="96" height="96" alt="" />
         <div class="tasks-hero__text">
           <p class="tasks-hero__handle">{{ userHandle }}</p>
-          <p class="tasks-hero__subtitle">Gestiona tu cuenta</p>
+          <p class="tasks-hero__subtitle">{{ appSettings.ui().common.accountSubtitle }}</p>
         </div>
       </header>
       <div class="tasks-hero__rule" role="presentation"></div>
 
       <div class="tasks-toolbar">
-        <h1 class="tasks-toolbar__title">Mis Tareas</h1>
+        <h1 class="tasks-toolbar__title">{{ L().title }}</h1>
         <div class="tasks-toolbar__actions">
-          <div class="tasks-seg-group" role="group" aria-label="Filtrar por fecha">
+          <div class="tasks-view-seg" role="group" [attr.aria-label]="L().viewList + ' / ' + L().viewBoard">
+            <button
+              type="button"
+              class="tasks-view-btn"
+              [class.tasks-view-btn--active]="viewMode === 'lista'"
+              (click)="setViewMode('lista')"
+            >
+              {{ L().viewList }}
+            </button>
+            <button
+              type="button"
+              class="tasks-view-btn"
+              [class.tasks-view-btn--active]="viewMode === 'tablero'"
+              (click)="setViewMode('tablero')"
+            >
+              {{ L().viewBoard }}
+            </button>
+          </div>
+          <div class="tasks-seg-group" role="group" [attr.aria-label]="L().filterByDate">
             <button
               type="button"
               class="tasks-seg"
               [class.tasks-seg--active]="dateFilter === 'hoy'"
               (click)="setFilter('hoy')"
             >
-              Hoy
+              {{ L().today }}
             </button>
             <button
               type="button"
@@ -30,7 +48,7 @@
               [class.tasks-seg--active]="dateFilter === 'semana'"
               (click)="setFilter('semana')"
             >
-              Esta semana
+              {{ L().thisWeek }}
             </button>
             <button
               type="button"
@@ -38,71 +56,229 @@
               [class.tasks-seg--active]="dateFilter === 'todas'"
               (click)="setFilter('todas')"
             >
-              Todas
+              {{ L().all }}
+            </button>
+            <button
+              type="button"
+              class="tasks-seg tasks-seg--overdue"
+              [class.tasks-seg--active]="dateFilter === 'vencidas'"
+              (click)="setFilter('vencidas')"
+            >
+              {{ L().overdue }}
+              @if (overdueCount > 0) {
+                <span class="tasks-seg__count">{{ overdueCount }}</span>
+              }
+            </button>
+            <button
+              type="button"
+              class="tasks-seg"
+              [class.tasks-seg--active]="dateFilter === 'archivadas'"
+              (click)="setFilter('archivadas')"
+            >
+              {{ L().archived }}
             </button>
           </div>
-          <a routerLink="/tasks/new" class="tasks-toolbar__cta">+ Nueva tarea</a>
+          <a routerLink="/tasks/new" class="tasks-toolbar__cta">{{ L().newTask }}</a>
         </div>
       </div>
 
       @if (loading) {
-        <p class="tasks-state">Cargando…</p>
+        <p class="tasks-state">{{ appSettings.ui().common.loading }}</p>
       } @else if (filteredTasks.length === 0) {
         <p class="tasks-state">
-          No hay tareas en esta vista.
-          <a routerLink="/tasks/new" class="tasks-state__link">Crear una</a>
+          {{ emptyMessage() }}
+          @if (dateFilter !== 'vencidas') {
+            <a routerLink="/tasks/new" class="tasks-state__link">{{ L().createOne }}</a>
+          }
         </p>
+      } @else if (viewMode === 'tablero') {
+        <div class="tasks-kanban-wrap">
+          <div class="tasks-kanban-board">
+            <h2 class="tasks-kanban-board__title">{{ L().boardTitle }}</h2>
+
+            <div class="tasks-kanban-columns">
+              @for (col of kanbanColumns; track col.status) {
+                <div
+                  class="tasks-kanban-col"
+                  [class.tasks-kanban-col--pendiente]="col.status === 'pendiente'"
+                  [class.tasks-kanban-col--proceso]="col.status === 'en_proceso'"
+                  [class.tasks-kanban-col--hecho]="col.status === 'finalizada'"
+                >
+                  <h3 class="tasks-kanban-col__title">{{ col.title }}</h3>
+                  <div
+                    class="tasks-kanban-col__list"
+                    cdkDropList
+                    [id]="'kanban-' + col.status"
+                    [cdkDropListData]="col.tasks"
+                    [cdkDropListConnectedTo]="kanbanDropIds()"
+                    (cdkDropListDropped)="kanbanDrop($event, col.status)"
+                  >
+                    @if (col.tasks.length === 0) {
+                      <p class="tasks-kanban-col__empty">{{ L().colEmpty }}</p>
+                    }
+                    @for (task of col.tasks; track task.id) {
+                      <article
+                        class="tasks-kanban-card"
+                        [class.tasks-kanban-card--proceso]="col.status === 'en_proceso'"
+                        [class.tasks-kanban-card--hecho]="col.status === 'finalizada'"
+                        [class.tasks-kanban-card--overdue]="isOverdue(task)"
+                        cdkDrag
+                        [cdkDragDisabled]="isSavingStatus(task.id)"
+                      >
+                        <div class="tasks-kanban-card__placeholder" *cdkDragPlaceholder></div>
+                        @if (col.status === 'finalizada') {
+                          <span class="tasks-kanban-check" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                              <path d="M20 6L9 17l-5-5" />
+                            </svg>
+                          </span>
+                        } @else {
+                          <span
+                            class="tasks-kanban-dot"
+                            [class]="priorityDotClass(task.priority)"
+                            aria-hidden="true"
+                          ></span>
+                        }
+                        <div class="tasks-kanban-card__body">
+                          <a [routerLink]="['/tasks', task.id, 'edit']" class="tasks-kanban-card__title">
+                            {{ task.title }}
+                          </a>
+                          @if (task.priority !== 'baja' || task.description) {
+                            <div class="tasks-kanban-card__meta">
+                              @if (task.priority !== 'baja') {
+                                <span class="tasks-kanban-card__prio">{{ priorityLabel(task.priority) }}</span>
+                              }
+                              <span class="tasks-kanban-card__date">{{ datedTask(task) }}</span>
+                              @if (isOverdue(task)) {
+                                <span class="tasks-kanban-card__overdue">{{ L().overdueBadge }}</span>
+                              }
+                            </div>
+                          }
+                        </div>
+                        <div class="tasks-kanban-card__actions">
+                          <a
+                            [routerLink]="['/tasks', task.id, 'edit']"
+                            class="tasks-kanban-card__icon"
+                            [attr.aria-label]="L().edit"
+                          >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                            </svg>
+                          </a>
+                          <button
+                            type="button"
+                            class="tasks-kanban-card__icon"
+                            [attr.aria-label]="L().delete"
+                            (click)="deleteTask(task, $event)"
+                          >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            </svg>
+                          </button>
+                        </div>
+                      </article>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
       } @else {
         <ul class="tasks-grid">
-          @for (task of filteredTasks; track task.id; let i = $index) {
+          @for (task of filteredTasks; track task.id) {
             <li
               class="task-card"
+              [class.task-card--done]="isDone(task)"
+              [class.task-card--overdue]="isOverdue(task)"
               [class.task-card--pri-baja]="task.priority === 'baja'"
               [class.task-card--pri-media]="task.priority === 'media'"
               [class.task-card--pri-alta]="task.priority === 'alta'"
               [class.task-card--pri-urgente]="task.priority === 'urgente'"
-              [attr.aria-label]="task.title + ', prioridad ' + priorityLabel(task.priority)"
+              [attr.aria-label]="task.title + ', ' + priorityLabel(task.priority)"
             >
-              <div class="task-card__top">
-                <span class="task-card__deco" aria-hidden="true">
-                  @switch (i % 4) {
-                    @case (0) {
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8M8 11h6"/></svg>
-                    }
-                    @case (1) {
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
-                    }
-                    @case (2) {
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
-                    }
-                    @default {
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="7"/><path d="M12 5v3M12 16v3M5 12h3M16 12h3"/><circle cx="12" cy="12" r="2"/></svg>
-                    }
-                  }
-                </span>
-                <div class="task-card__actions">
-                  <a [routerLink]="['/tasks', task.id, 'edit']" class="task-card__icon-btn" aria-label="Editar">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                  </a>
-                  <button type="button" class="task-card__icon-btn" aria-label="Eliminar" (click)="deleteTask(task, $event)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                  </button>
+              <div class="task-card__body">
+                <div class="task-card__top">
+                  <div class="task-card__leading">
+                    <label class="task-card__check" [class.task-card__check--done]="isDone(task)">
+                      <input
+                        type="checkbox"
+                        class="task-card__check-input"
+                        [checked]="isDone(task)"
+                        [disabled]="isSavingStatus(task.id)"
+                        [attr.aria-label]="isDone(task) ? L().markUndone : L().markDone"
+                        (change)="toggleDone(task, $event)"
+                      />
+                      <span class="task-card__check-ui" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <path d="M20 6L9 17l-5-5" />
+                        </svg>
+                      </span>
+                    </label>
+                    <span class="task-card__emoji" aria-hidden="true">{{ categoryEmoji(task) }}</span>
+                  </div>
+                  <div class="task-card__actions">
+                    <a
+                      [routerLink]="['/tasks', task.id, 'edit']"
+                      class="task-card__action task-card__action--edit"
+                      [attr.aria-label]="L().edit"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                      </svg>
+                    </a>
+                    <button
+                      type="button"
+                      class="task-card__action task-card__action--delete"
+                      [attr.aria-label]="L().delete"
+                      (click)="deleteTask(task, $event)"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
+
+                <a
+                  [routerLink]="['/tasks', task.id, 'edit']"
+                  class="task-card__title"
+                  [class.task-card__title--done]="isDone(task)"
+                >
+                  {{ task.title }}
+                </a>
+                <p class="task-card__time">
+                  <span [class.task-card__date--overdue]="isOverdue(task)">{{ datedTask(task) }}</span>
+                  @if (isOverdue(task)) {
+                    <span class="task-card__overdue-badge">{{ L().overdueBadge }}</span>
+                  }
+                  <span
+                    class="task-card__priority"
+                    [class.task-card__priority--baja]="task.priority === 'baja'"
+                    [class.task-card__priority--media]="task.priority === 'media'"
+                    [class.task-card__priority--alta]="task.priority === 'alta'"
+                    [class.task-card__priority--urgente]="task.priority === 'urgente'"
+                  >
+                    {{ priorityLabel(task.priority) }}
+                  </span>
+                </p>
+                @if (task.project) {
+                  <p class="task-card__meta-line">{{ L().project }}: {{ task.project }}</p>
+                }
+                @if (showSnoozeActions(task)) {
+                  <div class="task-card__snooze">
+                    <button type="button" class="task-card__snooze-btn" (click)="snooze(task, 'tomorrow', $event)">{{ L().snoozeTomorrow }}</button>
+                    <button type="button" class="task-card__snooze-btn" (click)="snooze(task, { days: 3 }, $event)">{{ L().snooze3days }}</button>
+                    <button type="button" class="task-card__snooze-btn" (click)="snooze(task, 'next_week', $event)">{{ L().snoozeWeek }}</button>
+                    <button type="button" class="task-card__snooze-btn" (click)="archiveTask(task, $event)">{{ L().archive }}</button>
+                  </div>
+                }
+                @if (task.description) {
+                  <p class="task-card__desc">{{ task.description }}</p>
+                }
               </div>
-              <a [routerLink]="['/tasks', task.id, 'edit']" class="task-card__title-link">{{ task.title }}</a>
-              <span
-                class="task-card__priority"
-                [class.task-card__priority--baja]="task.priority === 'baja'"
-                [class.task-card__priority--media]="task.priority === 'media'"
-                [class.task-card__priority--alta]="task.priority === 'alta'"
-                [class.task-card__priority--urgente]="task.priority === 'urgente'"
-              >
-                {{ priorityLabel(task.priority) }}
-              </span>
-              <p class="task-card__time">{{ datedTask(task) }}</p>
-              @if (task.description) {
-                <p class="task-card__desc">{{ task.description }}</p>
-              }
             </li>
           }
         </ul>

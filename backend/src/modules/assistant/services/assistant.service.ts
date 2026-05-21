@@ -13,6 +13,7 @@ import {
   normalizeAssistantWebhookReply,
   type AssistantWebhookReply,
 } from '../utils/assistant-webhook-reply.util';
+import { buildConversationTitleFromMessage } from '../utils/conversation-title.util';
 
 type AssistantReply = AssistantWebhookReply;
 const NEW_CONVERSATION_TITLE = 'Nuevo chat';
@@ -35,7 +36,21 @@ export class AssistantService {
       order: { updatedAt: 'DESC' },
     });
 
-    return conversations.map((conversation) => ({
+    const visible: AssistantConversation[] = [];
+    for (const conversation of conversations) {
+      if (conversation.title === NEW_CONVERSATION_TITLE) {
+        const count = await this.messageRepo.count({
+          where: { conversationId: conversation.id },
+        });
+        if (count === 0) {
+          await this.conversationRepo.delete({ id: conversation.id, userId });
+          continue;
+        }
+      }
+      visible.push(conversation);
+    }
+
+    return visible.map((conversation) => ({
       id: conversation.id,
       label: conversation.title,
       updatedAt: conversation.updatedAt,
@@ -93,7 +108,10 @@ export class AssistantService {
 
     const conversation = payload.conversationId
       ? await this.findConversationOrFail(user.id, payload.conversationId)
-      : await this.createConversation(user.id, this.buildConversationTitle(messageText));
+      : await this.createConversation(
+          user.id,
+          buildConversationTitleFromMessage(messageText),
+        );
     const shouldRetitleConversation =
       Boolean(payload.conversationId) &&
       conversation.title === NEW_CONVERSATION_TITLE &&
@@ -102,7 +120,7 @@ export class AssistantService {
       })) === 0;
 
     if (shouldRetitleConversation) {
-      conversation.title = this.buildConversationTitle(messageText);
+      conversation.title = buildConversationTitleFromMessage(messageText);
       await this.conversationRepo.save(conversation);
     }
 
@@ -179,11 +197,6 @@ export class AssistantService {
     return conversation;
   }
 
-  private buildConversationTitle(message: string) {
-    const clean = message.replace(/\s+/g, ' ').trim();
-    return clean.length > 48 ? `${clean.slice(0, 45)}...` : clean;
-  }
-/* 'El asistente todavía no está conectado a n8n. Agrega `N8N_WEBHOOK_URL` en el backend para activarlo.', */
   private async generateAssistantReply(
     user: User,
     conversation: AssistantConversation,

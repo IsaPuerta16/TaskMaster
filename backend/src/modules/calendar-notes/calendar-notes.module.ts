@@ -8,6 +8,5 @@ import { CalendarNotesService } from './services/calendar-notes.service';
   imports: [TypeOrmModule.forFeature([CalendarDayNote])],
   controllers: [CalendarNotesController],
   providers: [CalendarNotesService],
-  exports: [CalendarNotesService],
 })
 export class CalendarNotesModule {}

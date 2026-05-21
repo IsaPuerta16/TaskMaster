@@ -9,9 +9,25 @@
       <p class="buscar__meta">Explora las secciones del sitio. Escribe arriba para filtrar.</p>
     }
 
-    @if (results().length === 0) {
+    @if (taskHits().length > 0) {
+      <section class="buscar__tasks" aria-label="Tareas encontradas">
+        <h2 class="buscar__subtitle">Mis tareas</h2>
+        <ul class="buscar__list">
+          @for (hit of taskHits(); track hit.id) {
+            <li>
+              <a [routerLink]="['/tasks', hit.id, 'edit']" class="buscar__link buscar__link--task">
+                <span class="buscar__link-title">{{ hit.title }}</span>
+                <span class="buscar__link-desc">{{ hit.status }} · {{ hit.dueDate | date: 'short' }}</span>
+              </a>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    @if (results().length === 0 && taskHits().length === 0) {
       <p class="buscar__empty">No hay resultados. Prueba con otras palabras (por ejemplo: tareas, IA, nosotros).</p>
-    } @else {
+    } @else if (results().length > 0) {
       <ul class="buscar__list">
         @for (item of results(); track item.route) {
           <li>

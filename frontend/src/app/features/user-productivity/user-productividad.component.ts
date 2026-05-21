@@ -7,6 +7,7 @@ import { AppSettingsService } from '@core/services/app-settings.service';
 import { AppSidebarComponent } from '@shared/layout';
 import type { Task, TaskPriority, TaskStats } from '@features/tasks/data-access';
 import type { ProductividadRange } from '@core/productividad-settings';
+import { buildWeeklyReportText, downloadTextFile } from '@core/utils/task-export.util';
 
 const PRIORITY_LABEL_EN: Record<TaskPriority, string> = {
   urgente: 'Urgent',
@@ -30,6 +31,7 @@ export class UserProductividadComponent implements OnInit {
   readonly tasks = signal<Task[]>([]);
   readonly insights = signal<string[]>([]);
   readonly loading = signal(true);
+  readonly reportLoading = signal(false);
   readonly range = this.appSettings.productividadRange;
   readonly prodPrefs = this.appSettings.productividadPrefs;
 
@@ -71,7 +73,7 @@ export class UserProductividadComponent implements OnInit {
 
   readonly streakDays = computed(() => this.computeStreak(this.tasks()));
 
-  /** Una barra por día (últimos 7 o 14 muestras según rango) */
+  
   readonly activityBars = computed(() => {
     this.appSettings.settings();
     const days = this.range() === '7' ? 7 : 14;
@@ -118,7 +120,7 @@ export class UserProductividadComponent implements OnInit {
     const colors: Record<TaskPriority, string> = {
       urgente: '#ef4444',
       alta: '#f97316',
-      media: '#3b82f6',
+      media: '#1e3a5f',
       baja: '#22c55e',
     };
     const en = this.appSettings.isEnglish();
@@ -143,7 +145,7 @@ export class UserProductividadComponent implements OnInit {
     this.prioritySlices().every((s) => s.count === 0),
   );
 
-  /** Total de tareas pendientes en el periodo (número central del donut). */
+  
   readonly totalPendingInRange = computed(() => {
     const list = this.tasksInRangeList();
     return list.filter((t) => t.status !== 'finalizada').length;
@@ -179,6 +181,25 @@ export class UserProductividadComponent implements OnInit {
 
   setRange(r: ProductividadRange): void {
     this.appSettings.setProductividadRange(r);
+  }
+
+  readonly R = computed(() => this.appSettings.ui().productividadPage);
+
+  downloadWeeklyReport(): void {
+    if (this.reportLoading()) return;
+    this.reportLoading.set(true);
+    this.taskService.getStats().subscribe({
+      next: (stats) => {
+        const text = buildWeeklyReportText(this.tasks(), stats);
+        downloadTextFile(
+          `informe-semanal-${new Date().toISOString().slice(0, 10)}.txt`,
+          text,
+          'text/plain;charset=utf-8',
+        );
+        this.reportLoading.set(false);
+      },
+      error: () => this.reportLoading.set(false),
+    });
   }
 
   private startOfRange(days: number): Date {

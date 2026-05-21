@@ -2,24 +2,15 @@ import { Component, computed, inject } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { FooterComponent } from '@shared/layout';
 import { AppSettingsService } from '@core/services/app-settings.service';
-
-/** Avatares ilustrados (DiceBear, estilo cartoon); cada seed genera un personaje estable. */
-function avatarCartoon(seed: string): string {
-  const params = new URLSearchParams({
-    seed,
-    size: '128',
-    radius: '50',
-  });
-  return `https://api.dicebear.com/7.x/avataaars/svg?${params.toString()}`;
-}
+import { avatarUrlFromName } from '@core/utils/avatar-from-name.util';
 
 const VARIANTS = ['a', 'b', 'c', 'd'] as const;
 
 export interface TeamMemberView {
   name: string;
   role: string;
+  imageUrl: string;
   variant: (typeof VARIANTS)[number];
-  avatarUrl: string;
 }
 
 @Component({
@@ -38,8 +29,8 @@ export class NosotrosComponent {
     this.F().team.members.map((m, i) => ({
       name: m.name,
       role: m.role,
+      imageUrl: avatarUrlFromName(m.name, m.name),
       variant: VARIANTS[i % 4],
-      avatarUrl: avatarCartoon(m.name),
     })),
   );
 

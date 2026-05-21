@@ -155,7 +155,7 @@ $teal: #14b8a6;
 }
 
 :host-context(html[data-theme='dark']) .un-mark-all {
-  color: #93c5fd;
+  color: var(--app-link);
 }
 
 .un-mark-all:hover {
@@ -280,7 +280,7 @@ $teal: #14b8a6;
 
 .un-item__icon--target {
   background: #eff6ff;
-  color: #2563eb;
+  color: var(--app-primary);
 }
 
 .un-item__icon--calendar {
@@ -299,8 +299,8 @@ $teal: #14b8a6;
 }
 
 :host-context(html[data-theme='dark']) .un-item__icon--target {
-  background: rgba(59, 130, 246, 0.18);
-  color: #93c5fd;
+  background: var(--app-primary-soft);
+  color: var(--app-link);
 }
 
 :host-context(html[data-theme='dark']) .un-item__icon--calendar {
@@ -352,7 +352,7 @@ $teal: #14b8a6;
 }
 
 .un-item__mark:hover {
-  color: #0d9488;
+  color: var(--app-accent);
 }
 
 :host-context(html[data-theme='dark']) .un-item__mark:hover {

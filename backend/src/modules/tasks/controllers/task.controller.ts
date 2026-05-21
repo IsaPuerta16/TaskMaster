@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Body,
   Param,
@@ -13,6 +14,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { TaskService } from '../services/task.service';
 import { CreateTaskDto } from '../dto/create-task.dto';
 import { UpdateTaskDto } from '../dto/update-task.dto';
+import { SnoozeTaskDto } from '../dto/snooze-task.dto';
 import { User } from '../../users/entities/user.entity';
 import { GetUser } from '../../../common/decorators/get-user.decorator';
 
@@ -32,8 +34,9 @@ export class TaskController {
     @Query('status') status?: string,
     @Query('from') from?: string,
     @Query('to') to?: string,
+    @Query('archived') archived?: string,
   ) {
-    return this.taskService.findAll(user.id, status as any, from, to);
+    return this.taskService.findAll(user.id, status as any, from, to, archived);
   }
 
   @Get('stats')
@@ -53,6 +56,20 @@ export class TaskController {
     @GetUser() user: User,
   ) {
     return this.taskService.update(id, user.id, dto);
+  }
+
+  @Post(':id/snooze')
+  snooze(
+    @Param('id') id: string,
+    @Body() dto: SnoozeTaskDto,
+    @GetUser() user: User,
+  ) {
+    return this.taskService.snooze(id, user.id, dto);
+  }
+
+  @Patch(':id/archive')
+  archive(@Param('id') id: string, @GetUser() user: User) {
+    return this.taskService.archive(id, user.id);
   }
 
   @Delete(':id')

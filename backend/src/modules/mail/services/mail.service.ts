@@ -9,20 +9,22 @@ import * as nodemailer from 'nodemailer';
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private readonly transporter: nodemailer.Transporter;
+  private readonly transporter: nodemailer.Transporter | null;
 
   constructor(private readonly configService: ConfigService) {
-    const host = this.configService.get<string>('SMTP_HOST');
+    const host = this.configService.get<string>('SMTP_HOST')?.trim();
     const port = Number(this.configService.get<string>('SMTP_PORT') ?? 587);
     const secure =
       this.configService.get<string>('SMTP_SECURE')?.toLowerCase() === 'true';
-    const user = this.configService.get<string>('SMTP_USER');
-    const pass = this.configService.get<string>('SMTP_PASS');
+    const user = this.configService.get<string>('SMTP_USER')?.trim();
+    const pass = this.configService.get<string>('SMTP_PASS')?.trim();
 
     if (!host || !user || !pass) {
-      throw new Error(
-        'Faltan variables SMTP_HOST, SMTP_USER o SMTP_PASS en el archivo .env',
+      this.transporter = null;
+      this.logger.warn(
+        'SMTP no configurado (SMTP_HOST, SMTP_USER, SMTP_PASS): el envío por correo está desactivado.',
       );
+      return;
     }
 
     this.transporter = nodemailer.createTransport({
@@ -42,6 +44,11 @@ export class MailService {
     html: string,
     text?: string,
   ): Promise<void> {
+    if (!this.transporter) {
+      this.logger.debug(`Correo omitido (SMTP off): ${subject} → ${to}`);
+      return;
+    }
+
     const from =
       this.configService.get<string>('MAIL_FROM') ??
       this.configService.get<string>('SMTP_USER');
@@ -98,6 +105,54 @@ export class MailService {
     const text = `Hola, ${userName}. Te recordamos que la tarea "${taskTitle}" vence el ${formattedDate}. Ingresa a TaskMaster para revisar los detalles.`;
 
     await this.sendMail(to, subject, html, text);
+  }
+
+  async sendOverdueTaskEmail(params: {
+    to: string;
+    userName: string;
+    taskTitle: string;
+    dueDate: Date;
+  }): Promise<void> {
+    const { to, userName, taskTitle, dueDate } = params;
+    const formattedDate = dueDate.toLocaleString('es-CO', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+      timeZone: 'America/Bogota',
+    });
+    const appUrl =
+      this.configService.get<string>('FRONTEND_URL') ??
+      'http://localhost:4200';
+    const subject = 'Tarea vencida - TaskMaster';
+    const safeUser = this.escapeHtml(userName);
+    const safeTitle = this.escapeHtml(taskTitle);
+    const html = `
+      <p>Hola, ${safeUser}.</p>
+      <p>La tarea <strong>${safeTitle}</strong> está vencida desde el ${this.escapeHtml(formattedDate)}.</p>
+      <p><a href="${appUrl}/tasks?filter=vencidas">Ver tareas vencidas en TaskMaster</a></p>
+    `;
+    const text = `Hola, ${userName}. La tarea "${taskTitle}" está vencida (${formattedDate}).`;
+    await this.sendMail(to, subject, html, text);
+  }
+
+  async sendPasswordResetEmail(params: {
+    to: string;
+    userName: string;
+    token: string;
+  }): Promise<void> {
+    const appUrl =
+      this.configService.get<string>('FRONTEND_URL') ??
+      'http://localhost:4200';
+    const link = `${appUrl}/reset-password?token=${encodeURIComponent(params.token)}`;
+    const subject = 'Restablecer contraseña - TaskMaster';
+    const safeUser = this.escapeHtml(params.userName);
+    const html = `
+      <p>Hola, ${safeUser}.</p>
+      <p>Recibimos una solicitud para restablecer tu contraseña en TaskMaster.</p>
+      <p><a href="${link}">Restablecer contraseña</a></p>
+      <p>El enlace expira en 1 hora. Si no solicitaste esto, ignora este correo.</p>
+    `;
+    const text = `Restablece tu contraseña en: ${link}`;
+    await this.sendMail(params.to, subject, html, text);
   }
 
   private buildTaskReminderEmailHtml(params: {

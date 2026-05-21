@@ -28,11 +28,13 @@ export class TaskReminderService {
       where: [
         {
           status: TaskStatus.PENDIENTE,
+          isArchived: false,
           reminderEmailSentAt: IsNull(),
           dueDate: Between(now, reminderLimit),
         },
         {
           status: TaskStatus.EN_PROCESO,
+          isArchived: false,
           reminderEmailSentAt: IsNull(),
           dueDate: Between(now, reminderLimit),
         },

@@ -95,8 +95,8 @@
 
 .dashboard-calendar__select:focus {
   outline: none;
-  box-shadow: 0 0 0 2px var(--app-header-focus-ring, rgba(30, 58, 95, 0.2));
-  border-color: var(--app-link, #1e3a5f);
+  box-shadow: 0 0 0 2px var(--app-header-focus-ring);
+  border-color: var(--app-link);
 }
 
 .dashboard-calendar__today-btn {
@@ -124,7 +124,7 @@
   border-radius: 8px;
   border: 1px solid transparent;
   background: transparent;
-  color: var(--app-link, #1e3a5f);
+  color: var(--app-link);
   font-family: var(--font-family);
   font-size: 0.88rem;
   font-weight: 600;
@@ -194,7 +194,7 @@
 
 .dashboard-calendar__title-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--app-header-focus-ring, rgba(30, 58, 95, 0.25));
+  box-shadow: 0 0 0 2px var(--app-header-focus-ring);
 }
 
 .dashboard-calendar__title {
@@ -225,7 +225,7 @@
   min-width: 900px;
 }
 
-/* Móvil: la tabla cabe en el ancho (sin columnas microscópicas por scroll forzado) */
+
 @media (max-width: 767px) {
   .dashboard-calendar__wrap {
     overflow-x: visible;
@@ -340,7 +340,7 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  min-height: 5.25rem;
+  min-height: 6rem;
   padding: 0.4rem 0.45rem 0.5rem;
   box-sizing: border-box;
 }
@@ -383,7 +383,7 @@
 }
 
 .dashboard-calendar__day--holiday .dashboard-calendar__day-num {
-  color: #b91c1c;
+  color: var(--app-danger-hover);
   font-weight: 700;
 }
 
@@ -402,11 +402,98 @@
 }
 
 .dashboard-calendar__day--today.dashboard-calendar__day--holiday .dashboard-calendar__day-num {
-  color: #b91c1c;
+  color: var(--app-danger-hover);
+}
+
+.dashboard-calendar__hint {
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+  color: var(--app-text-muted);
+  line-height: 1.4;
+}
+
+.dashboard-calendar__task-drop {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+  min-height: 1.5rem;
+  margin-top: 0.2rem;
+}
+
+.dashboard-calendar__task-drop.cdk-drop-list-dragging,
+.dashboard-calendar__task-drop.cdk-drop-list-receiving {
+  background: var(--app-primary-soft);
+  border-radius: 6px;
+  outline: 1px dashed var(--app-primary);
+}
+
+.dashboard-calendar__task-chip {
+  display: flex;
+  align-items: center;
+  padding: 0.15rem 0.35rem;
+  border-radius: 6px;
+  border: 1px solid rgba(13, 148, 136, 0.35);
+  background: var(--app-accent-muted);
+  color: var(--app-accent-hover);
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: grab;
+  max-width: 100%;
+}
+
+.dashboard-calendar__task-chip:active {
+  cursor: grabbing;
+}
+
+.dashboard-calendar__task-chip--alta {
+  border-color: rgba(249, 115, 22, 0.45);
+  background: rgba(249, 115, 22, 0.12);
+  color: var(--app-warning);
+}
+
+.dashboard-calendar__task-chip--urgente {
+  border-color: rgba(220, 38, 38, 0.45);
+  background: rgba(220, 38, 38, 0.12);
+  color: var(--app-danger-hover);
+}
+
+.dashboard-calendar__task-chip--overdue {
+  border-color: rgba(220, 38, 38, 0.5);
+  background: rgba(220, 38, 38, 0.14);
+  color: #dc2626;
+}
+
+.dashboard-calendar__task-chip-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-calendar__task-chip.cdk-drag-preview {
+  box-shadow: var(--app-shadow-md);
+  cursor: grabbing;
+}
+
+.dashboard-calendar__modal-hint {
+  margin: 0.25rem 0 0;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--app-text-muted);
+}
+
+.day-modal__card.cdk-drag-preview {
+  box-shadow: var(--app-shadow-md);
+  opacity: 0.95;
+}
+
+.day-modal__card-list.cdk-drop-list-dragging .day-modal__card:not(.cdk-drag-placeholder) {
+  transition: transform 0.15s ease;
 }
 
 .dashboard-calendar__day--has-tasks {
-  box-shadow: inset 0 0 0 1px rgba(13, 148, 136, 0.28);
+  box-shadow: inset 0 0 0 1px var(--app-accent-muted);
 }
 
 .dashboard-calendar__day--has-preview {
@@ -426,8 +513,8 @@
   margin-top: 0.25rem;
   padding: 0.18rem 0.35rem;
   border-radius: 999px;
-  background: rgba(13, 148, 136, 0.12);
-  color: #0f766e;
+  background: var(--app-accent-muted);
+  color: var(--app-accent-hover);
   font-size: 0.62rem;
   font-weight: 700;
   line-height: 1.15;
@@ -437,8 +524,29 @@
   width: 0.38rem;
   height: 0.38rem;
   border-radius: 50%;
-  background: #0d9488;
+  background: var(--app-accent);
   flex-shrink: 0;
+}
+
+.dashboard-calendar__overdue-badge {
+  align-self: flex-start;
+  display: inline-block;
+  max-width: 100%;
+  margin-top: 0.2rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(220, 38, 38, 0.14);
+  color: #dc2626;
+  font-size: 0.6rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+:host-context(html[data-theme='dark']) .dashboard-calendar__overdue-badge {
+  background: rgba(248, 113, 113, 0.18);
+  color: #fca5a5;
 }
 
 .dashboard-calendar__task-preview {
@@ -456,12 +564,12 @@
 }
 
 :host-context(html[data-theme='dark']) .dashboard-calendar__task-badge {
-  background: rgba(45, 212, 191, 0.14);
-  color: #5eead4;
+  background: var(--app-accent-muted);
+  color: var(--app-accent);
 }
 
 :host-context(html[data-theme='dark']) .dashboard-calendar__task-dot {
-  background: #5eead4;
+  background: var(--app-accent);
 }
 
 .day-modal-backdrop {
@@ -525,7 +633,7 @@
   color: #dc2626;
 }
 
-.day-modal__tasks {
+.day-modal__block {
   margin-bottom: 1rem;
 }
 
@@ -536,104 +644,190 @@
   color: var(--app-text-muted);
 }
 
-.day-modal__task-list {
+.day-modal__card-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  max-height: 160px;
+  gap: 0.45rem;
+  max-height: 200px;
   overflow-y: auto;
 }
 
-.day-modal__task {
+.day-modal__card {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   gap: 0.55rem;
-  padding: 0.55rem 0.65rem;
-  border-radius: 10px;
-  border: 1px solid rgba(13, 148, 136, 0.22);
-  background: rgba(13, 148, 136, 0.08);
+  padding: 0.6rem 0.7rem;
+  border-radius: 12px;
+  border: 1px solid transparent;
 }
 
-.day-modal__task-priority {
+.day-modal__card--task {
+  border-color: var(--app-accent-muted);
+  background: var(--app-accent-soft);
+}
+
+.day-modal__card--task.day-modal__card--overdue {
+  border-color: rgba(225, 29, 72, 0.35);
+  background: var(--app-danger-soft);
+}
+
+.day-modal__card-dot--overdue {
+  background: #dc2626 !important;
+}
+
+.day-modal__card-overdue-label {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.day-modal__overdue-alert {
+  margin: 0 0 1rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 10px;
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  background: rgba(220, 38, 38, 0.08);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--app-text);
+  line-height: 1.4;
+}
+
+.day-modal__overdue-link {
+  color: #dc2626;
+  font-weight: 700;
+  text-decoration: underline;
+  margin-left: 0.25rem;
+}
+
+.day-modal__overdue-link:hover {
+  color: var(--app-danger-hover);
+}
+
+.day-modal__card--event {
+  border-color: var(--app-primary-ring);
+  background: var(--app-primary-soft);
+}
+
+.day-modal__card-dot {
   width: 0.55rem;
   height: 0.55rem;
-  margin-top: 0.3rem;
+  margin-top: 0.35rem;
   border-radius: 50%;
-  background: #0d9488;
+  background: var(--app-accent);
   flex-shrink: 0;
 }
 
-.day-modal__task-priority--alta {
-  background: #f59e0b;
+.day-modal__card-dot--alta {
+  background: var(--app-warning);
 }
 
-.day-modal__task-priority--urgente {
+.day-modal__card-dot--urgente {
   background: #dc2626;
 }
 
-.day-modal__task-body {
+.day-modal__card-dot--event {
+  background: var(--app-accent-solid);
+}
+
+.day-modal__card-body {
+  flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
 }
 
-.day-modal__task-title {
+.day-modal__card-title {
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--app-text);
   overflow-wrap: anywhere;
-}
-
-.day-modal__task-meta {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--app-text-muted);
-  text-transform: capitalize;
-}
-
-.day-modal__list {
-  list-style: none;
-  margin: 0 0 1rem;
-  padding: 0;
-  max-height: 180px;
-  overflow-y: auto;
-}
-
-.day-modal__item {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.5rem 0.65rem;
-  margin-bottom: 0.35rem;
-  background: var(--app-muted-bg);
-  border-radius: 10px;
-  font-size: 0.9rem;
-  word-break: break-word;
-}
-
-.day-modal__item-text {
-  flex: 1;
   white-space: pre-wrap;
 }
 
-.day-modal__remove {
-  flex-shrink: 0;
-  border: none;
-  background: transparent;
+.day-modal__card-meta {
+  font-size: 0.72rem;
+  font-weight: 600;
   color: var(--app-text-muted);
-  cursor: pointer;
-  font-size: 1.1rem;
-  line-height: 1;
-  padding: 0 0.15rem;
 }
 
-.day-modal__remove:hover {
+.day-modal__card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  width: 100%;
+  padding-left: 1.1rem;
+}
+
+.day-modal__action-btn {
+  border: 1px solid var(--app-border-strong);
+  border-radius: 8px;
+  background: var(--app-input-bg);
+  color: var(--app-text);
+  font-family: var(--font-family);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.3rem 0.55rem;
+  cursor: pointer;
+}
+
+.day-modal__action-btn:hover {
+  background: var(--app-muted-bg);
+}
+
+.day-modal__action-btn--primary {
+  border-color: var(--app-primary);
+  background: var(--app-primary);
+  color: #fff;
+}
+
+.day-modal__action-btn--primary:hover {
+  filter: brightness(1.05);
+}
+
+.day-modal__action-btn--danger {
+  border-color: rgba(220, 38, 38, 0.35);
   color: #dc2626;
+}
+
+.day-modal__action-btn--danger:hover {
+  background: rgba(220, 38, 38, 0.08);
+}
+
+.day-modal__card-edit {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.day-modal__card-edit-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 10px;
+  padding: 0.55rem 0.65rem;
+  font-family: var(--font-family);
+  font-size: 0.9rem;
+  resize: vertical;
+  background: var(--app-input-bg);
+  color: var(--app-text);
+}
+
+.day-modal__card-edit-input:focus {
+  outline: none;
+  border-color: var(--app-primary);
+  box-shadow: 0 0 0 2px var(--app-primary-ring);
+}
+
+.day-modal__card-edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
 }
 
 .day-modal__label {
@@ -642,6 +836,93 @@
   font-weight: 600;
   color: var(--app-text-muted);
   margin-bottom: 0.35rem;
+}
+
+.day-modal__type-field {
+  border: none;
+  margin: 0 0 0.85rem;
+  padding: 0;
+}
+
+.day-modal__type-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+  margin-bottom: 0.4rem;
+}
+
+.day-modal__type-btn {
+  border: 1px solid var(--app-border-strong);
+  border-radius: 10px;
+  background: var(--app-input-bg);
+  color: var(--app-text-muted);
+  font-family: var(--font-family);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.5rem 0.65rem;
+  cursor: pointer;
+}
+
+.day-modal__type-btn--active {
+  border-color: var(--app-primary);
+  background: var(--app-primary-soft);
+  color: var(--app-primary);
+}
+
+.day-modal__type-hint {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--app-text-muted);
+}
+
+.day-modal__task-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+@media (max-width: 420px) {
+  .day-modal__task-meta {
+    grid-template-columns: 1fr;
+  }
+}
+
+.day-modal__task-meta-field {
+  min-width: 0;
+}
+
+.day-modal__task-meta-field .day-modal__label {
+  margin-bottom: 0.35rem;
+}
+
+.day-modal__select,
+.day-modal__time {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 10px;
+  padding: 0.5rem 0.65rem;
+  font-family: var(--font-family);
+  font-size: 0.9rem;
+  background: var(--app-input-bg);
+  color: var(--app-text);
+}
+
+.day-modal__select--inline {
+  margin-bottom: 0;
+}
+
+.day-modal__time {
+  margin-bottom: 0;
+}
+
+.day-modal__error {
+  margin: -0.35rem 0 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #dc2626;
 }
 
 .day-modal__emoji-row {
@@ -683,8 +964,8 @@
 
 .day-modal__textarea:focus {
   outline: none;
-  border-color: var(--app-accent-solid);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  border-color: var(--app-primary);
+  box-shadow: 0 0 0 2px var(--app-primary-ring);
 }
 
 .day-modal__add {
@@ -692,7 +973,7 @@
   padding: 0.65rem 1rem;
   border: none;
   border-radius: 12px;
-  background: var(--app-accent-solid);
+  background: var(--app-primary);
   color: #fff;
   font-family: var(--font-family);
   font-size: 0.95rem;
@@ -700,8 +981,13 @@
   cursor: pointer;
 }
 
-.day-modal__add:hover {
+.day-modal__add:hover:not(:disabled) {
   filter: brightness(1.05);
+}
+
+.day-modal__add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 @media (max-width: 960px) {

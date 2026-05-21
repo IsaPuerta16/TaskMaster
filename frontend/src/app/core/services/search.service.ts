@@ -10,14 +10,14 @@ function fold(s: string): string {
 
 @Injectable({ providedIn: 'root' })
 export class SearchService {
-  /** Texto actual del buscador (sincronizado con la ruta /buscar?q=). */
+  
   readonly query = signal('');
 
   setQuery(value: string): void {
     this.query.set(value);
   }
 
-  /** Filtra el índice por término (vacío = todo el índice). */
+  
   searchResults(term: string): SearchableItem[] {
     const raw = term.trim();
     if (!raw) {

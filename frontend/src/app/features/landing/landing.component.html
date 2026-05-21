@@ -5,7 +5,11 @@
       <h2 class="hero-banner-subtitle">{{ L().heroSubtitle }}</h2>
       <p class="hero-banner-desc">{{ L().heroDesc }}</p>
       <div class="hero-banner-buttons">
-        <a routerLink="/register" class="btn btn-dark">{{ L().btnCreate }}</a>
+        @if (auth.isAuthenticated()) {
+          <a [routerLink]="tasksRoute" class="btn btn-dark">{{ L().btnGoTasks }}</a>
+        } @else {
+          <a routerLink="/register" class="btn btn-dark">{{ L().btnCreate }}</a>
+        }
         <a href="#beneficios" class="btn btn-outline-light">{{ L().btnExplore }}</a>
       </div>
     </section>

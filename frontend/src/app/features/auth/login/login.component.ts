@@ -1,7 +1,11 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+import { AUTH_DEFAULT_ROUTE } from '@core/constants/auth-default-route';
 import { AuthService } from '@core/services/auth.service';
 import { safeInternalPath } from '@core/utils/return-url';
 
@@ -28,12 +32,12 @@ import { safeInternalPath } from '@core/utils/return-url';
                 id="login-email"
                 type="email"
                 formControlName="email"
-                placeholder="Correo Electronico"
+                placeholder="Correo electrónico"
                 autocomplete="email"
               />
             </div>
             @if (form.get('email')?.invalid && form.get('email')?.touched) {
-              <span class="login-error">Correo inválido</span>
+              <span class="login-error">Introduce un correo válido (ej. nombre&#64;correo.com)</span>
             }
 
             <div class="login-field">
@@ -56,7 +60,7 @@ import { safeInternalPath } from '@core/utils/return-url';
               <span class="login-error">Mínimo 6 caracteres</span>
             }
 
-            <a class="login-forgot" href="#" (click)="$event.preventDefault()">¿Olvidaste tu contraseña?</a>
+            <a class="login-forgot" routerLink="/forgot-password">¿Olvidaste tu contraseña?</a>
 
             @if (errorMessage) {
               <div class="login-alert" role="alert">{{ errorMessage }}</div>
@@ -89,27 +93,56 @@ export class LoginComponent {
     private route: ActivatedRoute,
   ) {
     this.form = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.pattern(EMAIL_PATTERN)]],
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
 
   onSubmit() {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
     this.loading = true;
     this.errorMessage = '';
     this.auth
-      .login(this.form.value.email, this.form.value.password)
+      .login(this.form.value.email.trim(), this.form.value.password)
       .subscribe({
         next: () => {
           const ret = safeInternalPath(this.route.snapshot.queryParamMap.get('returnUrl'));
-          void this.router.navigateByUrl(ret ?? '/perfil', { replaceUrl: true });
+          void this.router.navigateByUrl(
+            ret ?? AUTH_DEFAULT_ROUTE,
+            { replaceUrl: true },
+          );
         },
-        error: (err: { error?: { message?: string } }) => {
-          this.errorMessage = err.error?.message || 'Credenciales inválidas';
+        error: (err: HttpErrorResponse) => {
+          this.errorMessage = this.parseLoginError(err);
           this.loading = false;
         },
         complete: () => (this.loading = false),
       });
+  }
+
+  private parseLoginError(err: HttpErrorResponse): string {
+    const raw = err.error as { message?: string | string[] } | null;
+    const msg = Array.isArray(raw?.message)
+      ? raw.message.join('. ')
+      : typeof raw?.message === 'string'
+        ? raw.message
+        : '';
+    if (/email must be an email/i.test(msg)) {
+      return 'Introduce un correo válido (ejemplo: nombre@correo.com).';
+    }
+    if (/password.*6|too short/i.test(msg)) {
+      return 'La contraseña debe tener al menos 6 caracteres.';
+    }
+    if (err.status === 401 || /invalid|credencial|unauthorized/i.test(msg)) {
+      return 'Correo o contraseña incorrectos.';
+    }
+    if (msg) return msg;
+    if (err.status === 0) {
+      return 'No hay conexión con el servidor.';
+    }
+    return 'No se pudo iniciar sesión. Inténtalo de nuevo.';
   }
 }

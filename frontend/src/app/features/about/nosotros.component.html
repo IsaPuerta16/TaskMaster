@@ -9,13 +9,12 @@
             <div [class]="'team-member__avatar team-member__avatar--' + member.variant">
               <img
                 class="team-member__photo"
-                [src]="member.avatarUrl"
-                [alt]="F().team.avatarAltPrefix + ' ' + member.name"
-                width="140"
-                height="140"
+                [src]="member.imageUrl"
+                alt=""
+                width="168"
+                height="168"
                 loading="lazy"
                 decoding="async"
-                referrerpolicy="no-referrer"
               />
             </div>
             <p class="team-member__name">{{ member.name }}</p>

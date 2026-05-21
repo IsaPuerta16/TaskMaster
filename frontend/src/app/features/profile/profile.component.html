@@ -52,18 +52,9 @@
               <span class="profile-field__label">Correo</span>
               <input type="email" formControlName="email" class="profile-field__input" placeholder="correo@ejemplo.com" autocomplete="email" />
             </label>
-            <label class="profile-field profile-field--full">
-              <span class="profile-field__label">Rol</span>
-              <select formControlName="role" class="profile-field__input profile-field__select">
-                @for (opt of roleOptions; track opt.value) {
-                  <option [value]="opt.value">{{ opt.label }}</option>
-                }
-              </select>
-            </label>
           </div>
           <button type="submit" class="profile-card__submit">Guardar cambios</button>
         </form>
-        <p class="profile-card__hint">Usamos estos datos para personalizar tus recomendaciones.</p>
       </section>
     </div>
   </div>

@@ -1,8 +1,7 @@
-/** Página pública /nosotros */
+
 export const NOSOTROS_PAGE_ES = {
   team: {
     title: 'Equipo de Desarrollo',
-    avatarAltPrefix: 'Avatar ilustrado de',
     members: [
       { name: 'Rafael Montoya Ocampo', role: 'Lider de proyecto' },
       { name: 'Isabela Puerta Pérez', role: 'Desarrolladora Frontend' },
@@ -95,7 +94,6 @@ export const NOSOTROS_PAGE_ES = {
 export const NOSOTROS_PAGE_EN = {
   team: {
     title: 'Development team',
-    avatarAltPrefix: 'Illustrated avatar of',
     members: [
       { name: 'Rafael Montoya Ocampo', role: 'Project lead' },
       { name: 'Isabela Puerta Pérez', role: 'Frontend developer' },

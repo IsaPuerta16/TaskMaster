@@ -59,6 +59,10 @@
           }
         </div>
 
+        <p class="dashboard-calendar__hint">
+          Arrastra las tareas entre días para cambiar su fecha. Haz clic en un día vacío para añadir eventos o tareas.
+        </p>
+
         <div class="dashboard-calendar__wrap">
           <table class="dashboard-calendar__grid">
             <thead>
@@ -85,8 +89,8 @@
                       [class.dashboard-calendar__day--has-preview]="cell.preview"
                       [class.dashboard-calendar__day--has-tasks]="cell.taskCount > 0"
                       [class.dashboard-calendar__day--today]="cell.isToday"
-                      (click)="openDay(cell)"
-                      [attr.title]="cell.holidayName || (cell.taskCount ? cell.taskCount + ' tarea(s)' : (cell.preview ? 'Editar notas' : 'Añadir notas'))"
+                      (click)="onCellClick(cell, $event)"
+                      [attr.title]="cell.holidayName || (cell.taskCount ? 'Arrastra las tareas a otro día' : (cell.preview ? 'Editar notas' : 'Añadir notas'))"
                       role="button"
                       tabindex="0"
                       (keydown.enter)="openDay(cell)"
@@ -94,14 +98,37 @@
                     >
                       <div class="dashboard-calendar__cell-inner">
                         <span class="dashboard-calendar__day-num">{{ cell.day }}</span>
-                        @if (cell.taskCount > 0) {
-                          <div class="dashboard-calendar__task-badge" aria-label="Tareas en esta fecha">
-                            <span class="dashboard-calendar__task-dot" aria-hidden="true"></span>
-                            <span>{{ cell.taskCount }} {{ cell.taskCount === 1 ? 'tarea' : 'tareas' }}</span>
+                        @if (cell.isToday && overdueCount > 0) {
+                          <div class="dashboard-calendar__overdue-badge" aria-label="Tareas vencidas pendientes">
+                            {{ overdueCount }} {{ overdueCount === 1 ? 'vencida' : 'vencidas' }}
                           </div>
                         }
-                        @if (cell.taskPreview) {
-                          <p class="dashboard-calendar__task-preview">{{ cell.taskPreview }}</p>
+                        @if (!(modalOpen && selectedKey === cell.dateKey)) {
+                          <div
+                            class="dashboard-calendar__task-drop"
+                            cdkDropList
+                            [id]="calendarDropId(cell.dateKey)"
+                            [cdkDropListData]="tasksForDateKey(cell.dateKey)"
+                            [cdkDropListConnectedTo]="calendarDropIds()"
+                            (cdkDropListDropped)="onCalendarTaskDrop($event, cell.dateKey)"
+                          >
+                            @for (task of tasksForDateKey(cell.dateKey); track task.id) {
+                              <div
+                                class="dashboard-calendar__task-chip"
+                                (click)="$event.stopPropagation()"
+                                [class.dashboard-calendar__task-chip--overdue]="isOverdueTask(task)"
+                                [class.dashboard-calendar__task-chip--alta]="task.priority === 'alta'"
+                                [class.dashboard-calendar__task-chip--urgente]="task.priority === 'urgente'"
+                                cdkDrag
+                                [cdkDragDisabled]="taskReschedulingId === task.id"
+                                [cdkDragData]="task"
+                              >
+                                <span class="dashboard-calendar__task-chip-text">{{ task.title }}</span>
+                              </div>
+                            }
+                          </div>
+                        } @else if (cell.taskCount > 0) {
+                          <p class="dashboard-calendar__modal-hint">Tareas en el panel</p>
                         }
                         @if (cell.preview) {
                           <p class="dashboard-calendar__day-preview">{{ cell.preview }}</p>
@@ -134,21 +161,59 @@
       <p class="day-modal__holiday">Festivo: {{ selectedHolidayName }}</p>
     }
 
+    @if (overdueCount > 0 && isSelectedToday) {
+      <p class="day-modal__overdue-alert" role="status">
+        Tienes {{ overdueCount }} {{ overdueCount === 1 ? 'tarea vencida' : 'tareas vencidas' }}.
+        <a routerLink="/tasks" [queryParams]="{ filter: 'vencidas' }" class="day-modal__overdue-link" (click)="closeModal()">
+          Ver vencidas
+        </a>
+      </p>
+    }
+
     @if (tasksForSelected().length > 0) {
-      <section class="day-modal__tasks" aria-label="Tareas de esta fecha">
+      <section class="day-modal__block" aria-label="Tareas de esta fecha">
         <h3 class="day-modal__section-title">Tareas programadas</h3>
-        <ul class="day-modal__task-list">
+        <ul
+          class="day-modal__card-list"
+          cdkDropList
+          [id]="calendarModalDropId(selectedKey!)"
+          [cdkDropListData]="tasksForDateKey(selectedKey!)"
+          [cdkDropListConnectedTo]="calendarDropIds()"
+          (cdkDropListDropped)="onCalendarTaskDrop($event, selectedKey!)"
+        >
           @for (task of tasksForSelected(); track task.id) {
-            <li class="day-modal__task">
+            <li
+              class="day-modal__card day-modal__card--task"
+              [class.day-modal__card--overdue]="isOverdueTask(task)"
+              cdkDrag
+              [cdkDragDisabled]="taskReschedulingId === task.id"
+              [cdkDragData]="task"
+            >
               <span
-                class="day-modal__task-priority"
-                [class.day-modal__task-priority--alta]="task.priority === 'alta'"
-                [class.day-modal__task-priority--urgente]="task.priority === 'urgente'"
+                class="day-modal__card-dot"
+                [class.day-modal__card-dot--alta]="task.priority === 'alta'"
+                [class.day-modal__card-dot--urgente]="task.priority === 'urgente'"
+                [class.day-modal__card-dot--overdue]="isOverdueTask(task)"
                 aria-hidden="true"
               ></span>
-              <div class="day-modal__task-body">
-                <span class="day-modal__task-title">{{ task.title }}</span>
-                <span class="day-modal__task-meta">{{ task.priority }} - {{ task.status }}</span>
+              <div class="day-modal__card-body">
+                <span class="day-modal__card-title">{{ task.title }}</span>
+                <span class="day-modal__card-meta">
+                  @if (isOverdueTask(task)) {
+                    <span class="day-modal__card-overdue-label">Vencida</span> ·
+                  }
+                  {{ formatTaskPriority(task.priority) }} · {{ formatTaskStatus(task.status) }}
+                </span>
+              </div>
+              <div class="day-modal__card-actions">
+                <button type="button" class="day-modal__action-btn" (click)="editTask(task)">Editar</button>
+                <button
+                  type="button"
+                  class="day-modal__action-btn day-modal__action-btn--danger"
+                  (click)="deleteTask(task)"
+                >
+                  Eliminar
+                </button>
               </div>
             </li>
           }
@@ -156,16 +221,110 @@
       </section>
     }
 
-    <ul class="day-modal__list">
-      @for (note of notesForSelected(); track note.id) {
-        <li class="day-modal__item">
-          <span class="day-modal__item-text">{{ note.text }}</span>
-          <button type="button" class="day-modal__remove" (click)="removeNote(note.id)" aria-label="Eliminar nota">×</button>
-        </li>
-      }
-    </ul>
+    @if (notesForSelected().length > 0) {
+      <section class="day-modal__block" aria-label="Eventos del día">
+        <h3 class="day-modal__section-title">Eventos del día</h3>
+        <ul class="day-modal__card-list">
+          @for (note of notesForSelected(); track note.id) {
+            <li class="day-modal__card day-modal__card--event">
+              @if (editingNoteId === note.id) {
+                <div class="day-modal__card-edit">
+                  <textarea
+                    class="day-modal__card-edit-input"
+                    [(ngModel)]="editNoteDraft"
+                    rows="3"
+                    aria-label="Editar evento"
+                  ></textarea>
+                  <div class="day-modal__card-edit-actions">
+                    <button type="button" class="day-modal__action-btn day-modal__action-btn--primary" (click)="saveEditNote()">
+                      Guardar
+                    </button>
+                    <button type="button" class="day-modal__action-btn" (click)="cancelEditNote()">Cancelar</button>
+                  </div>
+                </div>
+              } @else {
+                <span class="day-modal__card-dot day-modal__card-dot--event" aria-hidden="true"></span>
+                <div class="day-modal__card-body">
+                  <span class="day-modal__card-title">{{ note.text }}</span>
+                  <span class="day-modal__card-meta">Evento personal</span>
+                </div>
+                <div class="day-modal__card-actions">
+                  <button type="button" class="day-modal__action-btn" (click)="startEditNote(note)">Editar</button>
+                  <button
+                    type="button"
+                    class="day-modal__action-btn day-modal__action-btn--danger"
+                    (click)="removeNote(note.id)"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              }
+            </li>
+          }
+        </ul>
+      </section>
+    }
 
-    <label class="day-modal__label" for="day-note-input">Añadir texto o emojis</label>
+    <fieldset class="day-modal__type-field">
+      <legend class="day-modal__label">¿Qué quieres añadir?</legend>
+      <div class="day-modal__type-toggle" role="group" aria-label="Tipo de entrada">
+        <button
+          type="button"
+          class="day-modal__type-btn"
+          [class.day-modal__type-btn--active]="draftEntryType === 'event'"
+          (click)="setEntryType('event')"
+        >
+          Evento
+        </button>
+        <button
+          type="button"
+          class="day-modal__type-btn"
+          [class.day-modal__type-btn--active]="draftEntryType === 'task'"
+          (click)="setEntryType('task')"
+        >
+          Tarea
+        </button>
+      </div>
+      <p class="day-modal__type-hint">
+        @if (draftEntryType === 'task') {
+          Se guardará en Mis Tareas y aparecerá en este día del calendario.
+        } @else {
+          Solo en el calendario, no en Mis Tareas.
+        }
+      </p>
+    </fieldset>
+
+    @if (draftEntryType === 'task') {
+      <div class="day-modal__task-meta">
+        <div class="day-modal__task-meta-field">
+          <label class="day-modal__label" for="day-task-time">Hora</label>
+          <input
+            id="day-task-time"
+            type="time"
+            class="day-modal__time"
+            [(ngModel)]="draftTaskTime"
+            aria-label="Hora de la tarea"
+          />
+        </div>
+        <div class="day-modal__task-meta-field">
+          <label class="day-modal__label" for="day-task-priority">Prioridad</label>
+          <select
+            id="day-task-priority"
+            class="day-modal__select day-modal__select--inline"
+            [(ngModel)]="draftTaskPriority"
+            aria-label="Prioridad de la tarea"
+          >
+            @for (opt of priorityOptions; track opt.value) {
+              <option [ngValue]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    }
+
+    <label class="day-modal__label" for="day-note-input">
+      {{ draftEntryType === 'task' ? 'Título de la tarea' : 'Añadir texto o emojis' }}
+    </label>
     <div class="day-modal__emoji-row" aria-label="Emojis rápidos">
       @for (em of quickEmojis; track em) {
         <button type="button" class="day-modal__emoji" (click)="insertEmoji(em)" [attr.aria-label]="'Insertar ' + em">{{ em }}</button>
@@ -176,8 +335,28 @@
       class="day-modal__textarea"
       [(ngModel)]="draftText"
       rows="3"
-      placeholder="Escribe aquí… (también puedes pegar emojis desde el teclado)"
+      [placeholder]="
+        draftEntryType === 'task'
+          ? 'Nombre de la tarea…'
+          : 'Escribe aquí… (también puedes pegar emojis desde el teclado)'
+      "
     ></textarea>
-    <button type="button" class="day-modal__add" (click)="addNote()">Guardar en esta fecha</button>
+    @if (entryError) {
+      <p class="day-modal__error" role="alert">{{ entryError }}</p>
+    }
+    <button
+      type="button"
+      class="day-modal__add"
+      (click)="saveEntry()"
+      [disabled]="!draftText.trim() || savingEntry"
+    >
+      {{
+        savingEntry
+          ? 'Guardando…'
+          : draftEntryType === 'task'
+            ? 'Añadir tarea'
+            : 'Añadir evento'
+      }}
+    </button>
   </div>
 }

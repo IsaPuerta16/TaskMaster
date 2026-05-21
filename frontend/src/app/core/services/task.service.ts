@@ -6,19 +6,30 @@ import type {
   Task,
   TaskStatus,
   TaskPriority,
+  TaskRecurrence,
+  TaskChecklistItem,
   CreateTaskDto,
   TaskStats,
 } from '@core/models';
 
-export type { TaskStatus, TaskPriority, Task, CreateTaskDto, TaskStats };
+export type {
+  TaskStatus,
+  TaskPriority,
+  TaskRecurrence,
+  TaskChecklistItem,
+  Task,
+  CreateTaskDto,
+  TaskStats,
+};
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
   constructor(private http: HttpClient) {}
 
-  getTasks(status?: TaskStatus): Observable<Task[]> {
+  getTasks(status?: TaskStatus, archived = false): Observable<Task[]> {
     let params = new HttpParams();
     if (status) params = params.set('status', status);
+    if (archived) params = params.set('archived', 'true');
     return this.http.get<Task[]>(`${environment.apiUrl}/tasks`, { params });
   }
 
@@ -50,5 +61,16 @@ export class TaskService {
 
   getStats(): Observable<TaskStats> {
     return this.http.get<TaskStats>(`${environment.apiUrl}/tasks/stats`);
+  }
+
+  snoozeTask(
+    id: string,
+    body: { days?: number; preset?: 'tomorrow' | 'next_week' },
+  ): Observable<Task> {
+    return this.http.post<Task>(`${environment.apiUrl}/tasks/${id}/snooze`, body);
+  }
+
+  archiveTask(id: string): Observable<Task> {
+    return this.http.patch<Task>(`${environment.apiUrl}/tasks/${id}/archive`, {});
   }
 }

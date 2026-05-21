@@ -1,6 +1,3 @@
-$teal: #148c84;
-$teal-dark: #0f6f69;
-
 .tf-page {
   min-height: 100vh;
   background: var(--app-bg);
@@ -112,7 +109,7 @@ $teal-dark: #0f6f69;
   outline: none;
   border-color: var(--app-accent-solid);
   background: var(--app-input-bg);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px var(--app-primary-ring);
 }
 
 .tf-input::placeholder {
@@ -176,13 +173,13 @@ html:not([data-theme='dark']) .tf-alert {
 }
 
 .tf-btn--primary {
-  background: $teal;
+  background: var(--app-primary);
   color: #fff;
-  box-shadow: 0 2px 8px rgba(20, 140, 132, 0.3);
+  box-shadow: 0 2px 8px var(--app-primary-ring);
 }
 
 .tf-btn--primary:hover:not(:disabled) {
-  background: $teal-dark;
+  background: var(--app-primary-hover);
 }
 
 .tf-btn--primary:disabled {
@@ -201,3 +198,4 @@ html:not([data-theme='dark']) .tf-alert {
   border-color: var(--app-border);
   color: var(--app-text);
 }
+

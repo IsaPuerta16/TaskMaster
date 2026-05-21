@@ -1,4 +1,3 @@
-$card-bg: #1e2736;
 $field-bg: rgba(255, 255, 255, 0.08);
 .register-page {
   min-height: 100vh;
@@ -19,7 +18,7 @@ $field-bg: rgba(255, 255, 255, 0.08);
 .register-card {
   width: 100%;
   max-width: 420px;
-  background: $card-bg;
+  background: var(--app-auth-card);
   border-radius: 44px;
   padding: 2.75rem 2.25rem 2.5rem;
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
@@ -89,6 +88,19 @@ $field-bg: rgba(255, 255, 255, 0.08);
   font-family: var(--font-family);
   font-size: 0.75rem;
   color: #fca5a5;
+  margin: -0.5rem 0 0.75rem 1.25rem;
+
+  a {
+    color: var(--app-link);
+    text-decoration: underline;
+  }
+}
+
+.register-hint {
+  display: block;
+  font-family: var(--font-family);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.55);
   margin: -0.5rem 0 0.75rem 1.25rem;
 }
 

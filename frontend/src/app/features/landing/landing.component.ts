@@ -2,6 +2,8 @@ import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FooterComponent } from '@shared/layout';
+import { AUTH_DEFAULT_ROUTE } from '@core/constants/auth-default-route';
+import { AuthService } from '@core/services/auth.service';
 import { AppSettingsService } from '@core/services/app-settings.service';
 
 @Component({
@@ -15,8 +17,10 @@ import { AppSettingsService } from '@core/services/app-settings.service';
   },
 })
 export class LandingComponent {
+  readonly auth = inject(AuthService);
   private readonly appSettings = inject(AppSettingsService);
 
-  /** Textos de la landing según idioma (alineado con ui-strings-landing). */
+  
   readonly L = computed(() => this.appSettings.ui().landing);
+  readonly tasksRoute = AUTH_DEFAULT_ROUTE;
 }

@@ -191,8 +191,13 @@
           {{ F().cta.text }}
         </p>
         <div class="ia-cta__actions">
-          <a routerLink="/register" class="ia-cta__btn ia-cta__btn--primary">{{ F().cta.btnPrimary }}</a>
-          <a routerLink="/login" class="ia-cta__btn ia-cta__btn--ghost">{{ F().cta.btnGhost }}</a>
+          @if (auth.isAuthenticated()) {
+            <a [routerLink]="assistantAppRoute" class="ia-cta__btn ia-cta__btn--primary">{{ F().cta.btnPrimaryAuth }}</a>
+            <a [routerLink]="tasksRoute" class="ia-cta__btn ia-cta__btn--ghost">{{ F().cta.btnGhostAuth }}</a>
+          } @else {
+            <a routerLink="/register" class="ia-cta__btn ia-cta__btn--primary">{{ F().cta.btnPrimary }}</a>
+            <a routerLink="/login" class="ia-cta__btn ia-cta__btn--ghost">{{ F().cta.btnGhost }}</a>
+          }
         </div>
       </div>
     </section>

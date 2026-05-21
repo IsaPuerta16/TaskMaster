@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -6,6 +6,7 @@ import { AuthService } from '@core/services/auth.service';
 import { TaskService, type TaskStats } from '@features/tasks/data-access';
 import { AppSidebarComponent } from '@shared/layout';
 import { ProfileService } from './data-access/profile.service';
+import { UserAvatarService } from '@core/services/user-avatar.service';
 import type { User } from '@core/models';
 
 @Component({
@@ -16,18 +17,13 @@ import type { User } from '@core/models';
   styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit {
+  private readonly userAvatar = inject(UserAvatarService);
   form: FormGroup;
   avatarUrl = '';
   userHandle = '@Usuario';
   completed = 0;
   streakDays = 0;
   completionRate = 0;
-
-  readonly roleOptions = [
-    { value: 'estudiante', label: 'Estudiante' },
-    { value: 'profesional', label: 'Profesional' },
-    { value: 'otro', label: 'Otro' },
-  ];
 
   constructor(
     public auth: AuthService,
@@ -39,7 +35,6 @@ export class ProfileComponent implements OnInit {
       firstName: ['', [Validators.required, Validators.minLength(1)]],
       lastName: [''],
       email: ['', [Validators.required, Validators.email]],
-      role: ['estudiante'],
     });
   }
 
@@ -53,7 +48,6 @@ export class ProfileComponent implements OnInit {
           firstName: user.firstName ?? '',
           lastName: user.lastName ?? '',
           email: user.email,
-          role: user.role ?? 'estudiante',
         });
       },
     });
@@ -77,7 +71,8 @@ export class ProfileComponent implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
-    this.profileService.updateMe(this.form.getRawValue()).subscribe({
+    const { firstName, lastName, email } = this.form.getRawValue();
+    this.profileService.updateMe({ firstName, lastName, email }).subscribe({
       next: (user) => {
         this.auth.setUser(user);
         this.syncUserUi(user);
@@ -89,6 +84,6 @@ export class ProfileComponent implements OnInit {
     const email = user?.email ?? 'usuario@ejemplo.com';
     const local = email.includes('@') ? email.split('@')[0] : email;
     this.userHandle = `@${local}`;
-    this.avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user?.id ?? email)}`;
+    this.avatarUrl = this.userAvatar.urlFor(user);
   }
 }

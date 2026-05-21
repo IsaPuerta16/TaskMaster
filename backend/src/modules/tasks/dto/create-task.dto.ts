@@ -4,8 +4,24 @@ import {
   IsDateString,
   IsEnum,
   MinLength,
+  IsArray,
+  IsBoolean,
+  ValidateNested,
 } from 'class-validator';
-import { TaskPriority } from '../entities/task.entity';
+import { Type } from 'class-transformer';
+import { TaskPriority, TaskRecurrence } from '../entities/task.entity';
+
+class ChecklistItemDto {
+  @IsString()
+  id: string;
+
+  @IsString()
+  @MinLength(1)
+  text: string;
+
+  @IsBoolean()
+  done: boolean;
+}
 
 export class CreateTaskDto {
   @IsString()
@@ -22,4 +38,23 @@ export class CreateTaskDto {
   @IsOptional()
   @IsEnum(TaskPriority)
   priority?: TaskPriority;
+
+  @IsOptional()
+  @IsString()
+  project?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ChecklistItemDto)
+  checklist?: ChecklistItemDto[];
+
+  @IsOptional()
+  @IsEnum(TaskRecurrence)
+  recurrence?: TaskRecurrence;
 }

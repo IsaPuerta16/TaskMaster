@@ -2,6 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
+import { UserAvatarService } from '@core/services/user-avatar.service';
 import { TaskService } from '@features/tasks/data-access';
 import {
   NotificationService,
@@ -21,6 +22,7 @@ export class UserNotificacionesComponent implements OnInit {
   readonly auth = inject(AuthService);
   private readonly taskService = inject(TaskService);
   readonly notif = inject(NotificationService);
+  private readonly userAvatar = inject(UserAvatarService);
 
   avatarUrl = '';
   userHandle = '@Usuario';
@@ -45,7 +47,7 @@ export class UserNotificacionesComponent implements OnInit {
     const email = u?.email ?? 'usuario@ejemplo.com';
     const local = email.includes('@') ? email.split('@')[0] : email;
     this.userHandle = `@${local}`;
-    this.avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(u?.id ?? email)}`;
+    this.avatarUrl = this.userAvatar.urlFor(u);
 
     this.taskService.getTasks().subscribe({
       next: (tasks) => this.notif.setTasks(tasks),

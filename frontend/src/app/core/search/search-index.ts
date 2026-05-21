@@ -5,7 +5,7 @@ export interface SearchableItem {
   keywords: string[];
 }
 
-/** Contenido indexado para la búsqueda global del sitio. */
+
 export const SEARCH_INDEX: SearchableItem[] = [
   {
     title: 'Inicio',

@@ -126,7 +126,7 @@
 }
 
 .profile-stat--blue .profile-stat__accent {
-  background: #3b82f6;
+  background: var(--app-primary);
 }
 
 .profile-stat__body {
@@ -204,7 +204,7 @@
 .profile-field__input:focus {
   outline: none;
   border-color: var(--app-link);
-  box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.12);
+  box-shadow: 0 0 0 3px var(--app-primary-ring);
 }
 
 .profile-field__select {

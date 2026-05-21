@@ -22,7 +22,22 @@
             Últimos 30 días
           </button>
         </div>
-        <a routerLink="/tasks/new" class="up-toolbar__cta">+ Nueva tarea</a>
+        <div class="up-toolbar__actions">
+          <button
+            type="button"
+            class="up-toolbar__btn"
+            [disabled]="reportLoading()"
+            (click)="downloadWeeklyReport()"
+          >
+            <svg class="up-toolbar__btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M12 3v12" stroke-linecap="round" />
+              <path d="m7 10 5 5 5-5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M5 21h14" stroke-linecap="round" />
+            </svg>
+            <span>{{ reportLoading() ? R().report.downloading : R().report.download }}</span>
+          </button>
+          <a routerLink="/tasks/new" class="up-toolbar__btn up-toolbar__btn--primary">+ Nueva tarea</a>
+        </div>
       </div>
 
       @if (loading()) {

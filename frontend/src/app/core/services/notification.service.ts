@@ -3,6 +3,10 @@ import type { Task } from '@features/tasks/data-access';
 import { AppSettingsService } from './app-settings.service';
 import { TaskService } from '@features/tasks/data-access';
 import { AuthService } from './auth.service';
+import {
+  cacheUserSettingsSnapshot,
+  readCachedUserSettingsSnapshot,
+} from '@core/utils/user-settings-cache.util';
 import { UserSettingsService } from '@features/user-settings/data-access/user-settings.service';
 import type {
   NotifPrefs,
@@ -67,6 +71,7 @@ export class NotificationService {
   private readonly ngZone = inject(NgZone);
   private readonly tasks = signal<Task[]>([]);
   private readonly desktopUserOff = signal(false);
+  private loadedPrefsUserId: string | null = null;
 
   readonly prefs = signal<NotifPrefs>({ ...DEFAULT_NOTIF_PREFS });
   readonly readIds = signal<Set<string>>(new Set());
@@ -76,7 +81,7 @@ export class NotificationService {
     return this.buildItems(this.tasks());
   });
 
-  /** Items respetando preferencias de tipo (recordatorios, resúmenes) */
+  
   readonly itemsRespectingPrefs = computed(() => {
     const p = this.prefs();
     return this.items().filter((i) => {
@@ -97,18 +102,29 @@ export class NotificationService {
       () => {
         const user = this.auth.user();
         if (user) {
-          this.loadFromServer();
+          if (this.loadedPrefsUserId !== user.id) {
+            this.loadedPrefsUserId = user.id;
+            const cached = readCachedUserSettingsSnapshot(user.id);
+            if (cached) {
+              this.applySettingsSnapshot(cached);
+            }
+            this.loadFromServer(user.id);
+          }
           return;
         }
+        this.loadedPrefsUserId = null;
         this.resetState();
       },
       { allowSignalWrites: true },
     );
   }
 
-  private loadFromServer(): void {
+  private loadFromServer(userId: string): void {
     this.userSettingsService.getSettings().subscribe({
-      next: (snapshot) => this.applySettingsSnapshot(snapshot),
+      next: (snapshot) => {
+        cacheUserSettingsSnapshot(userId, snapshot);
+        this.applySettingsSnapshot(snapshot);
+      },
     });
   }
 
@@ -133,11 +149,7 @@ export class NotificationService {
     this.desktopUserOff.set(false);
   }
 
-  /**
-   * Si el navegador ya tiene permiso concedido (p. ej. tras recargar la página como pide Chrome)
-   * pero `prefs` seguía en false, alineamos el interruptor con el permiso real.
-   * Respeta `ESCRITORIO_USER_OFF_KEY` si el usuario desactivó el interruptor en la app.
-   */
+  
   private applyEscritorioFromGrantedPermissionOnInit(): void {
     if (typeof window === 'undefined' || !('Notification' in window)) return;
     if (!window.isSecureContext) return;
@@ -149,10 +161,7 @@ export class NotificationService {
     }
   }
 
-  /**
-   * Solo si el usuario bloqueó notificaciones en el navegador: apaga la preferencia.
-   * No tocar permiso `default` (aún no preguntado) para no desactivar el interruptor al recargar.
-   */
+  
   private syncEscritorioWithBrowserPermission(): void {
     if (typeof window === 'undefined' || !('Notification' in window)) return;
     if (Notification.permission !== 'denied') return;
@@ -162,7 +171,7 @@ export class NotificationService {
     }
   }
 
-  /** Carga tareas para poder mostrar notificaciones de escritorio (p. ej. solo en Configuración sin pasar por la lista). */
+  
   refreshTasksIfDesktopEnabled(): void {
     if (typeof window === 'undefined') return;
     if (!this.prefs().escritorio) return;
@@ -213,10 +222,7 @@ export class NotificationService {
     this.persistState();
   }
 
-  /**
-   * Debe ejecutarse en el mismo turno síncrono que el clic (sin async antes de requestPermission)
-   * para que Chrome/Firefox acepten el cuadro de permiso.
-   */
+  
   private enableEscritorioFromUserGesture(): void {
     if (typeof window === 'undefined' || !('Notification' in window)) {
       return;
@@ -228,8 +234,7 @@ export class NotificationService {
       return;
     }
     if (Notification.permission === 'granted') {
-      // El permiso ya estaba concedido (p. ej. desde el icono del navegador): hay que guardar prefs en true;
-      // antes solo cargábamos tareas y el interruptor seguía gris.
+
       this.ngZone.run(() => {
         this.prefs.update((p) => ({ ...p, escritorio: true }));
         this.desktopUserOff.set(false);
@@ -240,7 +245,7 @@ export class NotificationService {
     }
     const req = Notification.requestPermission();
     const apply = (perm: NotificationPermission): void => {
-      // El callback de la promesa corre fuera de NgZone; sin esto el interruptor no se pinta en verde.
+
       this.ngZone.run(() => {
         const ok = perm === 'granted';
         this.prefs.update((p) => ({ ...p, escritorio: ok }));
@@ -266,7 +271,7 @@ export class NotificationService {
     });
   }
 
-  /** Si no hay tareas con vencimiento en ventana, el usuario no veía ninguna notificación y creía que fallaba. */
+  
   private maybeShowDesktopOnboardingIfNoDueTasks(): void {
     if (!this.prefs().escritorio || Notification.permission !== 'granted') return;
     const hasTaskDue = this.items().some((i) => i.id.startsWith('task-due-'));
@@ -283,11 +288,11 @@ export class NotificationService {
         tag,
       });
     } catch {
-      /* ignore */
+      
     }
   }
 
-  /** Para pruebas o flujos que no pasan por el clic (p. ej. futuros botones). */
+  
   async requestDesktopPermission(): Promise<boolean> {
     if (typeof window === 'undefined' || !('Notification' in window)) {
       return false;
@@ -312,7 +317,13 @@ export class NotificationService {
         },
       })
       .subscribe({
-        next: (snapshot) => this.applySettingsSnapshot(snapshot),
+        next: (snapshot) => {
+          const userId = this.auth.user()?.id;
+          if (userId) {
+            cacheUserSettingsSnapshot(userId, snapshot);
+          }
+          this.applySettingsSnapshot(snapshot);
+        },
       });
   }
 
@@ -432,7 +443,7 @@ export class NotificationService {
           ctx.close();
         }, 120);
       } catch {
-        /* ignore */
+        
       }
     }
     this.prevUnread = n;
@@ -453,7 +464,7 @@ export class NotificationService {
       try {
         new Notification('TaskMaster', { body: i.text, tag: i.id });
       } catch {
-        /* ignore */
+        
       }
     }
   }

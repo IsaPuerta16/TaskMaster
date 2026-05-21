@@ -39,6 +39,15 @@ export class User {
   })
   role: UserRole;
 
+  @Column({ name: 'avatar_url', type: 'text', nullable: true })
+  avatarUrl: string | null;
+
+  @Column({ name: 'password_reset_token', type: 'text', nullable: true })
+  passwordResetToken: string | null;
+
+  @Column({ name: 'password_reset_expires', type: 'timestamptz', nullable: true })
+  passwordResetExpires: Date | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

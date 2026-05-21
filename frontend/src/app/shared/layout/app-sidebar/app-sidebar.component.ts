@@ -6,7 +6,7 @@ import { debounceTime, filter } from 'rxjs/operators';
 import { AuthService } from '@core/services/auth.service';
 import { AppSettingsService } from '@core/services/app-settings.service';
 
-/** Ancho a partir del cual el menú se muestra completo sin pedir expansión (coincide con SCSS del sidebar). */
+
 const SIDEBAR_COLLAPSE_MAX_PX = 960;
 
 @Component({
@@ -22,13 +22,13 @@ export class AppSidebarComponent {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  /** Vista estrecha: el panel de enlaces empieza colapsado (true hasta medir el viewport). */
+  
   readonly narrow = signal(true);
 
-  /** Usuario expande/contrae el menú (solo relevante si `narrow`). */
+  
   readonly menuExpanded = signal(false);
 
-  /** Panel visible: escritorio siempre; móvil/tablet solo si `menuExpanded`. */
+  
   readonly panelOpen = computed(() => !this.narrow() || this.menuExpanded());
 
   readonly nav = computed(() => {

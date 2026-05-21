@@ -1,7 +1,7 @@
 <header
   class="header"
   [class.header--dark]="appSettings.themeIsDark()"
-  [class.header--logo-underline]="routeUrl().startsWith('/mi-productividad')"
+  [class.header--logo-underline]="routeUrl().startsWith('/productividad') || routeUrl().startsWith('/mi-productividad')"
 >
   <button
     type="button"
@@ -23,19 +23,25 @@
   </button>
   <a routerLink="/" class="logo" (click)="closeMenu()">TM</a>
   <nav id="header-nav" class="nav" [class.nav--open]="menuOpen()">
-    <a routerLink="/" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">
+    <a
+      routerLink="/"
+      class="nav-link"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      (click)="closeMenu()"
+    >
       {{ ui().header.home }}
     </a>
     <a routerLink="/funcionalidades" class="nav-link" routerLinkActive="active" (click)="closeMenu()">{{ ui().header.features }}</a>
     <a
-      [routerLink]="auth.isAuthenticated() ? '/mi-productividad' : '/productividad'"
+      routerLink="/productividad"
       class="nav-link"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }"
       (click)="closeMenu()"
     >{{ ui().header.productivity }}</a>
     <a
-      [routerLink]="auth.isAuthenticated() ? '/mi-asistente-ia' : '/asistente-ia'"
+      routerLink="/asistente-ia"
       class="nav-link"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }"

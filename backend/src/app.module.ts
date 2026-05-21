@@ -9,6 +9,7 @@ import { UsersModule } from './modules/users/users.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { MailModule } from './modules/mail/mail.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { EnsureSchemaService } from './database/ensure-schema.service';
 
 @Module({
   imports: [
@@ -44,5 +45,6 @@ import { ScheduleModule } from '@nestjs/schedule';
     MailModule,
     ScheduleModule.forRoot(),
   ],
+  providers: [EnsureSchemaService],
 })
 export class AppModule {}

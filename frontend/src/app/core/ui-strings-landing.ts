@@ -4,6 +4,7 @@ export const LANDING_ES = {
   heroDesc:
     'Gestiona tus tareas con priorizacion automatica, analisis de productividad y asistencia con inteligencia artificial',
   btnCreate: 'Crear cuenta',
+  btnGoTasks: 'Ir a mis tareas',
   btnExplore: 'Explorar funcionalidades',
   queTitle: '¿Qué hace TaskMaster?',
   queDesc: 'TaskMaster está diseñado para que seas más eficiente cada día.',
@@ -73,6 +74,7 @@ export const LANDING_EN: { [K in keyof typeof LANDING_ES]: string } = {
   heroDesc:
     'Manage tasks with automatic prioritization, productivity insights, and AI assistance',
   btnCreate: 'Create account',
+  btnGoTasks: 'Go to my tasks',
   btnExplore: 'Explore features',
   queTitle: 'What does TaskMaster do?',
   queDesc: 'TaskMaster is designed to make you more efficient every day.',

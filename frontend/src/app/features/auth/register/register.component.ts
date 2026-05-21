@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   AbstractControl,
   FormBuilder,
@@ -9,8 +10,11 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { AUTH_DEFAULT_ROUTE } from '@core/constants/auth-default-route';
 import { AuthService } from '@core/services/auth.service';
+import { apiErrorMessage } from '@core/utils/api-error-message.util';
 import { safeInternalPath } from '@core/utils/return-url';
+import { emailAvailabilityValidator } from '@core/validators/email-availability.validator';
 
 @Component({
   selector: 'app-register',
@@ -59,8 +63,14 @@ import { safeInternalPath } from '@core/utils/return-url';
                 autocomplete="email"
               />
             </div>
-            @if (form.get('email')?.invalid && form.get('email')?.touched) {
+            @if (form.get('email')?.pending) {
+              <span class="register-hint">Comprobando correo...</span>
+            }
+            @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
               <span class="register-error">Correo inválido</span>
+            }
+            @if (form.get('email')?.hasError('emailTaken') && form.get('email')?.touched) {
+              <span class="register-error">Este correo ya está registrado. <a routerLink="/login">Inicia sesión</a></span>
             }
 
             <div class="register-field">
@@ -107,7 +117,7 @@ import { safeInternalPath } from '@core/utils/return-url';
               <div class="register-alert" role="alert">{{ errorMessage }}</div>
             }
 
-            <button type="submit" class="register-btn" [disabled]="loading">
+            <button type="submit" class="register-btn" [disabled]="loading || form.get('email')?.pending">
               {{ loading ? 'Registrando...' : 'Registrarse' }}
             </button>
           </form>
@@ -136,7 +146,11 @@ export class RegisterComponent {
     this.form = this.fb.group(
       {
         fullName: ['', [Validators.required, Validators.minLength(2)]],
-        email: ['', [Validators.required, Validators.email]],
+        email: [
+          '',
+          [Validators.required, Validators.email],
+          [emailAvailabilityValidator()],
+        ],
         password: ['', [Validators.required, Validators.minLength(6)]],
         confirmPassword: ['', [Validators.required]],
       },
@@ -152,7 +166,7 @@ export class RegisterComponent {
   }
 
   onSubmit() {
-    if (this.form.invalid) {
+    if (this.form.invalid || this.form.get('email')?.pending) {
       this.form.markAllAsTouched();
       return;
     }
@@ -167,10 +181,16 @@ export class RegisterComponent {
       .subscribe({
         next: () => {
           const ret = safeInternalPath(this.route.snapshot.queryParamMap.get('returnUrl'));
-          void this.router.navigateByUrl(ret ?? '/perfil', { replaceUrl: true });
+          this.router.navigateByUrl(ret ?? AUTH_DEFAULT_ROUTE, { replaceUrl: true }).catch(() => {});
         },
-        error: (err: { error?: { message?: string } }) => {
-          this.errorMessage = err.error?.message || 'Error al registrar';
+        error: (err: HttpErrorResponse) => {
+          if (err.status === 409) {
+            this.form.get('email')?.setErrors({ emailTaken: true });
+            this.errorMessage =
+              'Este correo ya está registrado. Inicia sesión si ya tienes cuenta.';
+          } else {
+            this.errorMessage = apiErrorMessage(err, 'Error al registrar');
+          }
           this.loading = false;
         },
         complete: () => (this.loading = false),

@@ -6,6 +6,10 @@ import {
   type ProductividadRange,
 } from '@core/productividad-settings';
 import { AuthService } from '@core/services/auth.service';
+import {
+  cacheUserSettingsSnapshot,
+  readCachedUserSettingsSnapshot,
+} from '@core/utils/user-settings-cache.util';
 import { UserSettingsService } from '@features/user-settings/data-access/user-settings.service';
 import type {
   AppSettings,
@@ -22,7 +26,23 @@ const DEFAULTS: AppSettings = {
   timezone: 'america_bogota',
 };
 
-/** Zonas IANA alineadas con los valores del selector de configuración */
+const FONT_SIZES = new Set(['pequeno', 'mediano', 'grande']);
+const THEMES = new Set<ThemeChoice>(['claro', 'oscuro', 'sistema']);
+
+function normalizeAppSettings(raw: Partial<AppSettings>): AppSettings {
+  const merged = { ...DEFAULTS, ...raw };
+  if (!FONT_SIZES.has(merged.fontSize) && merged.fontSize === 'normal') {
+    merged.fontSize = 'mediano';
+  } else if (!FONT_SIZES.has(merged.fontSize)) {
+    merged.fontSize = DEFAULTS.fontSize;
+  }
+  if (!THEMES.has(merged.theme)) {
+    merged.theme = DEFAULTS.theme;
+  }
+  return merged;
+}
+
+
 export const TIMEZONE_IANA: Record<string, string> = {
   america_bogota: 'America/Bogota',
   america_mexico: 'America/Mexico_City',
@@ -38,15 +58,18 @@ export class AppSettingsService {
 
   readonly settings = signal<AppSettings>({ ...DEFAULTS });
 
-  /** Textos de interfaz según idioma (tema/claro-oscuro siguen en applyTheme) */
+  
   readonly ui = computed<UiStrings>(() =>
     this.settings().idioma === 'en' ? UI_EN : UI_ES,
   );
   readonly productividadRange = signal<ProductividadRange>('7');
   readonly productividadPrefs = signal<ProductividadPrefs>({ ...DEFAULT_PRODUCTIVIDAD_PREFS });
 
-  /** Sincronizado con `applyTheme()` — útil para estilos del header sin depender solo de variables en `html`. */
+  
   readonly themeIsDark = signal(false);
+
+  
+  private loadedSettingsUserId: string | null = null;
 
   constructor() {
     this.applyAll();
@@ -54,9 +77,17 @@ export class AppSettingsService {
       () => {
         const user = this.auth.user();
         if (user) {
-          this.loadFromServer();
+          if (this.loadedSettingsUserId !== user.id) {
+            this.loadedSettingsUserId = user.id;
+            const cached = readCachedUserSettingsSnapshot(user.id);
+            if (cached) {
+              this.applyRemoteSettings(cached);
+            }
+            this.loadFromServer(user.id);
+          }
           return;
         }
+        this.loadedSettingsUserId = null;
         this.resetToDefaults();
       },
       { allowSignalWrites: true },
@@ -70,9 +101,12 @@ export class AppSettingsService {
     }
   }
 
-  private loadFromServer(): void {
+  private loadFromServer(userId: string): void {
     this.userSettingsService.getSettings().subscribe({
-      next: (snapshot) => this.applyRemoteSettings(snapshot),
+      next: (snapshot) => {
+        cacheUserSettingsSnapshot(userId, snapshot);
+        this.applyRemoteSettings(snapshot);
+      },
     });
   }
 
@@ -84,10 +118,7 @@ export class AppSettingsService {
   }
 
   private applyRemoteSettings(snapshot: UserSettingsResponse): void {
-    this.settings.set({
-      ...DEFAULTS,
-      ...snapshot.appSettings,
-    });
+    this.settings.set(normalizeAppSettings(snapshot.appSettings));
     this.productividadRange.set(snapshot.productivity.range);
     this.productividadPrefs.set({
       ...DEFAULT_PRODUCTIVIDAD_PREFS,
@@ -137,8 +168,53 @@ export class AppSettingsService {
   }): void {
     if (!this.auth.isAuthenticated()) return;
     this.userSettingsService.patchSettings(payload).subscribe({
-      next: (snapshot) => this.applyRemoteSettings(snapshot),
+      next: (snapshot) => {
+        const userId = this.auth.user()?.id;
+        if (userId) {
+          cacheUserSettingsSnapshot(userId, snapshot);
+        }
+        this.applyPersistedSnapshot(snapshot, payload);
+      },
+      error: () => {
+        const userId = this.auth.user()?.id;
+        if (userId) {
+          this.loadFromServer(userId);
+        }
+      },
     });
+  }
+
+  
+  private applyPersistedSnapshot(
+    snapshot: UserSettingsResponse,
+    payload: {
+      appSettings?: Partial<AppSettings>;
+      productivity?: Partial<{ range: ProductividadRange; showInsights: boolean }>;
+    },
+  ): void {
+    if (payload.appSettings) {
+      const patch = payload.appSettings;
+      const remote = normalizeAppSettings(snapshot.appSettings);
+      this.settings.update((current) =>
+        normalizeAppSettings({
+          ...current,
+          ...(patch.theme !== undefined ? { theme: remote.theme } : {}),
+          ...(patch.fontSize !== undefined ? { fontSize: remote.fontSize } : {}),
+          ...(patch.idioma !== undefined ? { idioma: remote.idioma } : {}),
+          ...(patch.dateFormat !== undefined ? { dateFormat: remote.dateFormat } : {}),
+          ...(patch.timeFormat !== undefined ? { timeFormat: remote.timeFormat } : {}),
+          ...(patch.timezone !== undefined ? { timezone: remote.timezone } : {}),
+        }),
+      );
+    }
+    if (payload.productivity) {
+      this.productividadRange.set(snapshot.productivity.range);
+      this.productividadPrefs.set({
+        ...DEFAULT_PRODUCTIVIDAD_PREFS,
+        showInsights: snapshot.productivity.showInsights,
+      });
+    }
+    this.applyAll();
   }
 
   private applyTheme(): void {
@@ -167,7 +243,7 @@ export class AppSettingsService {
     document.documentElement.lang = this.settings().idioma === 'en' ? 'en' : 'es';
   }
 
-  /** Locale numérico de fecha según formato (orden día/mes/año) e idioma */
+  
   private dateLocale(): string {
     const s = this.settings();
     if (s.dateFormat === 'mmddyyyy') {
@@ -201,7 +277,7 @@ export class AppSettingsService {
     }).format(d);
   }
 
-  /** Etiquetas cortas en gráficos de actividad (día de la semana) */
+  
   formatWeekdayShort(d: Date): string {
     const s = this.settings();
     const loc = s.idioma === 'en' ? 'en-US' : 'es-CO';
@@ -211,7 +287,7 @@ export class AppSettingsService {
     }).format(d);
   }
 
-  /** Día/mes para vista compacta (periodo largo) */
+  
   formatDayMonth(d: Date): string {
     return new Intl.DateTimeFormat(this.dateLocale(), {
       timeZone: this.timeZoneIana(),
@@ -220,7 +296,7 @@ export class AppSettingsService {
     }).format(d);
   }
 
-  /** Fecha relativa corta para lista de notificaciones (vencimientos) */
+  
   formatDueDateShort(d: Date): string {
     return new Intl.DateTimeFormat(this.dateLocale(), {
       timeZone: this.timeZoneIana(),

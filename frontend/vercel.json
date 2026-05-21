@@ -3,5 +3,8 @@
   "framework": null,
   "buildCommand": "npm run build",
   "outputDirectory": "dist/browser",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/robots.txt", "destination": "/robots.txt" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }

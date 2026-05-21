@@ -1,9 +1,6 @@
 import { Routes } from '@angular/router';
 
-/**
- * Rutas de la zona privada del usuario.
- * Centraliza vistas de perfil, panel y preferencias.
- */
+
 export const userRoutes: Routes = [
   {
     path: 'perfil',

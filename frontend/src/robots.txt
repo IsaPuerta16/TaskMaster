@@ -1,0 +1,21 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+Allow: /funcionalidades
+Allow: /productividad
+Allow: /asistente-ia
+Allow: /nosotros
+
+# Área privada de la aplicación (no indexar)
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /dashboard
+Disallow: /tasks
+Disallow: /perfil
+Disallow: /mi-productividad
+Disallow: /mi-asistente-ia
+Disallow: /mi-notificaciones
+Disallow: /mi-configuracion
+Disallow: /buscar

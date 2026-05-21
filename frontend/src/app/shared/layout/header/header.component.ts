@@ -24,10 +24,10 @@ export class HeaderComponent {
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
 
-  /** Menú hamburguesa (tablet / móvil) */
+  
   readonly menuOpen = signal(false);
 
-  /** Ruta actual (p. ej. clases condicionales en la plantilla) */
+  
   readonly routeUrl = signal(this.router.url);
 
   constructor() {

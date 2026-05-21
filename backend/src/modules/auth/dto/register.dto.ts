@@ -1,7 +1,12 @@
+import { Transform } from 'class-transformer';
 import { IsEmail, IsString, MinLength } from 'class-validator';
+import { normalizeEmail } from '../../../common/utils/normalize-email.util';
 
 export class RegisterDto {
-  @IsEmail()
+  @Transform(({ value }) =>
+    typeof value === 'string' ? normalizeEmail(value) : value,
+  )
+  @IsEmail({}, { message: 'El correo electrónico no es válido' })
   email: string;
 
   @IsString()

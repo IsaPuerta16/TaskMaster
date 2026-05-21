@@ -1,9 +1,6 @@
 import { Routes } from '@angular/router';
 
-/**
- * Rutas del módulo de tareas.
- * Mantiene la carga perezosa co-localizada con la feature.
- */
+
 export const taskRoutes: Routes = [
   {
     path: 'tasks',

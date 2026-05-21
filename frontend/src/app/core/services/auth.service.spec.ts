@@ -13,6 +13,7 @@ describe('AuthService', () => {
   const router = { navigate: jasmine.createSpy('navigate') };
 
   beforeEach(() => {
+    localStorage.clear();
     sessionStorage.clear();
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
@@ -24,10 +25,11 @@ describe('AuthService', () => {
 
   afterEach(() => {
     http.verify();
+    localStorage.clear();
     sessionStorage.clear();
   });
 
-  it('login guarda token y usuario en sessionStorage', (done) => {
+  it('login guarda token y usuario en localStorage y refresca perfil', (done) => {
     const res = {
       access_token: 'abc',
       user: {
@@ -36,22 +38,24 @@ describe('AuthService', () => {
         fullName: 'Usuario',
       },
     };
-    service.login('u@test.com', 'pass').subscribe(() => {
+    const profile = { ...res.user, firstName: 'Usuario', lastName: '' };
+
+    service.login('u@test.com', 'pass').subscribe((user) => {
       expect(service.getToken()).toBe('abc');
-      expect(service.user()?.email).toBe('u@test.com');
-      expect(sessionStorage.getItem('token')).toBe('abc');
+      expect(user.email).toBe('u@test.com');
+      expect(localStorage.getItem('token')).toBe('abc');
       done();
     });
-    http
-      .expectOne(`${environment.apiUrl}/auth/login`)
-      .flush(res);
+
+    http.expectOne(`${environment.apiUrl}/auth/login`).flush(res);
+    http.expectOne(`${environment.apiUrl}/users/me`).flush(profile);
   });
 
   it('logout limpia sesión y navega a login', () => {
-    sessionStorage.setItem('token', 'x');
-    sessionStorage.setItem('user', '{}');
+    localStorage.setItem('token', 'x');
+    localStorage.setItem('user', '{}');
     service.logout();
-    expect(sessionStorage.getItem('token')).toBeNull();
+    expect(localStorage.getItem('token')).toBeNull();
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
   });
 });

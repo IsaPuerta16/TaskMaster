@@ -3,10 +3,7 @@ export interface AssistantWebhookReply {
   bullets?: string[];
 }
 
-/**
- * Interpreta el JSON (u otro formato) que devuelve n8n en Respond to Webhook.
- * Cubierto por pruebas unitarias; no requiere llamar al webhook real.
- */
+
 export function normalizeAssistantWebhookReply(
   payload: unknown,
 ): AssistantWebhookReply {

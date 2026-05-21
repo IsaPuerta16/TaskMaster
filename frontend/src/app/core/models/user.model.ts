@@ -5,6 +5,7 @@ export interface User {
   firstName?: string | null;
   lastName?: string | null;
   role?: 'estudiante' | 'profesional' | 'otro';
+  avatarUrl?: string | null;
 }
 
 export interface AuthResponse {

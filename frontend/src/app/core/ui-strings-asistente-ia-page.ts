@@ -1,4 +1,4 @@
-/** Página pública /asistente-ia */
+
 export const ASISTENTE_IA_PAGE_ES = {
   hero: {
     title: '¿Qué hace el asistente IA?',
@@ -64,7 +64,9 @@ export const ASISTENTE_IA_PAGE_ES = {
     title: '¿Listo para organizarte con IA?',
     text: 'Crea una cuenta y empieza a planificar con recomendaciones adaptadas a tu calendario de tareas.',
     btnPrimary: 'Crear cuenta',
+    btnPrimaryAuth: 'Usar asistente IA',
     btnGhost: 'Ya tengo cuenta',
+    btnGhostAuth: 'Ir a mis tareas',
   },
 } as const;
 
@@ -133,6 +135,8 @@ export const ASISTENTE_IA_PAGE_EN = {
     title: 'Ready to get organized with AI?',
     text: 'Create an account and start planning with recommendations tailored to your task calendar.',
     btnPrimary: 'Create account',
+    btnPrimaryAuth: 'Open AI assistant',
     btnGhost: 'I already have an account',
+    btnGhostAuth: 'Go to my tasks',
   },
 } as const;

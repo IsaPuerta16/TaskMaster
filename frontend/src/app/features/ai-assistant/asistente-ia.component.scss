@@ -1,10 +1,9 @@
-// Mockup hero: panel #1A2332, avatar borde claro, tarjetas: icono | (título + desc bajo título)
 
-// Panel hero + referencia de marca (azul pizarra / slate ~ Tailwind slate-800)
-$ia-navy: #1e293b;
-// Mismo azul corporativo que header / enlaces (#1e3a5f en header.component.scss)
+
+$ia-navy: #1e3a5f;
+
 $ia-brand: var(--app-link);
-$ia-brand-solid: #1e3a5f;
+$ia-brand-solid: #1e3a5f; /* = --app-primary; hex para funciones Sass */
 $ia-chat-strip: var(--app-muted-bg);
 $ia-bubble: #94a3b8;
 $radius-lg: 20px;
@@ -72,7 +71,7 @@ $radius-lg: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: $ia-navy;
+  background: var(--app-gradient-brand);
   border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: $radius-lg;
   padding: 1.75rem 1.5rem 2.5rem;
@@ -85,7 +84,7 @@ $radius-lg: 20px;
   box-shadow: 0 24px 56px rgba(10, 15, 25, 0.45);
 }
 
-// Avatar: siempre dentro del panel (sin solapar el borde superior)
+
 .ia-robot-badge {
   flex-shrink: 0;
   display: flex;
@@ -122,7 +121,7 @@ $radius-lg: 20px;
   background: $ia-brand;
 }
 
-/* Sobre el panel #1e293b (claro u oscuro): borde claro del avatar */
+
 .ia-navy-panel .ia-robot-badge__ring {
   border-color: #fff;
 }
@@ -167,7 +166,7 @@ $radius-lg: 20px;
   min-height: 0;
 }
 
-// Fila 1: icono + título (centrados en vertical entre sí)
+
 .ia-feature-card__head {
   display: flex;
   flex-direction: row;
@@ -212,7 +211,7 @@ $radius-lg: 20px;
   -webkit-font-smoothing: antialiased;
 }
 
-// Fila 2: mismo ancho que la tarjeta; alineada al borde izquierdo del icono (referencia)
+
 .ia-feature-card__desc {
   font-family: var(--font-family);
   font-size: 0.875rem;
@@ -225,7 +224,7 @@ $radius-lg: 20px;
   -webkit-font-smoothing: antialiased;
 }
 
-// Franja gris claro a ancho completo (mockup “Habla con él…”)
+
 .ia-chat {
   width: 100vw;
   margin: 2rem calc(50% - 50vw) 0;
@@ -338,7 +337,7 @@ $radius-lg: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: $ia-navy;
+  background: var(--app-gradient-brand);
   border-radius: 28px;
   padding: 2.5rem 2rem 2.25rem;
   box-shadow: 0 20px 48px rgba(15, 23, 42, 0.35);
@@ -352,7 +351,7 @@ $radius-lg: 20px;
   justify-content: center;
 }
 
-// Sin fondo: solo agrupa el SVG
+
 .ia-response-card__icon-frame {
   display: inline-flex;
   align-items: center;
@@ -461,7 +460,7 @@ $radius-lg: 20px;
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #22c55e;
+  background: var(--app-primary);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -476,10 +475,10 @@ $radius-lg: 20px;
   flex-shrink: 0;
 }
 
-// --- Contenido bajo el chat (ejemplos, pasos, FAQ, CTA) ---
 
-$ia-accent-teal: #0d9488;
-$ia-accent-violet: #7c3aed;
+
+$ia-accent-teal: #148c84; /* = --app-accent */
+$ia-accent-violet: #1e3a5f; /* = --app-primary */
 $ia-accent-amber: #d97706;
 
 .ia-section-eyebrow {
@@ -524,8 +523,8 @@ $ia-accent-amber: #d97706;
   position: absolute;
   inset: 1rem -1.5rem auto;
   height: 220px;
-  background: radial-gradient(ellipse 70% 80% at 50% 0%, rgba(13, 148, 136, 0.09) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 60% at 0% 40%, rgba(124, 58, 237, 0.06) 0%, transparent 50%);
+  background: radial-gradient(ellipse 70% 80% at 50% 0%, var(--app-primary-soft) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 0% 40%, var(--app-primary-soft) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
 }
@@ -569,16 +568,10 @@ $ia-accent-amber: #d97706;
   border-radius: 18px 18px 0 0;
 }
 
-.ia-example-card--a::before {
-  background: linear-gradient(90deg, $ia-accent-teal, #2dd4bf);
-}
-
-.ia-example-card--b::before {
-  background: linear-gradient(90deg, $ia-accent-violet, #a78bfa);
-}
-
+.ia-example-card--a::before,
+.ia-example-card--b::before,
 .ia-example-card--c::before {
-  background: linear-gradient(90deg, $ia-accent-amber, #fbbf24);
+  background: var(--app-gradient-cta-h);
 }
 
 .ia-example-card:hover {
@@ -647,7 +640,7 @@ $ia-accent-amber: #d97706;
   bottom: 22px;
   width: 3px;
   border-radius: 999px;
-  background: linear-gradient(180deg, $ia-accent-teal 0%, $ia-brand-solid 45%, $ia-accent-violet 100%);
+  background: var(--app-gradient-cta-h);
   opacity: 0.35;
 }
 
@@ -685,7 +678,7 @@ $ia-accent-amber: #d97706;
   align-items: center;
   justify-content: center;
   line-height: 1;
-  box-shadow: 0 6px 18px rgba(30, 58, 95, 0.35);
+  box-shadow: 0 6px 18px var(--app-primary-ring);
   position: relative;
   z-index: 1;
 }
@@ -788,8 +781,8 @@ $ia-accent-amber: #d97706;
   width: 100vw;
   margin: 2.5rem calc(50% - 50vw) 0;
   padding: 3.25rem 2rem 3.5rem;
-  /* Un solo degradado suave (sin parada central que marque “costura” vertical) */
-  background: linear-gradient(180deg, #0f172a 0%, #0b1120 100%);
+  
+  background: var(--app-gradient-section-dark);
   box-sizing: border-box;
   text-align: center;
 }
@@ -843,9 +836,9 @@ $ia-accent-amber: #d97706;
 
 .ia-cta__btn--primary {
   background: #fff;
-  color: $ia-navy;
+  color: var(--app-primary);
   border: none;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 20px var(--app-mkt-shadow-md);
 }
 
 .ia-cta__btn--primary:hover {

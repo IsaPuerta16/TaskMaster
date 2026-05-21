@@ -3,11 +3,15 @@ import { JwtService } from '@nestjs/jwt';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from '../../users/services/users.service';
+import { SettingsService } from '../../settings/services/settings.service';
+import { MailService } from '../../mail/services/mail.service';
 import { User, UserRole } from '../../users/entities/user.entity';
 
 describe('AuthService', () => {
   let service: AuthService;
-  let usersService: jest.Mocked<Pick<UsersService, 'findByEmail' | 'create'>>;
+  let usersService: jest.Mocked<
+    Pick<UsersService, 'findByEmail' | 'existsByEmail' | 'create'>
+  >;
 
   const mockUser: User = {
     id: 'u1',
@@ -17,6 +21,7 @@ describe('AuthService', () => {
     firstName: 'Test',
     lastName: 'User',
     role: UserRole.ESTUDIANTE,
+    avatarUrl: 'assets/avatars/male-1.png',
     createdAt: new Date(),
     tasks: [],
   };
@@ -24,6 +29,7 @@ describe('AuthService', () => {
   beforeEach(async () => {
     usersService = {
       findByEmail: jest.fn(),
+      existsByEmail: jest.fn(),
       create: jest.fn(),
     };
 
@@ -32,8 +38,16 @@ describe('AuthService', () => {
         AuthService,
         { provide: UsersService, useValue: usersService },
         {
+          provide: SettingsService,
+          useValue: { getForUser: jest.fn().mockResolvedValue({}) },
+        },
+        {
           provide: JwtService,
           useValue: { sign: jest.fn().mockReturnValue('jwt-token') },
+        },
+        {
+          provide: MailService,
+          useValue: { sendPasswordResetEmail: jest.fn() },
         },
       ],
     }).compile();
@@ -52,17 +66,33 @@ describe('AuthService', () => {
     ).rejects.toBeInstanceOf(ConflictException);
   });
 
+  it('register: rechaza correo duplicado', async () => {
+    usersService.findByEmail.mockResolvedValue(mockUser);
+    await expect(
+      service.register({
+        email: 'a@b.com',
+        password: 'secret12',
+        fullName: 'Otro Usuario',
+      }),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(usersService.create).not.toHaveBeenCalled();
+  });
+
   it('register: crea usuario y devuelve token', async () => {
     usersService.findByEmail.mockResolvedValue(null);
-    usersService.create.mockResolvedValue(mockUser);
+    usersService.create.mockResolvedValue({ ...mockUser, email: 'new@b.com' });
     const res = await service.register({
       email: 'new@b.com',
       password: 'secret12',
       fullName: 'Nuevo Usuario',
     });
     expect(res.access_token).toBe('jwt-token');
-    expect(res.user.email).toBe('a@b.com');
-    expect(usersService.create).toHaveBeenCalled();
+    expect(res.user.email).toBe('new@b.com');
+    expect(usersService.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        avatarUrl: expect.stringMatching(/^assets\/avatars\//),
+      }),
+    );
   });
 
   it('login: Unauthorized si no existe usuario', async () => {

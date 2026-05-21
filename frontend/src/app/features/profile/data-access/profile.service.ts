@@ -7,7 +7,6 @@ export interface UpdateProfileDto {
   firstName: string;
   lastName: string;
   email: string;
-  role: 'estudiante' | 'profesional' | 'otro';
 }
 
 @Injectable({ providedIn: 'root' })
