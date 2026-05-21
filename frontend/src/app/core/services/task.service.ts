@@ -22,6 +22,11 @@ export class TaskService {
     return this.http.get<Task[]>(`${environment.apiUrl}/tasks`, { params });
   }
 
+  getTasksByDateRange(from: string, to: string): Observable<Task[]> {
+    const params = new HttpParams().set('from', from).set('to', to);
+    return this.http.get<Task[]>(`${environment.apiUrl}/tasks`, { params });
+  }
+
   getTask(id: string): Observable<Task> {
     return this.http.get<Task>(`${environment.apiUrl}/tasks/${id}`);
   }

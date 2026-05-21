@@ -22,8 +22,6 @@ export interface NotifPrefs {
   resumenSemanal: boolean;
   sonidos: boolean;
   escritorio: boolean;
-  /** Resumen diario por correo (configurar SMTP en el backend). */
-  correo: boolean;
 }
 
 export interface NotificationSettings extends NotifPrefs {

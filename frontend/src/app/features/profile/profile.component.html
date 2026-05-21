@@ -12,59 +12,29 @@
         </div>
       </header>
 
-      @if (stats) {
-        <section class="profile-resumen" aria-labelledby="profile-resumen-title">
-          <h2 id="profile-resumen-title" class="profile-resumen__title">{{ i18nLabel('Resumen', 'Summary') }}</h2>
-          <div class="profile-resumen__row">
-            <article class="profile-resumen-card profile-resumen-card--total">
-              <span class="profile-resumen-card__accent" aria-hidden="true"></span>
-              <div class="profile-resumen-card__body">
-                <span class="profile-resumen-card__value">{{ stats.total }}</span>
-                <span class="profile-resumen-card__label">{{ i18nLabel('Total', 'Total') }}</span>
-              </div>
-            </article>
-            <article class="profile-resumen-card profile-resumen-card--done">
-              <span class="profile-resumen-card__accent" aria-hidden="true"></span>
-              <div class="profile-resumen-card__body">
-                <span class="profile-resumen-card__value">{{ stats.completed }}</span>
-                <span class="profile-resumen-card__label">{{ i18nLabel('Completadas', 'Completed') }}</span>
-              </div>
-            </article>
-            <article class="profile-resumen-card profile-resumen-card--pending">
-              <span class="profile-resumen-card__accent" aria-hidden="true"></span>
-              <div class="profile-resumen-card__body">
-                <span class="profile-resumen-card__value">{{ stats.pending }}</span>
-                <span class="profile-resumen-card__label">{{ i18nLabel('Pendientes', 'Pending') }}</span>
-              </div>
-            </article>
-            <article class="profile-resumen-card profile-resumen-card--overdue">
-              <span class="profile-resumen-card__accent" aria-hidden="true"></span>
-              <div class="profile-resumen-card__body">
-                <span class="profile-resumen-card__value">{{ stats.overdue }}</span>
-                <span class="profile-resumen-card__label">{{ i18nLabel('Vencidas', 'Overdue') }}</span>
-              </div>
-            </article>
+      <section class="profile-stats" aria-label="Resumen de actividad">
+        <article class="profile-stat profile-stat--green">
+          <span class="profile-stat__accent" aria-hidden="true"></span>
+          <div class="profile-stat__body">
+            <span class="profile-stat__value">{{ completed }}</span>
+            <span class="profile-stat__label">Tareas completadas</span>
           </div>
-          <article class="profile-resumen-card profile-resumen-card--cumpl profile-resumen-card--full">
-            <span class="profile-resumen-card__accent" aria-hidden="true"></span>
-            <div class="profile-resumen-card__body profile-resumen-card__body--cumpl">
-              <div class="profile-resumen-cumpl-head">
-                <span class="profile-resumen-cumpl-label">{{ i18nLabel('Cumplimiento', 'Compliance') }}</span>
-                <span class="profile-resumen-cumpl-pct">{{ completionPct() }}%</span>
-              </div>
-              <div
-                class="profile-resumen-bar-track"
-                role="progressbar"
-                [attr.aria-valuenow]="completionPct()"
-                aria-valuemin="0"
-                aria-valuemax="100"
-              >
-                <div class="profile-resumen-bar-fill" [style.width.%]="completionPct()"></div>
-              </div>
-            </div>
-          </article>
-        </section>
-      }
+        </article>
+        <article class="profile-stat profile-stat--teal">
+          <span class="profile-stat__accent" aria-hidden="true"></span>
+          <div class="profile-stat__body">
+            <span class="profile-stat__value">{{ streakDays }}</span>
+            <span class="profile-stat__label">Días de racha</span>
+          </div>
+        </article>
+        <article class="profile-stat profile-stat--blue">
+          <span class="profile-stat__accent" aria-hidden="true"></span>
+          <div class="profile-stat__body">
+            <span class="profile-stat__value">{{ completionRate }}%</span>
+            <span class="profile-stat__label">Cumplimiento</span>
+          </div>
+        </article>
+      </section>
 
       <section class="profile-card" aria-labelledby="profile-info-title">
         <h2 id="profile-info-title" class="profile-card__title">Información personal</h2>

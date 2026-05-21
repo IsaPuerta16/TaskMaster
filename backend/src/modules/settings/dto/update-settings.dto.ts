@@ -14,7 +14,7 @@ class UpdateAppSettingsDto {
   theme?: 'claro' | 'oscuro' | 'sistema';
 
   @IsOptional()
-  @IsIn(['pequeno', 'mediano', 'grande'])
+  @IsString()
   fontSize?: string;
 
   @IsOptional()
@@ -64,10 +64,6 @@ class UpdateNotificationSettingsDto {
   @IsOptional()
   @IsBoolean()
   escritorio?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  correo?: boolean;
 
   @IsOptional()
   @IsArray()

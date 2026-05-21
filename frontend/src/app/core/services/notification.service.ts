@@ -1,6 +1,6 @@
 import { effect, Injectable, NgZone, computed, inject, signal } from '@angular/core';
 import type { Task } from '@features/tasks/data-access';
-import { AppSettingsService, TIMEZONE_IANA } from './app-settings.service';
+import { AppSettingsService } from './app-settings.service';
 import { TaskService } from '@features/tasks/data-access';
 import { AuthService } from './auth.service';
 import { UserSettingsService } from '@features/user-settings/data-access/user-settings.service';
@@ -26,35 +26,18 @@ export const DEFAULT_NOTIF_PREFS: NotifPrefs = {
   resumenSemanal: true,
   sonidos: true,
   escritorio: false,
-  correo: false,
 };
 
-/** Prefijo de IDs de recordatorios por tarea (vencimiento / escalones). */
-export const TASK_REMINDER_ID_PREFIX = 'task-rem-';
-
-/** Avisos por calendario: N días antes del día de vencimiento (zona de la cuenta). */
-export const NOTIF_REMINDER_DAY_STEPS = [5, 2, 1] as const;
-
-/** Mismo día del vencimiento: avisos cuando quedan ≤ estas horas (la más urgente sustituye a la anterior en UI). */
-const NOTIF_REMINDER_HOURS_STEPS = [3, 1] as const;
-
-function dateKeyInTz(d: Date, iana: string): string {
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: iana,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(d);
+function startOfDay(d: Date): Date {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
 }
 
-function calendarDaysBetween(fromKey: string, toKey: string): number {
-  const a = new Date(`${fromKey}T12:00:00Z`).getTime();
-  const b = new Date(`${toKey}T12:00:00Z`).getTime();
+function daysFromTodayTo(due: Date, today: Date): number {
+  const a = startOfDay(today).getTime();
+  const b = startOfDay(due).getTime();
   return Math.round((b - a) / 86400000);
-}
-
-function hoursUntilDue(due: Date, now: Date): number {
-  return (due.getTime() - now.getTime()) / 3600000;
 }
 
 function computeStreak(tasks: Task[]): number {
@@ -97,7 +80,7 @@ export class NotificationService {
   readonly itemsRespectingPrefs = computed(() => {
     const p = this.prefs();
     return this.items().filter((i) => {
-      if (i.id.startsWith(TASK_REMINDER_ID_PREFIX) && !p.recordatorios) return false;
+      if (i.id.startsWith('task-due-') && !p.recordatorios) return false;
       if (i.id === 'agg-completed-today' && !p.resumenDiario) return false;
       if (i.id === 'agg-streak' && !p.resumenSemanal) return false;
       return true;
@@ -136,7 +119,6 @@ export class NotificationService {
       resumenSemanal: snapshot.notifications.resumenSemanal,
       sonidos: snapshot.notifications.sonidos,
       escritorio: snapshot.notifications.escritorio,
-      correo: snapshot.notifications.correo ?? false,
     });
     this.readIds.set(new Set(snapshot.notifications.readIds ?? []));
     this.desktopUserOff.set(!!snapshot.notifications.desktopUserOff);
@@ -287,7 +269,7 @@ export class NotificationService {
   /** Si no hay tareas con vencimiento en ventana, el usuario no veía ninguna notificación y creía que fallaba. */
   private maybeShowDesktopOnboardingIfNoDueTasks(): void {
     if (!this.prefs().escritorio || Notification.permission !== 'granted') return;
-    const hasTaskDue = this.items().some((i) => i.id.startsWith(TASK_REMINDER_ID_PREFIX));
+    const hasTaskDue = this.items().some((i) => i.id.startsWith('task-due-'));
     if (hasTaskDue) return;
     const tag = 'taskmaster-desktop-onboarding';
     if (this.desktopOnce.has(tag)) return;
@@ -338,83 +320,55 @@ export class NotificationService {
     const en = this.appSettings.isEnglish();
     const out: NotificationItem[] = [];
     const now = new Date();
-    const tzKey = this.appSettings.settings().timezone;
-    const iana = TIMEZONE_IANA[tzKey] ?? 'America/Bogota';
-    const todayKey = dateKeyInTz(now, iana);
+    const today = startOfDay(now);
 
     for (const t of tasks) {
       if (t.status === 'finalizada') continue;
       const due = new Date(t.dueDate);
       if (Number.isNaN(due.getTime())) continue;
-      const hLeft = hoursUntilDue(due, now);
+      const diff = daysFromTodayTo(due, today);
 
-      if (hLeft < 0) {
-        out.push({
-          id: `${TASK_REMINDER_ID_PREFIX}overdue-${t.id}`,
-          kind: 'warning',
-          text: en
-            ? `Task "${t.title}" is overdue`
-            : `Tarea «${t.title}» está vencida`,
-          time: en ? 'Needs attention' : 'Requiere atención',
-        });
+      let text = '';
+      let time = '';
+      if (diff < 0) {
+        text = en
+          ? `Task "${t.title}" is overdue`
+          : `Tarea «${t.title}» está vencida`;
+        time = en ? 'Needs attention' : 'Requiere atención';
+      } else if (diff === 0) {
+        text = en
+          ? `Task "${t.title}" is due today`
+          : `Tarea «${t.title}» vence hoy`;
+        time = en ? 'Today' : 'Hoy';
+      } else if (diff === 1) {
+        text = en
+          ? `Task "${t.title}" is due tomorrow`
+          : `Tarea «${t.title}» vence mañana`;
+        time = en ? 'Tomorrow' : 'Mañana';
+      } else if (diff <= 7) {
+        text = en
+          ? `Task "${t.title}" is due in ${diff} days`
+          : `Tarea «${t.title}» vence en ${diff} días`;
+        time = this.appSettings.formatDueDateShort(due);
+      } else {
         continue;
       }
-
-      const dueKey = dateKeyInTz(due, iana);
-      const diff = calendarDaysBetween(todayKey, dueKey);
-
-      for (const d of NOTIF_REMINDER_DAY_STEPS) {
-        if (diff !== d) continue;
-        out.push({
-          id: `${TASK_REMINDER_ID_PREFIX}${d}d-${t.id}`,
-          kind: 'warning',
-          text:
-            d === 1
-              ? en
-                ? `Reminder: "${t.title}" is due tomorrow`
-                : `Recordatorio: «${t.title}» vence mañana (1 día antes)`
-              : en
-                ? `Reminder: "${t.title}" is due in ${d} days`
-                : `Recordatorio: «${t.title}» — faltan ${d} días para el vencimiento`,
-          time: this.appSettings.formatDueDateShort(due),
-        });
-      }
-
-      if (diff === 0) {
-        if (hLeft <= NOTIF_REMINDER_HOURS_STEPS[1] && hLeft > 0) {
-          out.push({
-            id: `${TASK_REMINDER_ID_PREFIX}1h-${t.id}`,
-            kind: 'warning',
-            text: en
-              ? `Reminder: "${t.title}" is due in under 1 hour`
-              : `Recordatorio: «${t.title}» vence en menos de 1 hora`,
-            time: this.appSettings.formatDateTime(t.dueDate),
-          });
-        } else if (hLeft <= NOTIF_REMINDER_HOURS_STEPS[0] && hLeft > 0) {
-          out.push({
-            id: `${TASK_REMINDER_ID_PREFIX}3h-${t.id}`,
-            kind: 'warning',
-            text: en
-              ? `Reminder: "${t.title}" is due in under 3 hours`
-              : `Recordatorio: «${t.title}» vence en menos de 3 horas`,
-            time: this.appSettings.formatDateTime(t.dueDate),
-          });
-        } else if (hLeft > NOTIF_REMINDER_HOURS_STEPS[0]) {
-          out.push({
-            id: `${TASK_REMINDER_ID_PREFIX}today-${t.id}`,
-            kind: 'calendar',
-            text: en
-              ? `Reminder: "${t.title}" is due today`
-              : `Recordatorio: «${t.title}» vence hoy`,
-            time: this.appSettings.formatDateTime(t.dueDate),
-          });
-        }
-      }
+      out.push({
+        id: `task-due-${t.id}`,
+        kind: 'warning',
+        text,
+        time,
+      });
     }
 
-    const completedToday = tasks.filter((task) => {
-      if (task.status !== 'finalizada') return false;
-      return dateKeyInTz(new Date(task.updatedAt), iana) === todayKey;
+    const startToday = startOfDay(now);
+    const endToday = new Date(startToday);
+    endToday.setDate(endToday.getDate() + 1);
+
+    const completedToday = tasks.filter((t) => {
+      if (t.status !== 'finalizada') return false;
+      const u = new Date(t.updatedAt);
+      return u >= startToday && u < endToday;
     }).length;
 
     if (completedToday > 0) {
@@ -493,7 +447,7 @@ export class NotificationService {
     if (Notification.permission !== 'granted') return;
 
     for (const i of this.items()) {
-      if (!i.id.startsWith(TASK_REMINDER_ID_PREFIX)) continue;
+      if (!i.id.startsWith('task-due-')) continue;
       if (this.desktopOnce.has(i.id)) continue;
       this.desktopOnce.add(i.id);
       try {

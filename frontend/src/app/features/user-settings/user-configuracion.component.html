@@ -212,21 +212,6 @@
                 <span class="uc-toggle__knob"></span>
               </button>
             </li>
-            <li class="uc-pref">
-              <div class="uc-pref__text">
-                <span class="uc-pref__label">{{ L().n6 }}</span>
-                <span class="uc-pref__hint">{{ L().n6h }}</span>
-              </div>
-              <button
-                type="button"
-                class="uc-toggle"
-                [class.uc-toggle--on]="notif.prefs().correo"
-                [attr.aria-pressed]="notif.prefs().correo"
-                (click)="toggleNotifPref('correo')"
-              >
-                <span class="uc-toggle__knob"></span>
-              </button>
-            </li>
             <li *ngIf="escritorioEnvHint() as hint" class="uc-pref uc-pref--warn">
               <p class="uc-pref__warn">{{ hint }}</p>
             </li>

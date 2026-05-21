@@ -46,6 +46,26 @@ describe('TaskService', () => {
     req.flush([]);
   });
 
+  it('getTasksByDateRange: aÃ±ade query from y to', (done) => {
+    service
+      .getTasksByDateRange(
+        '2026-05-01T00:00:00.000Z',
+        '2026-05-31T23:59:59.999Z',
+      )
+      .subscribe((tasks) => {
+        expect(tasks).toEqual([]);
+        done();
+      });
+    const req = http.expectOne(
+      (r) =>
+        r.url === `${environment.apiUrl}/tasks` &&
+        r.params.get('from') === '2026-05-01T00:00:00.000Z' &&
+        r.params.get('to') === '2026-05-31T23:59:59.999Z',
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush([]);
+  });
+
   it('createTask: POST con cuerpo', (done) => {
     const dto = {
       title: 'T',

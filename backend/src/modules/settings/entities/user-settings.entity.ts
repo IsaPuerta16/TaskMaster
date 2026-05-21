@@ -29,12 +29,8 @@ export interface StoredNotificationSettings {
   resumenSemanal: boolean;
   sonidos: boolean;
   escritorio: boolean;
-  /** Resumen diario por correo (SMTP en el servidor). */
-  correo: boolean;
   readIds: string[];
   desktopUserOff: boolean;
-  /** Solo servidor: evita reenvíos seguidos del digest. */
-  lastDigestEmailAt?: string | null;
 }
 
 export const DEFAULT_APP_SETTINGS: StoredAppSettings = {
@@ -57,7 +53,6 @@ export const DEFAULT_NOTIFICATION_SETTINGS: StoredNotificationSettings = {
   resumenSemanal: true,
   sonidos: true,
   escritorio: false,
-  correo: false,
   readIds: [],
   desktopUserOff: false,
 };

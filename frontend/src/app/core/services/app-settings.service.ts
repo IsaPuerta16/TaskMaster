@@ -22,13 +22,6 @@ const DEFAULTS: AppSettings = {
   timezone: 'america_bogota',
 };
 
-const FONT_SIZE_VALUES = ['pequeno', 'mediano', 'grande'] as const;
-
-function normalizeFontSize(value: string | undefined | null): AppSettings['fontSize'] {
-  const v = (value ?? '').trim().toLowerCase();
-  return (FONT_SIZE_VALUES as readonly string[]).includes(v) ? v : 'mediano';
-}
-
 /** Zonas IANA alineadas con los valores del selector de configuración */
 export const TIMEZONE_IANA: Record<string, string> = {
   america_bogota: 'America/Bogota',
@@ -91,14 +84,10 @@ export class AppSettingsService {
   }
 
   private applyRemoteSettings(snapshot: UserSettingsResponse): void {
-    /** Fusionar con el estado local para no perder tema u otras claves si el API devuelve `appSettings` parcial. */
-    const mergedApp: AppSettings = {
+    this.settings.set({
       ...DEFAULTS,
-      ...this.settings(),
       ...snapshot.appSettings,
-      fontSize: normalizeFontSize(snapshot.appSettings?.fontSize ?? this.settings().fontSize),
-    };
-    this.settings.set(mergedApp);
+    });
     this.productividadRange.set(snapshot.productivity.range);
     this.productividadPrefs.set({
       ...DEFAULT_PRODUCTIVIDAD_PREFS,
@@ -114,9 +103,7 @@ export class AppSettingsService {
   }
 
   patch<K extends keyof AppSettings>(key: K, value: AppSettings[K]): void {
-    const nextValue =
-      key === 'fontSize' ? (normalizeFontSize(String(value)) as AppSettings[K]) : value;
-    this.settings.update((s) => ({ ...s, [key]: nextValue }));
+    this.settings.update((s) => ({ ...s, [key]: value }));
     if (key === 'theme') {
       this.applyTheme();
     } else if (key === 'fontSize') {
@@ -124,7 +111,7 @@ export class AppSettingsService {
     } else if (key === 'idioma') {
       this.applyLang();
     }
-    this.persistRemote({ appSettings: { [key]: nextValue } });
+    this.persistRemote({ appSettings: { [key]: value } });
   }
 
   setProductividadRange(value: ProductividadRange): void {
@@ -173,11 +160,7 @@ export class AppSettingsService {
   }
 
   private applyFontSize(): void {
-    const fs = normalizeFontSize(this.settings().fontSize);
-    if (this.settings().fontSize !== fs) {
-      this.settings.update((s) => ({ ...s, fontSize: fs }));
-    }
-    document.documentElement.setAttribute('data-font-size', fs);
+    document.documentElement.setAttribute('data-font-size', this.settings().fontSize);
   }
 
   private applyLang(): void {

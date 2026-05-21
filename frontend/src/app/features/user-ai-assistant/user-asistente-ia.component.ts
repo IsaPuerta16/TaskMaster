@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, HostListener, OnInit, inject, signal, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -28,16 +28,22 @@ export class UserAsistenteIaComponent implements OnInit {
   userHandle = '@Usuario';
   readonly loading = signal(true);
   readonly sending = signal(false);
+  readonly creatingConversation = signal(false);
+  readonly deletingId = signal<string | null>(null);
   readonly errorMessage = signal('');
   readonly conversations = signal<AssistantConversation[]>([]);
   readonly selectedId = signal<string | null>(null);
+  readonly openMenuId = signal<string | null>(null);
   readonly draft = signal('');
   readonly messages = signal<AssistantMessage[]>([]);
 
+  @ViewChild('chatScroll') private chatScrollRef!: ElementRef<HTMLDivElement>;
+
   readonly quickSuggestions = [
-    'Planear mi día',
-    'Dividir una tarea grande',
-    'Mejorar mi enfoque',
+    {
+      label: 'Planear mi día',
+      prompt: 'Quiero planear mi día de hoy. Analiza todas mis tareas, prioriza las más urgentes o próximas a vencer, sugiere en qué orden abordarlas y dame consejos concretos para mantener el enfoque y ser productivo durante el día.',
+    },
   ];
 
   ngOnInit(): void {
@@ -49,16 +55,95 @@ export class UserAsistenteIaComponent implements OnInit {
     this.loadConversations();
   }
 
+  @HostListener('document:click')
+  closeConversationMenu(): void {
+    this.openMenuId.set(null);
+  }
+
+  startNewChat(): void {
+    if (this.creatingConversation()) return;
+    this.creatingConversation.set(true);
+    this.errorMessage.set('');
+    this.assistantService
+      .createConversation()
+      .pipe(finalize(() => this.creatingConversation.set(false)))
+      .subscribe({
+        next: (conversation) => {
+          const withoutDupes = this.conversations().filter(
+            (item) => item.id !== conversation.id,
+          );
+          this.conversations.set([conversation, ...withoutDupes]);
+          this.selectedId.set(conversation.id);
+          this.messages.set([]);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.errorMessage.set('No se pudo crear un nuevo chat.');
+        },
+      });
+  }
+
   selectConversation(id: string): void {
+    if (this.selectedId() === id) {
+      this.openMenuId.set(null);
+      return;
+    }
     this.selectedId.set(id);
+    this.openMenuId.set(null);
     this.loadConversationMessages(id);
   }
 
-  /** Rellena y envía (las chips envían al instante). */
-  sendSuggestion(text: string): void {
+  toggleConversationMenu(id: string, event: MouseEvent): void {
+    event.stopPropagation();
+    this.openMenuId.set(this.openMenuId() === id ? null : id);
+  }
+
+  deleteConversation(id: string, event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.deletingId()) return;
+    this.deletingId.set(id);
+    this.errorMessage.set('');
+    this.assistantService
+      .deleteConversation(id)
+      .pipe(finalize(() => this.deletingId.set(null)))
+      .subscribe({
+        next: () => {
+          const remaining = this.conversations().filter(
+            (conversation) => conversation.id !== id,
+          );
+          this.conversations.set(remaining);
+          this.openMenuId.set(null);
+
+          if (this.selectedId() !== id) {
+            return;
+          }
+
+          if (remaining.length > 0) {
+            this.selectedId.set(remaining[0].id);
+            this.loadConversationMessages(remaining[0].id);
+            return;
+          }
+
+          this.selectedId.set(null);
+          this.messages.set([this.buildWelcomeMessage()]);
+        },
+        error: () => {
+          this.errorMessage.set('No se pudo eliminar la conversacion.');
+        },
+      });
+  }
+
+  sendSuggestion(prompt: string): void {
     if (this.sending()) return;
-    this.draft.set(text);
+    this.draft.set(prompt);
     this.send();
+  }
+
+  private scrollToBottom(): void {
+    setTimeout(() => {
+      const el = this.chatScrollRef?.nativeElement;
+      if (el) el.scrollTop = el.scrollHeight;
+    }, 50);
   }
 
   trackMessage(index: number, msg: AssistantMessage): string {
@@ -94,6 +179,7 @@ export class UserAsistenteIaComponent implements OnInit {
             response.assistantMessage,
           ]);
           this.sending.set(false);
+          this.scrollToBottom();
         },
         error: () => {
           this.errorMessage.set(
@@ -121,13 +207,7 @@ export class UserAsistenteIaComponent implements OnInit {
           this.loadConversationMessages(conversations[0].id);
           return;
         }
-        this.messages.set([
-          {
-            role: 'assistant',
-            text:
-              'Hola. Cuéntame en qué tarea, proyecto o semana necesitas ayuda y empezamos.',
-          },
-        ]);
+        this.messages.set([this.buildWelcomeMessage()]);
         this.loading.set(false);
       },
       error: () => {
@@ -146,7 +226,11 @@ export class UserAsistenteIaComponent implements OnInit {
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (conversation) => {
+          if (this.selectedId() !== conversationId) {
+            return;
+          }
           this.messages.set(conversation.messages ?? []);
+          this.scrollToBottom();
         },
         error: () => {
           this.errorMessage.set(
@@ -154,5 +238,13 @@ export class UserAsistenteIaComponent implements OnInit {
           );
         },
       });
+  }
+
+  private buildWelcomeMessage(): AssistantMessage {
+    return {
+      role: 'assistant',
+      text:
+        'Hola. Cuentame en que tarea, proyecto o semana necesitas ayuda y empezamos.',
+    };
   }
 }

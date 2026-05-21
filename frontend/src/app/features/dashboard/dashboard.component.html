@@ -82,10 +82,11 @@
                       class="dashboard-calendar__day"
                       [class.dashboard-calendar__day--muted]="!cell.inMonth"
                       [class.dashboard-calendar__day--holiday]="cell.isHoliday"
-                      [class.dashboard-calendar__day--has-preview]="cell.previewLines.length"
+                      [class.dashboard-calendar__day--has-preview]="cell.preview"
+                      [class.dashboard-calendar__day--has-tasks]="cell.taskCount > 0"
                       [class.dashboard-calendar__day--today]="cell.isToday"
                       (click)="openDay(cell)"
-                      [attr.title]="cell.holidayName || (cell.previewLines.length ? 'Editar notas' : 'Añadir notas')"
+                      [attr.title]="cell.holidayName || (cell.taskCount ? cell.taskCount + ' tarea(s)' : (cell.preview ? 'Editar notas' : 'Añadir notas'))"
                       role="button"
                       tabindex="0"
                       (keydown.enter)="openDay(cell)"
@@ -93,12 +94,17 @@
                     >
                       <div class="dashboard-calendar__cell-inner">
                         <span class="dashboard-calendar__day-num">{{ cell.day }}</span>
-                        @if (cell.previewLines.length) {
-                          <div class="dashboard-calendar__day-preview-stack" role="presentation">
-                            @for (line of cell.previewLines; track $index) {
-                              <p class="dashboard-calendar__day-preview-line">{{ line }}</p>
-                            }
+                        @if (cell.taskCount > 0) {
+                          <div class="dashboard-calendar__task-badge" aria-label="Tareas en esta fecha">
+                            <span class="dashboard-calendar__task-dot" aria-hidden="true"></span>
+                            <span>{{ cell.taskCount }} {{ cell.taskCount === 1 ? 'tarea' : 'tareas' }}</span>
                           </div>
+                        }
+                        @if (cell.taskPreview) {
+                          <p class="dashboard-calendar__task-preview">{{ cell.taskPreview }}</p>
+                        }
+                        @if (cell.preview) {
+                          <p class="dashboard-calendar__day-preview">{{ cell.preview }}</p>
                         }
                       </div>
                     </td>
@@ -128,36 +134,50 @@
       <p class="day-modal__holiday">Festivo: {{ selectedHolidayName }}</p>
     }
 
+    @if (tasksForSelected().length > 0) {
+      <section class="day-modal__tasks" aria-label="Tareas de esta fecha">
+        <h3 class="day-modal__section-title">Tareas programadas</h3>
+        <ul class="day-modal__task-list">
+          @for (task of tasksForSelected(); track task.id) {
+            <li class="day-modal__task">
+              <span
+                class="day-modal__task-priority"
+                [class.day-modal__task-priority--alta]="task.priority === 'alta'"
+                [class.day-modal__task-priority--urgente]="task.priority === 'urgente'"
+                aria-hidden="true"
+              ></span>
+              <div class="day-modal__task-body">
+                <span class="day-modal__task-title">{{ task.title }}</span>
+                <span class="day-modal__task-meta">{{ task.priority }} - {{ task.status }}</span>
+              </div>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
     <ul class="day-modal__list">
       @for (note of notesForSelected(); track note.id) {
-        <li class="day-modal__item" [class.day-modal__item--editing]="editingNoteId === note.id">
+        <li class="day-modal__item">
           <span class="day-modal__item-text">{{ note.text }}</span>
-          <div class="day-modal__item-actions">
-            <button type="button" class="day-modal__edit" (click)="startEditNote(note)">
-              {{ editNoteButtonLabel }}
-            </button>
-            <button type="button" class="day-modal__remove" (click)="removeNote(note.id)" aria-label="Eliminar nota">×</button>
-          </div>
+          <button type="button" class="day-modal__remove" (click)="removeNote(note.id)" aria-label="Eliminar nota">×</button>
         </li>
       }
     </ul>
 
-    <label class="day-modal__label" for="day-note-input">{{ dayNoteFieldLabel }}</label>
+    <label class="day-modal__label" for="day-note-input">Añadir texto o emojis</label>
     <div class="day-modal__emoji-row" aria-label="Emojis rápidos">
       @for (em of quickEmojis; track em) {
         <button type="button" class="day-modal__emoji" (click)="insertEmoji(em)" [attr.aria-label]="'Insertar ' + em">{{ em }}</button>
       }
     </div>
-    @if (editingNoteId) {
-      <button type="button" class="day-modal__cancel-edit" (click)="cancelEditNote()">{{ cancelEditLabel }}</button>
-    }
     <textarea
       id="day-note-input"
       class="day-modal__textarea"
       [(ngModel)]="draftText"
       rows="3"
-      [attr.placeholder]="dayNotePlaceholder"
+      placeholder="Escribe aquí… (también puedes pegar emojis desde el teclado)"
     ></textarea>
-    <button type="button" class="day-modal__add" (click)="saveDayNote()">{{ saveDayNoteButtonLabel }}</button>
+    <button type="button" class="day-modal__add" (click)="addNote()">Guardar en esta fecha</button>
   </div>
 }

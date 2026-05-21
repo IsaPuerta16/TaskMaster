@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   ForbiddenException,
@@ -32,7 +33,12 @@ export class TaskService {
     return this.taskRepo.save(task);
   }
 
-  async findAll(userId: string, status?: TaskStatus) {
+  async findAll(
+    userId: string,
+    status?: TaskStatus,
+    from?: string,
+    to?: string,
+  ) {
     const qb = this.taskRepo
       .createQueryBuilder('task')
       .where('task.user_id = :userId', { userId })
@@ -41,6 +47,15 @@ export class TaskService {
 
     if (status) {
       qb.andWhere('task.status = :status', { status });
+    }
+
+    const fromDate = this.parseOptionalDate(from, 'from');
+    const toDate = this.parseOptionalDate(to, 'to');
+    if (fromDate) {
+      qb.andWhere('task.due_date >= :from', { from: fromDate });
+    }
+    if (toDate) {
+      qb.andWhere('task.due_date <= :to', { to: toDate });
     }
 
     const tasks = await qb.getMany();
@@ -190,5 +205,14 @@ export class TaskService {
       if (dateA !== dateB) return dateA - dateB;
       return PRIORITY_ORDER[b.priority] - PRIORITY_ORDER[a.priority];
     });
+  }
+
+  private parseOptionalDate(value: string | undefined, field: string): Date | null {
+    if (!value) return null;
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      throw new BadRequestException(`La fecha ${field} no es valida`);
+    }
+    return date;
   }
 }

@@ -103,7 +103,7 @@ export class LoginComponent {
       .subscribe({
         next: () => {
           const ret = safeInternalPath(this.route.snapshot.queryParamMap.get('returnUrl'));
-          void this.router.navigateByUrl(ret ?? '/dashboard', { replaceUrl: true });
+          void this.router.navigateByUrl(ret ?? '/perfil', { replaceUrl: true });
         },
         error: (err: { error?: { message?: string } }) => {
           this.errorMessage = err.error?.message || 'Credenciales inválidas';

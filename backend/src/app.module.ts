@@ -1,22 +1,18 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ScheduleModule } from '@nestjs/schedule';
-import { MailModule } from './mail/mail.module';
 import { AssistantModule } from './modules/assistant/assistant.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CalendarNotesModule } from './modules/calendar-notes/calendar-notes.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { UsersModule } from './modules/users/users.module';
 import { TasksModule } from './modules/tasks/tasks.module';
-import { NotificationsModule } from './modules/notifications/notifications.module';
-import { AppController } from './app.controller';
+import { MailModule } from './modules/mail/mail.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    ScheduleModule.forRoot(),
-    MailModule,
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
@@ -45,9 +41,8 @@ import { AppController } from './app.controller';
     SettingsModule,
     UsersModule,
     TasksModule,
-    NotificationsModule,
+    MailModule,
+    ScheduleModule.forRoot(),
   ],
-
-  controllers: [AppController],
 })
 export class AppModule {}
